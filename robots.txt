@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /gnz/
+Disallow: /api/
+Disallow: /data/
+Disallow: /inc/
+Allow: /
+
+Sitemap: /sitemap.xml

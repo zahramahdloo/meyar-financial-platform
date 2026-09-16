@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" role="img" aria-label="MEYAR">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a87c1f"/>
+      <stop offset=".45" stop-color="#f0cf7a"/>
+      <stop offset=".6" stop-color="#d4a437"/>
+      <stop offset="1" stop-color="#8a6516"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#g)">
+    <!-- diamond -->
+    <g transform="translate(300,20)">
+      <path d="M0 96 L-38 18 L-24 4 L0 30 L24 4 L38 18 Z"/>
+      <path d="M-30 0 L-8 0 L-16 22 Z" transform="translate(-14,4)"/>
+      <path d="M30 0 L8 0 L16 22 Z" transform="translate(14,4)"/>
+      <path d="M-6 0 L6 0 L0 20 Z" transform="translate(0,2)"/>
+    </g>
+    <!-- flourishes -->
+    <g stroke="url(#g)" stroke-width="7" fill="none" stroke-linecap="round">
+      <path d="M255 95 C215 55 155 55 120 85 C90 110 95 140 118 145 C136 149 148 132 138 120 C131 111 118 114 117 124"/>
+      <path d="M345 95 C385 55 445 55 480 85 C510 110 505 140 482 145 C464 149 452 132 462 120 C469 111 482 114 483 124"/>
+    </g>
+    <!-- divider -->
+    <rect x="40" y="150" width="520" height="6" rx="3"/>
+    <!-- MEYAR -->
+    <text x="300" y="262" font-family="Times New Roman, Palatino, serif" font-size="108" font-weight="700" letter-spacing="14" text-anchor="middle" fill="url(#g)">MEYAR</text>
+  </g>
+</svg>

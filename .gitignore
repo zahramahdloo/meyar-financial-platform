@@ -1,0 +1,26 @@
+# Database
+data/*.sqlite
+
+# Cache
+data/cache.json
+
+# History files
+data/history_*.json
+data/local_history.json
+
+# Settings
+data/settings.json
+
+# License
+cz-license-*.json
+cz-license-*.lock
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
