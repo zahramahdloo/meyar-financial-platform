@@ -31,7 +31,6 @@ function meyar_fetch_tgju_raw(): ?array {
             ]);
             $body = curl_exec($ch);
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
             if ($body === false || $code !== 200) { $body = null; }
         } else {
             $ctx = stream_context_create(['http' => [
@@ -194,11 +193,19 @@ function meyar_build_prices(): array {
         ];
     }
 
+    $updatedDate = '—';
+    if ($market['fetched_at']) {
+        [$jy, $jm, $jd] = meyar_g2j((int)date('Y', $market['fetched_at']), (int)date('n', $market['fetched_at']), (int)date('j', $market['fetched_at']));
+        $months = [1=>'فروردین', 2=>'اردیبهشت', 3=>'خرداد', 4=>'تیر', 5=>'مرداد', 6=>'شهریور', 7=>'مهر', 8=>'آبان', 9=>'آذر', 10=>'دی', 11=>'بهمن', 12=>'اسفند'];
+        $updatedDate = meyar_fa_num((string)$jd) . ' ' . $months[$jm] . ' ' . meyar_fa_num((string)$jy);
+    }
+
     return [
         'ok'         => true,
         'stale'      => (bool)$market['stale'],
         'fetched_at' => (int)$market['fetched_at'],
         'updated'    => $market['fetched_at'] ? meyar_fa_num(date('H:i:s', $market['fetched_at'])) : '—',
+        'updated_date' => $updatedDate,
         'items'      => $out,
     ];
 }
@@ -222,7 +229,6 @@ function meyar_http_get(string $url, int $timeout = 12): ?string {
         ]);
         $body = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
         return ($body !== false && $code >= 200 && $code < 300 && $body !== '') ? $body : null;
     }
     return @file_get_contents($url, false, stream_context_create([

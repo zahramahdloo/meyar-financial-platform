@@ -7,16 +7,6 @@ meyar_track('/');
 $settings = meyar_load_settings();
 $data     = meyar_build_prices();
 $items    = array_values(array_filter($data['items'], function ($i) { return empty($i['hidden']); }));
-$groups   = meyar_groups();
-$byGroup  = ['coins'=>[], 'parsian'=>[], 'gold'=>[], 'currency'=>[]];
-foreach ($items as $i) { if (isset($byGroup[$i['group']])) $byGroup[$i['group']][] = $i; }
-
-// چیدمان ماژولار جدول‌ها (پنل ادمین → تب چیدمان)
-$layout = (array)($settings['layout'] ?? []);
-if (!$layout) {
-    $layout = [['group'=>'coins','width'=>'half'],['group'=>'currency','width'=>'half'],
-               ['group'=>'parsian','width'=>'half'],['group'=>'gold','width'=>'half']];
-}
 
 // تیکر
 $tickerIds = ['sekee','sekeb','nim','rob','gerami','geram18','usd','eur','ons'];
@@ -48,11 +38,12 @@ meyar_theme_topbar($settings, $ticker);
 
 <!-- ═══ هیرو: معرفی معیار و وضعیت بازار ═══ -->
 <?php
-$hsIds = ['geram18', 'usd', 'silver999'];
+$hsIds = ['sekee', 'geram18', 'usd', 'silver999'];
 $hsItems = [];
 foreach ($items as $i) { if (in_array($i['id'], $hsIds, true)) $hsItems[$i['id']] = $i; }
 $marketHistory = [];
 $historySources = [
+    'sekee' => MEYAR_DATA . '/history_sekee.json',
     'geram18' => MEYAR_DATA . '/history_geram18.json',
     'usd' => MEYAR_DATA . '/history_price_dollar_rl.json',
 ];
@@ -70,6 +61,34 @@ $marketHistory['silver999'] = [];
 foreach (array_slice($silverRows, -90, null, true) as $g => $value) {
     if ((float)$value > 0) $marketHistory['silver999'][] = ['g' => (string)$g, 'v' => (float)$value / 10];
 }
+$overviewIds = ['geram18', 'usd', 'sekee', 'silver999'];
+$overviewLabels = [
+    'geram18'   => 'طلا ۱۸ عیار',
+    'usd'       => 'دلار آمریکا',
+    'sekee'     => 'سکه امامی',
+    'silver999' => 'نقره ۹۹۹.۹',
+];
+$overviewItems = [];
+foreach ($overviewIds as $overviewId) {
+    foreach ($items as $item) {
+        if ($item['id'] !== $overviewId) continue;
+        $rows = $marketHistory[$overviewId] ?? [];
+        $values = array_values(array_filter(array_map(function ($row) { return (float)($row['v'] ?? 0); }, $rows), function ($value) { return $value > 0; }));
+        $latest = count($values) ? $values[count($values) - 1] : (float)$item['live'];
+        $previous = count($values) > 1 ? $values[count($values) - 2] : $latest;
+        $dailyDiff = $latest - $previous;
+        $overviewItems[$overviewId] = [
+            'id'        => $overviewId,
+            'name'      => $overviewLabels[$overviewId],
+            'item'      => $item,
+            'values'    => $values,
+            'high'      => count($values) ? max($values) : $latest,
+            'low'       => count($values) ? min($values) : $latest,
+            'dailyDiff' => $dailyDiff,
+        ];
+        break;
+    }
+}
 ?>
 <section class="hero hero-static" aria-labelledby="heroTitle">
   <div class="hero-overlay"></div>
@@ -85,89 +104,115 @@ foreach (array_slice($silverRows, -90, null, true) as $g => $value) {
         <a href="#contact" class="btn btn-outline">مشاوره خرید</a>
       </div>
       <div class="hero-trust" aria-label="مزیت‌های معیار">
-        <span>✓ بیش از دو دهه سابقه فعالیت</span>
-        <span>✓ خرید و فروش حضوری</span>
-        <span>✓ قیمت‌گذاری شفاف</span>
+        <span><i class="hgi-stroke hgi-checkmark-circle-02" aria-hidden="true"></i> بیش از دو دهه سابقه فعالیت</span>
+        <span><i class="hgi-stroke hgi-checkmark-circle-02" aria-hidden="true"></i> خرید و فروش حضوری</span>
+        <span><i class="hgi-stroke hgi-checkmark-circle-02" aria-hidden="true"></i> قیمت‌گذاری شفاف</span>
       </div>
     </div>
 
-    <aside class="market-dashboard" aria-label="وضعیت بازار">
-      <div class="dashboard-head">
-        <div>
-          <h2>وضعیت بازار</h2>
-          <span class="dashboard-time">بروزرسانی: <?= meyar_h(date('H:i')) ?></span>
+    <aside class="market-dashboard market-insight-card" aria-label="تحلیل هوشمند بازار">
+      <header class="market-insight-head">
+        <div class="market-insight-heading">
+          <span class="market-insight-icon"><i class="hgi hgi-stroke hgi-rounded hgi-magic-wand-01" aria-hidden="true"></i></span>
+          <div>
+            <div class="market-insight-title-row"><h2>تحلیل هوشمند بازار</h2><span class="market-insight-ai">AI</span></div>
+            <p>جمع‌بندی هوشمند بازار با هوش مصنوعی معیار</p>
+          </div>
         </div>
-      </div>
-      <div class="market-chart" aria-label="روند واقعی قیمت بازار">
-        <svg id="marketChart" viewBox="0 0 520 82" preserveAspectRatio="none" role="img" aria-label="نمودار روند قیمت"><defs><linearGradient id="marketFill" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#c9a227"/><stop offset="1" stop-color="#c9a227" stop-opacity="0"/></linearGradient></defs><path class="market-chart-area" fill="url(#marketFill)" opacity=".16"></path><path class="market-chart-line" fill="none" stroke="#c9a227" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-      </div>
-      <div class="market-chart-controls" role="tablist" aria-label="انتخاب روند بازار">
-        <button type="button" class="active" data-chart-market="geram18" role="tab" aria-selected="true">طلا</button>
-        <button type="button" data-chart-market="usd" role="tab" aria-selected="false">دلار</button>
-        <button type="button" data-chart-market="silver999" role="tab" aria-selected="false">نقره</button>
-      </div>
-      <div class="market-cards">
-        <?php foreach ($hsIds as $pid): if (empty($hsItems[$pid])) continue; $p = $hsItems[$pid]; ?>
-        <a class="market-card" href="price/<?= meyar_h($pid) ?>" data-id="<?= meyar_h($pid) ?>">
-          <span class="market-card-name"><?= meyar_h($p['title']) ?></span>
-          <strong data-cell="live"><?= meyar_h($p['live_fmt']) ?> <small><?= meyar_h($p['unit']) ?></small></strong>
-          <span class="market-card-change <?= $p['dir']==='high'?'up':($p['dir']==='low'?'down':'') ?>" data-cell="chg"><?= $p['dir']==='high'?'▲':($p['dir']==='low'?'▼':'–') ?> <?= meyar_h($p['change_pct']) ?>٪</span>
-        </a>
-        <?php endforeach; ?>
+        <span class="market-insight-date"><i class="hgi hgi-stroke hgi-rounded hgi-calendar-03" aria-hidden="true"></i><?= meyar_h($data['updated_date'] ?? 'امروز') ?></span>
+      </header>
+      <div class="market-insight-body">
+        <section class="market-insight-chart-panel" aria-label="روند امروز طلا">
+          <div class="market-insight-chart-label"><span>روند امروز</span><b data-insight-trend>صعودی</b></div>
+          <div class="market-chart market-insight-chart" aria-label="نمودار روند واقعی طلای ۱۸ عیار">
+            <svg id="marketChart" viewBox="0 0 520 120" preserveAspectRatio="none" role="img" aria-label="نمودار روند طلای ۱۸ عیار"><defs><linearGradient id="marketFill" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#d4af37"/><stop offset="1" stop-color="#d4af37" stop-opacity="0"/></linearGradient></defs><path class="market-chart-area" fill="url(#marketFill)" opacity=".18"></path><path class="market-chart-line" fill="none" stroke="#d4af37" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </div>
+          <?php $goldInsight = $hsItems['geram18'] ?? null; ?>
+          <?php if ($goldInsight): ?>
+          <a class="market-insight-asset" href="price/geram18" data-id="geram18">
+            <span class="market-insight-asset-icon"><i class="hgi hgi-stroke hgi-rounded hgi-gold-ingots" aria-hidden="true"></i></span>
+            <span><b>طلا ۱۸ عیار</b><small>دارایی منتخب بازار</small></span>
+            <strong class="up" data-cell="insight-change">+<?= meyar_h($goldInsight['change_pct']) ?>٪</strong>
+          </a>
+          <?php endif; ?>
+        </section>
+        <section class="market-insight-list" aria-labelledby="marketInsightPoints">
+          <h3 id="marketInsightPoints"><i class="hgi hgi-stroke hgi-rounded hgi-note-01" aria-hidden="true"></i> نکات مهم امروز</h3>
+          <ul data-market-insights>
+            <li>افزایش تقاضای جهانی طلا</li>
+            <li>تاثیر نوسانات نرخ ارز</li>
+            <li>روند مثبت اونس جهانی</li>
+            <li>حفظ حمایت کلیدی در بازار داخلی</li>
+          </ul>
+        </section>
       </div>
       <script type="application/json" id="marketHistoryData"><?= json_encode($marketHistory, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
     </aside>
   </div>
 </section>
 
-<!-- ═══ جداول قیمت ═══ -->
+<!-- ═══ نمای کلی بازار ═══ -->
 <main class="container" id="prices">
-  <div class="tables-grid">
-    <?php foreach ($layout as $slot):
-        $gid = $slot['group'] ?? '';
-        $width = ($slot['width'] ?? 'half') === 'full' ? 'w-full' : 'w-half';
-        if (empty($byGroup[$gid])) continue; ?>
-    <section class="price-card <?= $width ?> reveal" data-reveal="up">
-      <header class="price-card-head">
-        <h2><?= meyar_h($groups[$gid]) ?></h2>
-        <span class="head-time" data-head-time><?= meyar_h($data['updated']) ?></span>
-      </header>
-      <div class="table-wrap">
-        <table class="price-table">
-          <thead>
-            <tr><th>عنوان</th><th>زنده</th><th>خرید</th><th>فروش</th><th>تغییرات</th><th></th></tr>
-          </thead>
-          <tbody data-group="<?= $gid ?>">
-            <?php foreach ($byGroup[$gid] as $i): ?>
-            <tr data-id="<?= meyar_h($i['id']) ?>" class="row-link" data-href="price/<?= meyar_h($i['id']) ?>">
-              <td class="cell-title">
-                <a href="price/<?= meyar_h($i['id']) ?>" class="item-link">
-                <?php if ($i['icon'] === 'coin' || $i['icon'] === 'gold'): ?>
-                  <span class="mini-coin <?= $i['icon'] ?>"></span>
-                <?php else: ?>
-                  <span class="mini-flag"><?= $i['icon'] ?></span>
-                <?php endif; ?>
-                <?= meyar_h($i['title']) ?>
-                </a>
-              </td>
-              <td class="cell-num" data-cell="live"><?= meyar_h($i['live_fmt']) ?></td>
-              <td class="cell-num" data-cell="buy"><?= meyar_h($i['buy_fmt']) ?></td>
-              <td class="cell-num" data-cell="sell"><?= meyar_h($i['sell_fmt']) ?></td>
-              <td>
-                <span class="chg <?= $i['dir'] === 'high' ? 'up' : ($i['dir'] === 'low' ? 'down' : 'flat') ?>" data-cell="chg">
-                  <?= $i['dir'] === 'high' ? '▲' : ($i['dir'] === 'low' ? '▼' : '–') ?>
-                  <?= meyar_h($i['change_pct']) ?>٪
-                </span>
-              </td>
-              <td class="cell-chart"><a href="price/<?= meyar_h($i['id']) ?>" title="نمودار <?= meyar_h($i['title']) ?>" class="chart-link">📈</a></td>
-            </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
+  <section class="market-overview" aria-labelledby="marketOverviewTitle">
+    <header class="market-overview-head">
+      <div class="market-overview-updated">
+        <div class="market-overview-updated-row">
+          <span>آخرین به‌روزرسانی:</span>
+        </div>
+        <strong id="marketOverviewUpdated">
+          <span id="marketOverviewDate"><?= meyar_h($data['updated_date'] ?? '—') ?></span>
+          <span aria-hidden="true"> - </span>
+          <span id="marketOverviewTime"><?= meyar_h($data['fetched_at'] ? meyar_fa_num(date('H:i', $data['fetched_at'])) : '—') ?></span>
+        </strong>
       </div>
-    </section>
-    <?php endforeach; ?>
-  </div>
+      <div class="market-overview-heading">
+        <h2 id="marketOverviewTitle">وضعیت بازار امروز</h2>
+        <p>آخرین قیمت‌ها، تغییرات و روند بازار</p>
+      </div>
+      <a class="market-overview-all" href="<?= meyar_base() ?>prices.php">مشاهده کامل بازار <i class="hgi-stroke hgi-arrow-left-01" aria-hidden="true"></i></a>
+    </header>
+    <div class="market-overview-grid">
+      <?php foreach ($overviewItems as $overview):
+          $i = $overview['item'];
+          $dir = $i['dir'] === 'high' ? 'up' : ($i['dir'] === 'low' ? 'down' : 'flat');
+          $decimals = $i['unit'] === 'دلار' ? 2 : 0;
+          $diff = $overview['dailyDiff'];
+          $diffText = $diff == 0 ? '—' : (($diff > 0 ? '+' : '−') . meyar_fmt(abs($diff), $decimals));
+          $gradientId = 'overviewGradient_' . $overview['id'];
+      ?>
+      <article class="market-overview-card" data-overview-card="<?= meyar_h($overview['id']) ?>">
+        <header class="market-overview-card-head">
+          <span class="market-overview-icon <?= meyar_h($i['icon']) ?>" aria-hidden="true"><i class="hgi hgi-stroke hgi-rounded <?= $i['group'] === 'currency' ? 'hgi-cash-02' : ($i['group'] === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01') ?>"></i></span>
+          <div class="market-overview-title">
+            <h3><?= meyar_h($overview['name']) ?></h3>
+          </div>
+        </header>
+        <div class="market-overview-price"><strong><?= meyar_h($i['live_fmt']) ?></strong><span><?= meyar_h($i['unit']) ?></span></div>
+        <div class="market-overview-change <?= $dir ?>">
+          <strong><?= $dir === 'up' ? '+' : ($dir === 'down' ? '−' : '') ?><?= meyar_h($i['change_pct']) ?>٪</strong>
+          <span><?= meyar_h($diffText) ?></span>
+        </div>
+        <div class="market-overview-chart-wrap">
+          <svg class="market-overview-chart <?= $dir ?>" data-overview-chart="<?= meyar_h($overview['id']) ?>" viewBox="0 0 320 76" preserveAspectRatio="none" role="img" aria-label="نمودار <?= meyar_h($overview['name']) ?>">
+            <defs><linearGradient id="<?= meyar_h($gradientId) ?>" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-opacity=".22"/><stop offset="1" stop-opacity="0"/></linearGradient></defs>
+            <path class="market-overview-area" fill="url(#<?= meyar_h($gradientId) ?>)"></path>
+            <path class="market-overview-line" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <div class="market-overview-ranges" role="tablist" aria-label="بازه نمودار <?= meyar_h($overview['name']) ?>">
+          <button type="button" class="active" data-overview-range="day" role="tab" aria-selected="true">روز</button>
+          <button type="button" data-overview-range="week" role="tab" aria-selected="false">هفته</button>
+          <button type="button" data-overview-range="month" role="tab" aria-selected="false">ماه</button>
+        </div>
+        <dl class="market-overview-details">
+          <div><dt>بالاترین امروز</dt><dd><?= meyar_h(meyar_fmt($overview['high'], $decimals)) ?></dd></div>
+          <div><dt>پایین‌ترین امروز</dt><dd><?= meyar_h(meyar_fmt($overview['low'], $decimals)) ?></dd></div>
+        </dl>
+      </article>
+      <?php endforeach; ?>
+    </div>
+  </section>
+
 </main>
 
 <!-- ═══ چرا سکه معیار ═══ -->
@@ -177,22 +222,22 @@ foreach (array_slice($silverRows, -90, null, true) as $g => $value) {
     <p class="section-sub reveal" data-reveal="up">چهار دلیل برای اینکه معیار، معیارِ شماست</p>
     <div class="why-grid">
       <div class="why-card reveal" data-reveal="up">
-        <div class="why-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <div class="why-icon"><i class="hgi-stroke hgi-shield-check" aria-hidden="true"></i></div>
         <h3>مجوز رسمی اتحادیه</h3>
         <p>دارای گواهی و مجوزهای رسمی از اتحادیه طلا، جواهر و سکه — معامله در محیطی کاملاً قانونی و مطمئن.</p>
       </div>
       <div class="why-card reveal" data-reveal="up">
-        <div class="why-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg></div>
+        <div class="why-icon"><i class="hgi-stroke hgi-medal-02" aria-hidden="true"></i></div>
         <h3>نزدیک به دو دهه سابقه</h3>
         <p>فعال از سال ۱۳۸۵ در قلب بازار بزرگ تهران؛ نامی شناخته‌شده و معتبر در بازار مسکوکات کشور.</p>
       </div>
       <div class="why-card reveal" data-reveal="up">
-        <div class="why-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></div>
+        <div class="why-icon"><i class="hgi-stroke hgi-chart-line-data-02" aria-hidden="true"></i></div>
         <h3>قیمت لحظه‌ای و شفاف</h3>
         <p>قیمت‌ها به‌صورت خودکار و لحظه‌ای از منابع معتبر بازار به‌روزرسانی می‌شوند — بدون ابهام، بدون واسطه.</p>
       </div>
       <div class="why-card reveal" data-reveal="up">
-        <div class="why-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0L12 5.36l-.77-.78a5.4 5.4 0 0 0-7.65 7.65l.77.78L12 20.66l7.65-7.65.77-.78a5.4 5.4 0 0 0 0-7.65z"/></svg></div>
+        <div class="why-icon"><i class="hgi-stroke hgi-favourite" aria-hidden="true"></i></div>
         <h3>اعتماد مشتریان</h3>
         <p>مهم‌ترین سرمایه ما اعتماد شماست؛ نیروهای امین و مجرب پاسخ‌گوی نیاز شما در خرید و فروش هستند.</p>
       </div>

@@ -105,12 +105,39 @@
   /* ---------- هدر و منو ---------- */
   var header = document.getElementById('siteHeader');
   var backTop = document.getElementById('backTop');
+  var previousScrollY = window.scrollY;
   window.addEventListener('scroll', function () {
     var y = window.scrollY;
-    if (header) header.classList.toggle('scrolled', y > 10);
+    if (header && Math.abs(y - previousScrollY) > 1) {
+      if (y <= 10) {
+        header.classList.remove('scrolled');
+        header.classList.remove('header-hidden');
+      } else if (y < previousScrollY) {
+        header.classList.add('scrolled');
+        header.classList.remove('header-hidden');
+      } else {
+        header.classList.remove('scrolled');
+        header.classList.add('header-hidden');
+      }
+    }
+    previousScrollY = y;
     if (backTop) backTop.classList.toggle('show', y > 500);
   }, { passive: true });
   if (backTop) backTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  var overviewSection = document.querySelector('.market-overview');
+  var overviewLink = document.querySelector('.market-overview-all');
+  if (overviewSection && overviewLink && 'IntersectionObserver' in window) {
+    var overviewObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          overviewLink.classList.remove('is-attention');
+          void overviewLink.offsetWidth;
+          overviewLink.classList.add('is-attention');
+        }
+      });
+    }, { threshold: .35 });
+    overviewObserver.observe(overviewSection);
+  }
   var navToggle = document.getElementById('navToggle');
   var mainNav = document.getElementById('mainNav');
   if (navToggle && mainNav) {
@@ -197,6 +224,45 @@
     });
   });
 
+  /* ---------- باز و بسته کردن جدول‌های بازار ---------- */
+  var marketContainers = document.querySelectorAll('[data-market-container]');
+  function syncMarketTableHeight(wrap) {
+    if (!wrap) return;
+    wrap.style.maxHeight = wrap.scrollHeight + 'px';
+  }
+  marketContainers.forEach(function (container) {
+    var wrap = container.querySelector('[data-collapsible-table]');
+    var button = container.querySelector('.table-expand-toggle');
+    if (!wrap || !button) return;
+    syncMarketTableHeight(wrap);
+    if (button.disabled) return;
+    button.addEventListener('click', function () {
+      var expanded = wrap.classList.contains('is-expanded');
+      var label = button.querySelector('.table-expand-label');
+      if (expanded) {
+        syncMarketTableHeight(wrap);
+        requestAnimationFrame(function () {
+          wrap.classList.remove('is-expanded');
+          syncMarketTableHeight(wrap);
+        });
+      } else {
+        wrap.classList.add('is-expanded');
+        syncMarketTableHeight(wrap);
+      }
+      button.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      button.setAttribute('aria-label', expanded ? 'نمایش موارد بیشتر' : 'بستن موارد اضافی');
+      if (label) label.textContent = expanded ? 'نمایش بیشتر' : 'بستن';
+      requestAnimationFrame(masonry);
+      setTimeout(masonry, 480);
+    });
+  });
+  masonry();
+  window.addEventListener('resize', function () {
+    marketContainers.forEach(function (container) {
+      syncMarketTableHeight(container.querySelector('[data-collapsible-table]'));
+    });
+  });
+
   /* ---------- بروزرسانی زنده قیمت‌ها ---------- */
   var API = (window.MEYAR_BASE || './') + 'api/prices.php';
   var REFRESH_MS = 60000;
@@ -209,6 +275,19 @@
     void cell.offsetWidth;
     cell.classList.add(dir === 'up' ? 'flash-up' : 'flash-down');
     return 1;
+  }
+  function setDirectionValue(el, dir, value, diagonal) {
+    if (!el) return;
+    el.textContent = '';
+    if (dir === 'high' || dir === 'low') {
+      var icon = document.createElement('i');
+      icon.className = 'hgi-stroke hgi-' + (dir === 'high' ? (diagonal ? 'arrow-up-right-01' : 'arrow-up-01') : (diagonal ? 'arrow-down-right-01' : 'arrow-down-01'));
+      icon.setAttribute('aria-hidden', 'true');
+      el.appendChild(icon);
+    } else {
+      el.appendChild(document.createTextNode('–'));
+    }
+    if (value !== '') el.appendChild(document.createTextNode(' ' + value + '٪'));
   }
 
   function applyData(data) {
@@ -225,9 +304,47 @@
       updateCell(row.querySelector('[data-cell="sell"]'), it.sell_fmt);
       var chg = row.querySelector('[data-cell="chg"]');
       if (chg) {
-        var arrow = it.dir === 'high' ? '▲' : (it.dir === 'low' ? '▼' : '–');
-        chg.textContent = arrow + ' ' + it.change_pct + '٪';
+        setDirectionValue(chg, it.dir, it.change_pct, false);
         chg.className = 'chg ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : 'flat'));
+      }
+    });
+
+    // کارت‌های بازار در بخش اصلی
+    document.querySelectorAll('.market-asset[data-id]').forEach(function (asset) {
+      var it = byId[asset.getAttribute('data-id')];
+      if (!it) return;
+      var price = asset.querySelector('[data-cell="live"]');
+      if (price) {
+        price.textContent = it.live_fmt || '';
+        var unit = document.createElement('small');
+        unit.textContent = it.unit || '';
+        price.appendChild(unit);
+      }
+      var chg = asset.querySelector('[data-cell="chg"]');
+      if (chg) {
+        chg.textContent = '';
+        var trend = document.createElement('span');
+        trend.className = 'market-asset-trend';
+        trend.setAttribute('aria-hidden', 'true');
+        setDirectionValue(trend, it.dir, '', true);
+        chg.appendChild(trend);
+        chg.appendChild(document.createTextNode(' ' + (it.change_pct || '') + '٪'));
+        chg.className = 'market-asset-change ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : 'flat'));
+      }
+    });
+
+    // نمای کلی چهار بازار اصلی
+    document.querySelectorAll('[data-overview-card]').forEach(function (card) {
+      var it = byId[card.getAttribute('data-overview-card')];
+      if (!it) return;
+      var price = card.querySelector('.market-overview-price strong');
+      if (price) price.textContent = it.live_fmt || '';
+      var change = card.querySelector('.market-overview-change');
+      if (change) {
+        var direction = it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : 'flat');
+        var percentage = change.querySelector('strong');
+        if (percentage) percentage.textContent = (direction === 'up' ? '+' : (direction === 'down' ? '−' : '')) + (it.change_pct || '۰') + '٪';
+        change.className = 'market-overview-change ' + direction;
       }
     });
 
@@ -245,9 +362,17 @@
       }
       var chg = card.querySelector('[data-cell="chg"]');
       if (chg) {
-        var arrow = it.dir === 'high' ? '▲' : (it.dir === 'low' ? '▼' : '–');
-        chg.textContent = arrow + ' ' + it.change_pct + '٪';
+        setDirectionValue(chg, it.dir, it.change_pct, false);
         chg.className = 'market-card-change ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : ''));
+      }
+    });
+    document.querySelectorAll('.market-insight-asset[data-id]').forEach(function (asset) {
+      var it = byId[asset.getAttribute('data-id')];
+      if (!it) return;
+      var change = asset.querySelector('[data-cell="insight-change"]');
+      if (change) {
+        change.textContent = (it.dir === 'high' ? '+' : (it.dir === 'low' ? '−' : '')) + (it.change_pct || '۰') + '٪';
+        change.className = it.dir === 'low' ? 'down' : (it.dir === 'high' ? 'up' : 'flat');
       }
     });
 
@@ -259,8 +384,7 @@
       if (lv) lv.textContent = it.live_fmt;
       var chg = box.querySelector('[data-cell="chg"]');
       if (chg) {
-        var ar = it.dir === 'high' ? '▲' : (it.dir === 'low' ? '▼' : '–');
-        chg.textContent = ar + ' ' + it.change_pct + '٪';
+        setDirectionValue(chg, it.dir, it.change_pct, false);
         chg.className = 'chg ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : 'flat'));
       }
     });
@@ -285,8 +409,7 @@
       if (priceEl) priceEl.textContent = it.live_fmt;
       var chEl = t.querySelector('.ticker-change');
       if (chEl) {
-        var ar = it.dir === 'high' ? '▲' : (it.dir === 'low' ? '▼' : '');
-        chEl.textContent = ar + ' ' + it.change_pct + '٪';
+        setDirectionValue(chEl, it.dir, it.change_pct, false);
         chEl.className = 'ticker-change ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : ''));
       }
     });
@@ -294,6 +417,15 @@
     // زمان‌ها
     var lu = document.getElementById('lastUpdate');
     if (lu && data.updated) lu.textContent = data.updated;
+    var overviewUpdated = document.getElementById('marketOverviewUpdated');
+    if (overviewUpdated && data.updated) {
+      var overviewDate = document.getElementById('marketOverviewDate');
+      var overviewTime = document.getElementById('marketOverviewTime');
+      var updateTime = String(data.updated).split(':').slice(0, 2).join(':');
+      if (overviewDate && data.updated_date) overviewDate.textContent = data.updated_date;
+      if (overviewTime) overviewTime.textContent = updateTime;
+      if (!overviewDate && !overviewTime) overviewUpdated.textContent = updateTime;
+    }
     document.querySelectorAll('[data-head-time]').forEach(function (el) {
       if (data.updated) el.textContent = data.updated;
     });
@@ -343,6 +475,83 @@
     });
     drawMarketChart('geram18');
   }
+
+  /* ---------- تحلیل هوشمند بازار ---------- */
+  var insightList = document.querySelector('[data-market-insights]');
+  var insightTrend = document.querySelector('[data-insight-trend]');
+  if (insightList && insightTrend) {
+    fetch((window.MEYAR_BASE || './') + 'api/market-insight.php', { cache: 'no-store' })
+      .then(function (response) { return response.ok ? response.json() : null; })
+      .then(function (payload) {
+        if (!payload || !payload.ok || !payload.insight) return;
+        var insight = payload.insight;
+        insightTrend.textContent = insight.trend_label || 'خنثی';
+        insightTrend.className = insight.trend || 'flat';
+        insightList.textContent = '';
+        (insight.insights || []).slice(0, 4).forEach(function (value) {
+          var li = document.createElement('li');
+          li.textContent = value;
+          insightList.appendChild(li);
+        });
+      })
+      .catch(function () { /* متن اولیه کارت حفظ می‌شود */ });
+  }
+
+  /* ---------- ویجت‌های نمای کلی بازار ---------- */
+  var overviewHistory = {};
+  if (historyEl) {
+    try { overviewHistory = JSON.parse(historyEl.textContent || '{}'); } catch (e) { overviewHistory = {}; }
+  }
+  var overviewRanges = { day: 7, week: 30, month: 90 };
+  function smoothOverviewPath(points) {
+    if (points.length < 2) return points.length ? 'M' + points[0][0].toFixed(2) + ' ' + points[0][1].toFixed(2) : '';
+    var path = 'M' + points[0][0].toFixed(2) + ' ' + points[0][1].toFixed(2);
+    for (var i = 1; i < points.length - 1; i++) {
+      var midpointX = (points[i][0] + points[i + 1][0]) / 2;
+      var midpointY = (points[i][1] + points[i + 1][1]) / 2;
+      path += ' Q' + points[i][0].toFixed(2) + ' ' + points[i][1].toFixed(2) + ' ' + midpointX.toFixed(2) + ' ' + midpointY.toFixed(2);
+    }
+    var last = points[points.length - 1], previous = points[points.length - 2];
+    path += ' Q' + previous[0].toFixed(2) + ' ' + previous[1].toFixed(2) + ' ' + last[0].toFixed(2) + ' ' + last[1].toFixed(2);
+    return path;
+  }
+  function drawOverviewChart(card, range) {
+    var chartEl = card.querySelector('[data-overview-chart]');
+    if (!chartEl) return;
+    var marketId = chartEl.getAttribute('data-overview-chart');
+    var allValues = Array.isArray(overviewHistory[marketId]) ? overviewHistory[marketId].map(function (p) { return Number(p.v) || 0; }).filter(function (v) { return v > 0; }) : [];
+    var values = allValues.slice(-(overviewRanges[range] || 7));
+    var line = chartEl.querySelector('.market-overview-line');
+    var area = chartEl.querySelector('.market-overview-area');
+    if (!values.length || !line || !area) return;
+    var min = Math.min.apply(null, values), max = Math.max.apply(null, values);
+    var spread = max - min || Math.max(max * .01, 1);
+    var coords = values.map(function (value, index) {
+      var x = values.length === 1 ? 160 : 5 + (index / (values.length - 1)) * 310;
+      var y = 67 - ((value - min) / spread) * 52;
+      return [x, y];
+    });
+    var d = smoothOverviewPath(coords);
+    line.setAttribute('d', d);
+    area.setAttribute('d', d + ' L315 76 L5 76 Z');
+    var direction = values[values.length - 1] > values[0] ? 'up' : (values[values.length - 1] < values[0] ? 'down' : 'flat');
+    chartEl.classList.remove('up', 'down', 'flat');
+    chartEl.classList.add(direction);
+  }
+  document.querySelectorAll('[data-overview-card]').forEach(function (card) {
+    var buttons = card.querySelectorAll('[data-overview-range]');
+    buttons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        buttons.forEach(function (other) {
+          var selected = other === button;
+          other.classList.toggle('active', selected);
+          other.setAttribute('aria-selected', selected ? 'true' : 'false');
+        });
+        drawOverviewChart(card, button.getAttribute('data-overview-range'));
+      });
+    });
+    drawOverviewChart(card, 'day');
+  });
 
   function refresh() {
     fetch(API, { cache: 'no-store' })
