@@ -11,6 +11,10 @@ data/local_history.json
 # Settings
 data/settings.json
 
+# Server-side secrets
+.env
+.env.local
+
 # License
 cz-license-*.json
 cz-license-*.lock

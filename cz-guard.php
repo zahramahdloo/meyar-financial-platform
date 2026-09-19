@@ -11,8 +11,8 @@ if (in_array($czHost, ['localhost', '127.0.0.1', '::1'], true)) {
     return;
 }
 
-$czKey     = 'CUS-42B8AEA7-C2E1C0F4-EB5644DB';
-$czSecret  = 'dae90c9e66dad1dfed007000b85dc1668396eef193cb8530';
+$czKey     = trim((string) (getenv('MEYAR_LICENSE_KEY') ?: ''));
+$czSecret  = trim((string) (getenv('MEYAR_LICENSE_SECRET') ?: ''));
 $czHub     = 'https://customaz.ir/api/v1';
 $czProduct = 'سکه';
 $czVersion = '1.0.0';
@@ -33,6 +33,18 @@ $czId    = substr(hash('sha256', $czKey), 0, 10);
 $czCache = $czDir . '/cz-license-' . $czId . '.json';
 $czLock  = $czDir . '/cz-license-' . $czId . '.lock';
 $czNow   = time();
+
+// Production licensing configuration is supplied by the server environment.
+// Do not attempt verification with missing credentials.
+if ($czKey === '' || $czSecret === '') {
+    if (!headers_sent()) {
+        http_response_code(503);
+        header('Retry-After: 3600');
+        header('Content-Type: text/html; charset=utf-8');
+    }
+    echo '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>در حال تعمیر</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;background:#0f1420;color:#e6ebf5"><div style="text-align:center;max-width:480px;padding:40px"><div style="font-size:54px">&#128295;</div><h1 style="margin:12px 0">سایت در حال تعمیر است</h1><p style="color:#8ea0c0;line-height:1.9">پیکربندی سرویس کامل نیست. لطفاً بعداً مراجعه کنید.</p></div></body></html>';
+    exit;
+}
 
 // A trusted answer is one the hub RSA-signed, that has not expired, and (for a
 // live reply) whose echoed nonce matches ours. A hand-written, replayed or
@@ -164,6 +176,6 @@ if ($czStatus !== 'active') {
         header('Content-Type: text/html; charset=utf-8');
     }
     $czText = $czMsg ? $czMsg : 'این سرویس موقتاً غیرفعال است. لطفاً بعداً مراجعه کنید.';
-    echo '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>در حال تعمیر</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:Tahoma,system-ui,sans-serif;background:#0f1420;color:#e6ebf5"><div style="text-align:center;max-width:480px;padding:40px"><div style="font-size:54px">&#128295;</div><h1 style="margin:12px 0">سایت در حال تعمیر است</h1><p style="color:#8ea0c0;line-height:1.9">' . htmlspecialchars($czText, ENT_QUOTES) . '</p></div></body></html>';
+    echo '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>در حال تعمیر</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;background:#0f1420;color:#e6ebf5"><div style="text-align:center;max-width:480px;padding:40px"><div style="font-size:54px">&#128295;</div><h1 style="margin:12px 0">سایت در حال تعمیر است</h1><p style="color:#8ea0c0;line-height:1.9">' . htmlspecialchars($czText, ENT_QUOTES) . '</p></div></body></html>';
     exit;
 }
