@@ -46,17 +46,13 @@ $ticker = array_values(array_filter($items, function ($i) use ($tickerIds) { ret
 function tv_row(array $i): void { ?>
   <div class="tv-row" data-id="<?= meyar_h($i['id']) ?>">
     <span class="tv-name">
-      <?php if ($i['icon'] === 'coin' || $i['icon'] === 'gold'): ?>
-        <span class="tv-coin <?= $i['icon'] ?>"></span>
-      <?php else: ?>
-        <span class="tv-flag"><?= $i['icon'] ?></span>
-      <?php endif; ?>
+      <i class="hgi hgi-stroke hgi-rounded <?= $i['group'] === 'currency' ? 'hgi-cash-02' : ($i['group'] === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01') ?>" aria-hidden="true"></i>
       <?= meyar_h($i['title']) ?>
     </span>
     <b class="tv-buy" data-cell="buy"><?= meyar_h($i['buy_fmt']) ?></b>
     <b class="tv-sell" data-cell="sell"><?= meyar_h($i['sell_fmt']) ?></b>
     <span class="tv-chg <?= $i['dir'] === 'high' ? 'up' : ($i['dir'] === 'low' ? 'down' : 'flat') ?>" data-cell="chg">
-      <?= $i['dir'] === 'high' ? '▲' : ($i['dir'] === 'low' ? '▼' : '–') ?> <?= meyar_h($i['change_pct']) ?>٪
+      <?php if ($i['dir'] === 'high'): ?><i class="hgi-stroke hgi-arrow-up-01" aria-hidden="true"></i><?php elseif ($i['dir'] === 'low'): ?><i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i><?php else: ?>–<?php endif; ?> <?= meyar_h($i['change_pct']) ?>٪
     </span>
   </div>
 <?php } ?>
@@ -69,18 +65,21 @@ function tv_row(array $i): void { ?>
 <title>نمایشگر قیمت — سکه و جواهر معیار</title>
 <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+<link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
 <style>
+@font-face { font-family: 'IRANSansXFaNum'; src: url('assets/Sans-fonts/Woff2/IRANSansXFaNum-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'IRANSansXFaNum'; src: url('assets/Sans-fonts/Woff2/IRANSansXFaNum-Bold.woff2') format('woff2'); font-weight: 700 900; font-style: normal; font-display: swap; }
 :root {
   --gold: #d4a437; --gold-light: #f0cf7a; --gold-dark: #a87c1f;
   --gold-grad: linear-gradient(135deg, #a87c1f 0%, #f0cf7a 45%, #d4a437 60%, #8a6516 100%);
   --bg: #0b0c11; --panel: #14161f; --line: rgba(212, 164, 55, .18);
   --green: #3ddc84; --red: #ff6b6b; --soft: #9298ab;
 }
+.tv-name > i { width: 28px; flex: 0 0 28px; color: var(--gold-light); font-size: 22px; text-align: center; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { height: 100%; overflow: hidden; }
 body {
-  font-family: 'Vazirmatn', Tahoma, sans-serif;
+  font-family: 'IRANSansXFaNum', sans-serif;
   background:
     radial-gradient(1000px 500px at 85% -10%, rgba(212, 164, 55, .09), transparent 60%),
     radial-gradient(800px 500px at 10% 110%, rgba(212, 164, 55, .06), transparent 60%),
@@ -253,7 +252,7 @@ body {
         <span class="tv-tk-name"><?= meyar_h($t['title']) ?></span>
         <span class="tv-tk-price"><?= meyar_h($t['live_fmt']) ?></span>
         <span class="tv-tk-chg <?= $t['dir'] === 'high' ? 'up' : ($t['dir'] === 'low' ? 'down' : '') ?>">
-          <?= $t['dir'] === 'high' ? '▲' : ($t['dir'] === 'low' ? '▼' : '') ?> <?= meyar_h($t['change_pct']) ?>٪
+          <?php if ($t['dir'] === 'high'): ?><i class="hgi-stroke hgi-arrow-up-01" aria-hidden="true"></i><?php elseif ($t['dir'] === 'low'): ?><i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i><?php endif; ?> <?= meyar_h($t['change_pct']) ?>٪
         </span>
       </span>
       <?php endforeach; ?>
@@ -304,6 +303,12 @@ body {
       row.classList.add(dir === 'up' ? 'flash-up' : 'flash-down');
     }
   }
+  function setTvDirection(el, dir, value) {
+    if (!el) return;
+    el.innerHTML = (dir === 'high'
+      ? '<i class="hgi-stroke hgi-arrow-up-01" aria-hidden="true"></i>'
+      : (dir === 'low' ? '<i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i>' : '–')) + ' ' + value + '٪';
+  }
   function refresh() {
     fetch('api/prices.php', { cache: 'no-store' })
       .then(function (r) { return r.json(); })
@@ -318,8 +323,7 @@ body {
           updateCell(row.querySelector('[data-cell="sell"]'), it.sell_fmt);
           var chg = row.querySelector('[data-cell="chg"]');
           if (chg) {
-            var ar = it.dir === 'high' ? '▲' : (it.dir === 'low' ? '▼' : '–');
-            chg.textContent = ar + ' ' + it.change_pct + '٪';
+            setTvDirection(chg, it.dir, it.change_pct);
             chg.className = 'tv-chg ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : 'flat'));
           }
         });
@@ -328,8 +332,7 @@ body {
           if (!it) return;
           t.querySelector('.tv-tk-price').textContent = it.live_fmt;
           var ch = t.querySelector('.tv-tk-chg');
-          var ar = it.dir === 'high' ? '▲' : (it.dir === 'low' ? '▼' : '');
-          ch.textContent = ar + ' ' + it.change_pct + '٪';
+          setTvDirection(ch, it.dir, it.change_pct);
           ch.className = 'tv-tk-chg ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : ''));
         });
         var u = document.getElementById('tvUpdate');

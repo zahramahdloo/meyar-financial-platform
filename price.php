@@ -108,7 +108,7 @@ $related = array_slice($related, 0, 8);
     <div class="item-hero-price" data-item-price="<?= meyar_h($item['id']) ?>">
       <div class="item-price-main"><span data-cell="live"><?= meyar_h($cur['live_fmt']) ?></span> <small><?= meyar_h($cur['unit']) ?></small></div>
       <span class="chg <?= $cur['dir'] === 'high' ? 'up' : ($cur['dir'] === 'low' ? 'down' : 'flat') ?>" data-cell="chg">
-        <?= $cur['dir'] === 'high' ? '▲' : ($cur['dir'] === 'low' ? '▼' : '–') ?> <?= meyar_h($cur['change_pct']) ?>٪
+        <?php if ($cur['dir'] === 'high'): ?><i class="hgi-stroke hgi-arrow-up-01" aria-hidden="true"></i><?php elseif ($cur['dir'] === 'low'): ?><i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i><?php else: ?>–<?php endif; ?> <?= meyar_h($cur['change_pct']) ?>٪
       </span>
     </div>
     <?php endif; ?>
@@ -239,7 +239,7 @@ $related = array_slice($related, 0, 8);
             plugins: {
               legend: { display: false },
               tooltip: {
-                rtl: true, titleFont: {family: 'Vazirmatn'}, bodyFont: {family: 'Vazirmatn'},
+                rtl: true, titleFont: {family: 'IRANSansXFaNum'}, bodyFont: {family: 'IRANSansXFaNum'},
                 callbacks: {
                   title: function (t) { return t[0].label; },
                   label: function (t) { return ' ' + fmt(t.parsed.y) + ' <?= $cur && $cur['unit'] === 'دلار' ? 'دلار' : 'تومان' ?>'; }
@@ -249,13 +249,13 @@ $related = array_slice($related, 0, 8);
             scales: {
               x: {
                 reverse: false,
-                ticks: { font: {family:'Vazirmatn', size: 11}, maxTicksLimit: 9, color: '#8a8fa3' },
+                ticks: { font: {family:'IRANSansXFaNum', size: 11}, maxTicksLimit: 9, color: '#8a8fa3' },
                 grid: { display: false }
               },
               y: {
                 position: 'left',
                 ticks: {
-                  font: {family:'Vazirmatn', size: 11}, color: '#8a8fa3',
+                  font: {family:'IRANSansXFaNum', size: 11}, color: '#8a8fa3',
                   callback: function (v) { return fmt(v); }
                 },
                 grid: { color: 'rgba(0,0,0,.05)' }

@@ -18,7 +18,7 @@ function meyar_theme_head(string $title, string $desc = '', string $canonical = 
 <meta property="og:locale" content="fa_IR">
 <link rel="icon" type="image/svg+xml" href="<?= meyar_base() ?>assets/img/logo.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+<link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
 <link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=7">
 <?= $extraHead ?>
 </head>
@@ -36,11 +36,12 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
     $base = meyar_base();
     $requestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
     $isPricePage = strpos($requestUri, '/price/') !== false;
+    $isTvPage = strpos($requestUri, '/tv') !== false;
 ?>
 <!-- ═══ نوار بازار و تیکر قیمت ═══ -->
 <div class="ticker-bar" id="tickerBar">
   <div class="container market-bar-inner">
-    <div class="market-status">
+    <div class="market-bar-status">
       <?php if (!empty($settings['online_badge'])): ?>
       <span class="market-live"><span class="online-dot"></span> بازار فعال</span>
       <?php endif; ?>
@@ -54,7 +55,7 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
           <span class="ticker-name"><?= meyar_h($t['title']) ?></span>
           <span class="ticker-price"><?= meyar_h($t['live_fmt']) ?></span>
           <span class="ticker-change <?= $t['dir'] === 'high' ? 'up' : ($t['dir'] === 'low' ? 'down' : '') ?>">
-            <?= $t['dir'] === 'high' ? '▲' : ($t['dir'] === 'low' ? '▼' : '') ?> <?= meyar_h($t['change_pct']) ?>٪
+            <?php if ($t['dir'] === 'high'): ?><i class="hgi-stroke hgi-arrow-up-01" aria-hidden="true"></i><?php elseif ($t['dir'] === 'low'): ?><i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i><?php endif; ?> <?= meyar_h($t['change_pct']) ?>٪
           </span>
         </a>
       <?php endforeach; ?>
@@ -75,13 +76,13 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
         <em>مرجع قیمت و معاملات طلا</em>
       </span>
     </a>
-    <button class="nav-toggle" id="navToggle" type="button" aria-label="باز کردن منو" aria-controls="mainNav" aria-expanded="false">☰</button>
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="باز کردن منو" aria-controls="mainNav" aria-expanded="false"><i class="hgi-stroke hgi-menu-01" aria-hidden="true"></i></button>
     <nav class="main-nav" id="mainNav" aria-label="منوی اصلی">
-      <a href="<?= $base ?>" class="<?= !$isPricePage && $requestUri !== '/tv' ? 'active' : '' ?>">صفحه اصلی</a>
+      <a href="<?= $base ?>" class="<?= !$isPricePage && !$isTvPage ? 'active' : '' ?>">صفحه اصلی</a>
       <div class="nav-dropdown">
-        <button type="button" class="nav-dropdown-toggle <?= $isPricePage ? 'active' : '' ?>" aria-expanded="false">قیمت‌ها <span aria-hidden="true">⌄</span></button>
+        <button type="button" class="nav-dropdown-toggle <?= $isPricePage ? 'active' : '' ?>" aria-expanded="false">قیمت‌ها <i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i></button>
         <div class="nav-dropdown-menu">
-          <a href="<?= $base ?>#prices">همه قیمت‌ها</a>
+          <a href="<?= $base ?>prices.php">همه قیمت‌ها</a>
           <a href="<?= $base ?>price/usd">قیمت ارز</a>
           <a href="<?= $base ?>price/geram18">قیمت طلا</a>
           <a href="<?= $base ?>price/sekee">قیمت سکه</a>
@@ -89,9 +90,9 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
           <a href="<?= $base ?>price/ons">انس جهانی طلا</a>
         </div>
       </div>
-      <a href="<?= $base ?>#analysis">تحلیل بازار</a>
+      <a href="<?= $base ?>tv.php">نمایشگر فروشگاه (TV)</a>
       <div class="nav-dropdown">
-        <button type="button" class="nav-dropdown-toggle" aria-expanded="false">خدمات <span aria-hidden="true">⌄</span></button>
+        <button type="button" class="nav-dropdown-toggle" aria-expanded="false">خدمات <i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i></button>
         <div class="nav-dropdown-menu">
           <a href="<?= $base ?>#contact">خرید سکه</a>
           <a href="<?= $base ?>#contact">فروش سکه</a>
@@ -106,7 +107,7 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
       <form class="header-search" id="headerSearchForm" role="search">
         <label class="sr-only" for="headerSearch">جستجوی قیمت</label>
         <input id="headerSearch" type="search" placeholder="جستجوی قیمت، طلا، سکه..." autocomplete="off">
-        <button type="submit" aria-label="جستجو">⌕</button>
+        <button type="submit" aria-label="جستجو"><i class="hgi-stroke hgi-search-01" aria-hidden="true"></i></button>
       </form>
     </div>
   </div>
@@ -139,9 +140,9 @@ function meyar_theme_footer(array $settings): void {
     </div>
     <div class="footer-col reveal" data-reveal="up">
       <h4>راهنما</h4>
-      <a href="<?= $base ?>tv">نمایشگر فروشگاه (TV)</a>
+      <a href="<?= $base ?>tv.php">نمایشگر فروشگاه (TV)</a>
       <a href="<?= $base ?>">صفحه اصلی</a>
-      <a href="<?= $base ?>#prices">قیمت‌ها</a>
+      <a href="<?= $base ?>prices.php">قیمت‌ها</a>
       <a href="<?= $base ?>#about">درباره ما</a>
       <a href="<?= $base ?>#contact">تماس با ما</a>
     </div>
@@ -154,12 +155,12 @@ function meyar_theme_footer(array $settings): void {
   </div>
 </footer>
 
-<button class="back-top" id="backTop" aria-label="بازگشت به بالا">↑</button>
+<button class="back-top" id="backTop" aria-label="بازگشت به بالا"><i class="hgi-stroke hgi-arrow-up-01" aria-hidden="true"></i></button>
 
 <!-- ═══ چت آنلاین ═══ -->
 <div class="chat-widget" id="chatWidget">
   <button class="chat-fab" id="chatFab" aria-label="گفتگو با پشتیبانی">
-    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <i class="hgi-stroke hgi-message-01" aria-hidden="true"></i>
     <span class="chat-fab-badge" id="chatBadge" hidden>۱</span>
   </button>
   <div class="chat-panel" id="chatPanel" hidden>
@@ -171,7 +172,7 @@ function meyar_theme_footer(array $settings): void {
           <div class="chat-head-sub">معمولاً سریع پاسخ می‌دهیم</div>
         </div>
       </div>
-      <button class="chat-close" id="chatClose" aria-label="بستن">✕</button>
+      <button class="chat-close" id="chatClose" aria-label="بستن"><i class="hgi-stroke hgi-cancel-01" aria-hidden="true"></i></button>
     </div>
     <div class="chat-body" id="chatBody">
       <div class="chat-msg a">
@@ -183,7 +184,7 @@ function meyar_theme_footer(array $settings): void {
       <div class="chat-input-row">
         <input type="text" id="chatText" placeholder="پیام خود را بنویسید…" maxlength="800" required>
         <button type="submit" aria-label="ارسال">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <i class="hgi-stroke hgi-sent-01" aria-hidden="true"></i>
         </button>
       </div>
     </form>
