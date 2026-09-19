@@ -94,9 +94,15 @@ function meyar_db_migrate(PDO $pdo, bool $isNew): void {
     }
     $hasUsers = (int)$pdo->query("SELECT COUNT(*) c FROM users")->fetch()['c'];
     if (!$hasUsers) {
-        $adminRole = (int)$pdo->query("SELECT id FROM roles WHERE perms LIKE '%*%' ORDER BY id LIMIT 1")->fetch()['id'];
-        $pdo->prepare("INSERT INTO users(username, pass_hash, display_name, role_id, active, created_at) VALUES(?,?,?,?,1,?)")
-            ->execute(['gnz', password_hash('15963210hHH1234', PASSWORD_DEFAULT), 'مدیر اصلی', $adminRole, time()]);
+        $initialPassword = trim((string)(getenv('MEYAR_ADMIN_INITIAL_PASSWORD') ?: ''));
+        if (strlen($initialPassword) >= 12) {
+            $adminRole = (int)$pdo->query("SELECT id FROM roles WHERE perms LIKE '%*%' ORDER BY id LIMIT 1")->fetch()['id'];
+            $passHash = password_hash($initialPassword, PASSWORD_DEFAULT);
+            if ($passHash !== false) {
+                $pdo->prepare("INSERT INTO users(username, pass_hash, display_name, role_id, active, created_at) VALUES(?,?,?,?,1,?)")
+                    ->execute(['gnz', $passHash, 'مدیر اصلی', $adminRole, time()]);
+            }
+        }
     }
 
     // مهاجرت آیتم‌های دستی قدیمی از settings.json

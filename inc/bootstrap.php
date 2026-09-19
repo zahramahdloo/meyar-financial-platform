@@ -8,7 +8,8 @@ define('MEYAR_ROOT', dirname(__DIR__));
 define('MEYAR_DATA', MEYAR_ROOT . '/data');
 define('MEYAR_SETTINGS_FILE', MEYAR_DATA . '/settings.json');
 define('MEYAR_CACHE_FILE', MEYAR_DATA . '/cache.json');
-define('MEYAR_DEFAULT_PASSWORD', 'Meyar@1234'); // بعد از اولین ورود حتما عوض کنید
+
+date_default_timezone_set('Asia/Tehran');
 
 if (!is_dir(MEYAR_DATA)) { @mkdir(MEYAR_DATA, 0755, true); }
 
@@ -16,7 +17,7 @@ if (!is_dir(MEYAR_DATA)) { @mkdir(MEYAR_DATA, 0755, true); }
 
 function meyar_default_settings(): array {
     return [
-        'password_hash'        => null,      // null => از رمز پیش‌فرض استفاده می‌شود
+        'password_hash'        => null,      // legacy field; new administrators use the database setup flow
         'cache_ttl'            => 60,        // ثانیه
         'buy_spread_percent'   => 0.5,       // درصد اختلاف قیمت خرید نسبت به فروش
         'parsian_premium'      => 100000,    // اجرت هر سکه پارسیان (تومان)
