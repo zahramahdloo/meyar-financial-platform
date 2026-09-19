@@ -198,7 +198,7 @@ if (st) {
         <td class="num"><?= (int)$i['sort'] ?></td>
         <td><?= ($i['seo_title'] !== '' || $i['seo_desc'] !== '' || $i['page_desc'] !== '') ? '<span class="pill ok">سفارشی</span>' : '<span class="pill">خودکار</span>' ?></td>
         <td style="white-space:nowrap">
-          <a class="btn btn-sm btn-ghost" href="items.php?edit=<?= meyar_h($i['id']) ?>">✏️ ویرایش</a>
+          <a class="btn btn-sm btn-ghost" href="items.php?edit=<?= meyar_h($i['id']) ?>"><i class="hgi-stroke hgi-edit-02" aria-hidden="true"></i> ویرایش</a>
           <form method="post" style="display:inline" onsubmit="return confirm('حذف «<?= meyar_h($i['title']) ?>»؟')">
             <input type="hidden" name="csrf" value="<?= $csrf ?>">
             <input type="hidden" name="action" value="delete_item">

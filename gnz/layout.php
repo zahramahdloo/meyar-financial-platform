@@ -67,7 +67,7 @@ if ($err) echo '<div class="err">' . meyar_h($err) . '</div>';
     <input type="hidden" name="action" value="save_layout">
     <input type="hidden" name="layout_json" id="layoutJson">
     <button class="btn" type="submit">💾 ذخیره چیدمان</button>
-    <a class="btn btn-ghost" href="../" target="_blank">پیش‌نمایش سایت ↗</a>
+    <a class="btn btn-ghost" href="../" target="_blank">پیش‌نمایش سایت <i class="hgi-stroke hgi-arrow-up-right-01" aria-hidden="true"></i></a>
   </form>
 </div>
 

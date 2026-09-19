@@ -170,7 +170,7 @@ if ($err) echo '<div class="err">' . meyar_h($err) . '</div>';
             <td><?= meyar_h($u['role_name']) ?></td>
             <td><?= $u['active'] ? '<span class="pill ok">فعال</span>' : '<span class="pill warn">غیرفعال</span>' ?></td>
             <td style="white-space:nowrap">
-              <a class="btn btn-sm btn-ghost" href="users.php?edit_user=<?= (int)$u['id'] ?>">✏️</a>
+              <a class="btn btn-sm btn-ghost" href="users.php?edit_user=<?= (int)$u['id'] ?>"><i class="hgi-stroke hgi-edit-02" aria-hidden="true"></i></a>
               <?php if ($u['username'] !== 'gnz' && (int)$u['id'] !== $me['id']): ?>
               <form method="post" style="display:inline" onsubmit="return confirm('حذف کاربر؟')">
                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
@@ -223,7 +223,7 @@ if ($err) echo '<div class="err">' . meyar_h($err) . '</div>';
             <td><b><?= meyar_h($r['name']) ?></b></td>
             <td class="hint"><?= in_array('*', $rpv, true) ? '⭐ کامل' : meyar_h(implode('، ', array_map(function ($p) use ($allPerms) { return $allPerms[$p] ?? $p; }, $rpv))) ?></td>
             <td style="white-space:nowrap">
-              <a class="btn btn-sm btn-ghost" href="users.php?edit_role=<?= (int)$r['id'] ?>">✏️</a>
+              <a class="btn btn-sm btn-ghost" href="users.php?edit_role=<?= (int)$r['id'] ?>"><i class="hgi-stroke hgi-edit-02" aria-hidden="true"></i></a>
               <form method="post" style="display:inline" onsubmit="return confirm('حذف نقش؟')">
                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
                 <input type="hidden" name="action" value="delete_role">

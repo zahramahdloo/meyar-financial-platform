@@ -58,7 +58,7 @@ panel_header('داشبورد', 'dashboard');
   <div class="stat-card"><div class="s-label">بازدید ۳۰ روز اخیر</div><div class="s-value"><?= meyar_fa_num(number_format($v30)) ?></div><div class="s-sub">همه صفحات</div></div>
   <div class="stat-card"><div class="s-label">گفتگوهای باز</div><div class="s-value"><?= meyar_fa_num(number_format($openChat)) ?></div><div class="s-sub"><?= meyar_fa_num(number_format($unread)) ?> پیام خوانده‌نشده</div></div>
   <div class="stat-card"><div class="s-label">منبع قیمت</div>
-    <div class="s-value" style="font-size:16px;padding-top:6px"><?= $market['stale'] ? '⚠️ کش قدیمی' : '✅ متصل' ?></div>
+    <div class="s-value" style="font-size:16px;padding-top:6px"><?php if ($market['stale']): ?><i class="hgi-stroke hgi-alert-02" aria-hidden="true"></i> کش قدیمی<?php else: ?><i class="hgi-stroke hgi-checkmark-circle-02" aria-hidden="true"></i> متصل<?php endif; ?></div>
     <div class="s-sub">آخرین دریافت: <?= meyar_h($market['updated']) ?></div>
   </div>
 </div>
@@ -124,9 +124,9 @@ new Chart(document.getElementById('visitsChart'), {
   },
   options: {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { labels: { font: {family:'Vazirmatn'}, color: '#9aa0b5' }, rtl: true } },
+    plugins: { legend: { labels: { font: {family:'IRANSansXFaNum'}, color: '#9aa0b5' }, rtl: true } },
     scales: {
-      x: { ticks: { font:{family:'Vazirmatn',size:10}, color:'#9aa0b5', maxTicksLimit: 10 }, grid: { display:false } },
+      x: { ticks: { font:{family:'IRANSansXFaNum',size:10}, color:'#9aa0b5', maxTicksLimit: 10 }, grid: { display:false } },
       y: { ticks: { color:'#9aa0b5', precision: 0 }, grid: { color:'rgba(255,255,255,.05)' } }
     }
   }

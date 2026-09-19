@@ -52,11 +52,13 @@ function panel_css_head(string $title): void {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
 <title><?= meyar_h($title) ?> — پنل معیار</title>
-<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+<link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
 <style>
+@font-face{font-family:'IRANSansXFaNum';src:url('../assets/Sans-fonts/Woff2/IRANSansXFaNum-Regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'IRANSansXFaNum';src:url('../assets/Sans-fonts/Woff2/IRANSansXFaNum-Bold.woff2') format('woff2');font-weight:700 900;font-style:normal;font-display:swap}
 :root { --gold:#d4a437; --gold-l:#f0cf7a; --gold-d:#8a6516; --bg:#16171f; --card:#20222d; --card2:#262935; --ink:#e8eaf2; --mut:#9aa0b5; --line:rgba(255,255,255,.08); --green:#3ddc84; --red:#ff6b6b; }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Vazirmatn',Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.9;min-height:100vh}
+body{font-family:'IRANSansXFaNum',sans-serif;background:var(--bg);color:var(--ink);line-height:1.9;min-height:100vh}
 a{color:var(--gold);text-decoration:none}
 .layout{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
 .sidebar{background:#1b1d26;border-left:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto}
@@ -129,13 +131,13 @@ function panel_nav(): array {
         $unread = (int)$pdo->query("SELECT COALESCE(SUM(admin_unread),0) s FROM threads WHERE status='open'")->fetch()['s'];
     } catch (Throwable $e) {}
     return [
-        ['dashboard', 'index.php',    '📊', 'داشبورد', 0],
-        ['prices',    'prices.php',   '💰', 'تعدیل قیمت‌ها', 0],
-        ['items',     'items.php',    '🪙', 'ارزها و سکه‌ها', 0],
-        ['layout',    'layout.php',   '🧩', 'چیدمان صفحه', 0],
-        ['chat',      'chat.php',     '💬', 'چت کاربران', $unread],
-        ['users',     'users.php',    '👥', 'کاربران و نقش‌ها', 0],
-        ['settings',  'settings.php', '⚙️', 'تنظیمات', 0],
+        ['dashboard', 'index.php',    'chart-line-data-02', 'داشبورد', 0],
+        ['prices',    'prices.php',   'wallet-01', 'تعدیل قیمت‌ها', 0],
+        ['items',     'items.php',    'coins-01', 'ارزها و سکه‌ها', 0],
+        ['layout',    'layout.php',   'layout-01', 'چیدمان صفحه', 0],
+        ['chat',      'chat.php',     'message-01', 'چت کاربران', $unread],
+        ['users',     'users.php',    'user-group', 'کاربران و نقش‌ها', 0],
+        ['settings',  'settings.php', 'settings-01', 'تنظیمات', 0],
     ];
 }
 
@@ -150,12 +152,12 @@ function panel_header(string $title, string $active = ''): void {
       <?php foreach (panel_nav() as $n):
           if (!meyar_can($n[0])) continue; ?>
         <a href="<?= $n[1] ?>" class="<?= $active === $n[0] ? 'active' : '' ?>">
-          <span><?= $n[2] ?></span> <?= $n[3] ?>
+          <i class="hgi-stroke hgi-<?= meyar_h($n[2]) ?>" aria-hidden="true"></i> <?= $n[3] ?>
           <?php if ($n[4] > 0): ?><span class="nbadge"><?= meyar_fa_num((string)$n[4]) ?></span><?php endif; ?>
         </a>
       <?php endforeach; ?>
-      <a href="../" target="_blank"><span>🌐</span> مشاهده سایت</a>
-      <a href="?logout=1"><span>🚪</span> خروج</a>
+      <a href="../" target="_blank"><i class="hgi-stroke hgi-globe-02" aria-hidden="true"></i> مشاهده سایت</a>
+      <a href="?logout=1"><i class="hgi-stroke hgi-logout-01" aria-hidden="true"></i> خروج</a>
     </nav>
     <div class="side-user">
       <b><?= meyar_h($u['name']) ?></b><br>
@@ -165,7 +167,7 @@ function panel_header(string $title, string $active = ''): void {
   <div class="main">
     <div class="topbar">
       <h1><?= meyar_h($title) ?></h1>
-      <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰ منو</button>
+      <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="hgi-stroke hgi-menu-01" aria-hidden="true"></i> منو</button>
     </div>
     <?php
 }
