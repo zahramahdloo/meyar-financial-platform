@@ -273,7 +273,7 @@ foreach ($overviewIds as $overviewId) {
         <?php if ($aboutImg): ?>
           <img src="<?= $aboutImg ?>" alt="سکه و جواهر معیار" loading="lazy">
         <?php else: ?>
-          <div class="about-media-ph"><img src="assets/img/logo.svg" alt="MEYAR"></div>
+          <div class="about-media-ph"><img src="assets/img/meyar-logo/meyar-logo.svg" alt="MEYAR"></div>
         <?php endif; ?>
         <div class="about-media-frame"></div>
       </div>

@@ -16,7 +16,7 @@ function meyar_theme_head(string $title, string $desc = '', string $canonical = 
 <?php if ($desc): ?><meta property="og:description" content="<?= meyar_h($desc) ?>"><?php endif; ?>
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fa_IR">
-<link rel="icon" type="image/svg+xml" href="<?= meyar_base() ?>assets/img/logo.svg">
+<link rel="icon" type="image/svg+xml" href="<?= meyar_base() ?>assets/img/meyar-logo/meyar-logo.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
 <link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=7">
@@ -70,7 +70,7 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
     <a class="brand" href="<?= $base ?>">
-      <img src="<?= $base ?>assets/img/logo.svg" alt="سکه و جواهر معیار" class="brand-logo">
+      <img src="<?= $base ?>assets/img/meyar-logo/meyar-logo.svg" alt="سکه و جواهر معیار" class="brand-logo">
       <span class="brand-copy">
         <small>سکه و جواهر معیار</small>
         <em>مرجع قیمت و معاملات طلا</em>
@@ -122,7 +122,7 @@ function meyar_theme_footer(array $settings): void {
 <footer class="site-footer" id="contact">
   <div class="container footer-grid">
     <div class="footer-brand reveal" data-reveal="up">
-      <img src="<?= $base ?>assets/img/logo.svg" alt="MEYAR" class="footer-logo">
+      <img src="<?= $base ?>assets/img/meyar-logo/meyar-logo.svg" alt="MEYAR" class="footer-logo">
       <div class="footer-brand-fa">سکه و جواهر معیار</div>
       <div class="footer-contact">
         <div>شماره تماس: <a href="tel:<?= meyar_h(str_replace('-', '', $settings['site_phone'])) ?>"><?= meyar_h(meyar_fa_num($settings['site_phone'])) ?></a></div>
