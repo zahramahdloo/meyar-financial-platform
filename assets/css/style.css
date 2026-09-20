@@ -48,7 +48,7 @@ body {
 }
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; }
-.container { margin: 0 auto;  }
+.container { width: calc(100% - 40px); max-width: 1280px; margin-right: auto; margin-left: auto; }
 .gold-text {
   background: var(--gold-grad);
   -webkit-background-clip: text;
@@ -1262,6 +1262,24 @@ main#prices {
   .footer-trust { align-items: flex-start; flex-direction: column; gap: 13px; padding: 18px 0; }
   .footer-bottom .container { justify-content: center; text-align: center; }
 }
+
+/* ═══ کنترل‌های شناور — هماهنگ با تم لوکس معیار ═══ */
+.back-top {
+  width: 46px; height: 46px; border: 1px solid rgba(216,173,60,.58); border-radius: 14px;
+  background: rgba(7,17,31,.94); color: #f1d27d; box-shadow: 0 12px 28px rgba(3,10,19,.28), 0 0 0 4px rgba(216,173,60,.08);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  transition: opacity .3s, transform .3s, background .2s, color .2s, box-shadow .2s;
+}
+.back-top:hover { color: #07111f; background: #d8ad3c; box-shadow: 0 14px 30px rgba(201,162,39,.32), 0 0 0 4px rgba(216,173,60,.12); transform: translateY(-4px); }
+.back-top i { font-size: 17px; }
+.chat-fab {
+  width: 56px; height: 56px; border: 1px solid rgba(216,173,60,.7); background: #0b1426; color: #f1d27d;
+  box-shadow: 0 12px 30px rgba(3,10,19,.35), inset 0 0 0 1px rgba(255,255,255,.05);
+  animation: none; transition: transform .25s, background .2s, color .2s, box-shadow .2s;
+}
+.chat-fab:hover { color: #07111f; background: #d8ad3c; box-shadow: 0 16px 34px rgba(201,162,39,.35), 0 0 0 4px rgba(216,173,60,.1); transform: translateY(-4px) scale(1.04); }
+.chat-fab i { font-size: 22px; }
+.footer-bottom .container { justify-content: center; text-align: center; }
 
 /* ═══ صفحه قیمت‌ها — هم‌راستا با تم اصلی ═══ */
 main#prices.prices-page {
