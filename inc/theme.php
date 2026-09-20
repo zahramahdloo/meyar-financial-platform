@@ -19,7 +19,7 @@ function meyar_theme_head(string $title, string $desc = '', string $canonical = 
 <link rel="icon" type="image/png" href="<?= meyar_base() ?>assets/img/meyar-logo/Meyar-logo.png">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
-<link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=7">
+<link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=13">
 <?= $extraHead ?>
 </head>
 <body>
@@ -209,7 +209,7 @@ function meyar_theme_footer(array $settings): void {
 </div>
 
 <script>window.MEYAR_BASE = '<?= $base ?>';</script>
-<script src="<?= $base ?>assets/js/main.js?v=4"></script>
+<script src="<?= $base ?>assets/js/main.js?v=10"></script>
 <script src="<?= $base ?>assets/js/chat.js?v=1"></script>
 </body>
 </html>
