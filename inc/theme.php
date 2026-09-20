@@ -109,6 +109,7 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
         <label class="sr-only" for="headerSearch">جستجوی قیمت</label>
         <input id="headerSearch" type="search" placeholder="جستجوی قیمت، طلا، سکه..." autocomplete="off">
         <button type="submit" aria-label="جستجو"><i class="hgi-stroke hgi-search-01" aria-hidden="true"></i></button>
+        <div class="header-search-results" id="headerSearchResults" role="listbox" aria-label="نتایج جستجو" hidden></div>
       </form>
     </div>
   </div>

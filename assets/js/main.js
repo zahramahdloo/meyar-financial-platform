@@ -207,13 +207,75 @@
 
   var searchForm = document.getElementById('headerSearchForm');
   var searchInput = document.getElementById('headerSearch');
+  var searchResults = document.getElementById('headerSearchResults');
   if (searchForm && searchInput) {
+    function normalizeSearch(value) {
+      return String(value || '').toLowerCase().replace(/[يى]/g, 'ی').replace(/ك/g, 'ک').replace(/\u200c/g, '').replace(/[،,٬]/g, '').replace(/\s+/g, ' ').trim();
+    }
+    function closeSearchResults() {
+      if (!searchResults) return;
+      searchResults.hidden = true;
+      searchResults.innerHTML = '';
+    }
+    function showSearchResults(query) {
+      if (!searchResults) return;
+      searchResults.innerHTML = '';
+      if (!query) { closeSearchResults(); return; }
+      var entries = [];
+      var categories = [
+        { key: 'طلا', label: 'بازار طلا', market: 'gold' },
+        { key: 'سکه', label: 'بازار سکه', market: 'coins' },
+        { key: 'ارز', label: 'بازار ارز', market: 'currency' },
+        { key: 'نقره', label: 'بازار نقره', market: 'silver' }
+      ];
+      categories.forEach(function (category) {
+        if (query.indexOf(category.key) === -1) return;
+        entries.push({ text: category.label, href: (window.MEYAR_BASE || './') + 'prices.php?market=' + category.market, meta: 'ورود به بازار' });
+      });
+      document.querySelectorAll('[data-id], [data-overview-card]').forEach(function (item) {
+        var title = item.querySelector('.market-asset-title, .cell-title, .market-card-title, .market-overview-title');
+        var text = (title || item).textContent.trim();
+        var searchableText = item.textContent.trim();
+        if (!text || normalizeSearch(searchableText).indexOf(query) === -1) return;
+        var href = item.getAttribute('href') || item.getAttribute('data-href');
+        var itemId = item.getAttribute('data-id') || item.getAttribute('data-overview-card');
+        if (!href && itemId) href = (window.MEYAR_BASE || './') + 'price/' + itemId;
+        if (!href) return;
+        if (entries.some(function (entry) { return entry.href === href; })) return;
+        entries.push({ text: text, href: href, meta: 'مشاهده قیمت' });
+      });
+      entries.slice(0, 7).forEach(function (entry) {
+        var link = document.createElement('a');
+        link.className = 'header-search-result';
+        link.setAttribute('role', 'option');
+        link.href = entry.href;
+        link.innerHTML = '<span></span><small></small>';
+        link.querySelector('span').textContent = entry.text;
+        link.querySelector('small').textContent = entry.meta;
+        searchResults.appendChild(link);
+      });
+      if (!entries.length) {
+        var empty = document.createElement('div');
+        empty.className = 'header-search-empty';
+        empty.textContent = 'نتیجه‌ای برای این عبارت پیدا نشد';
+        searchResults.appendChild(empty);
+      }
+      searchResults.hidden = false;
+    }
+    searchInput.addEventListener('input', function () {
+      showSearchResults(normalizeSearch(searchInput.value));
+    });
     searchForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      var query = searchInput.value.trim().toLowerCase();
+      var query = normalizeSearch(searchInput.value);
       if (!query) return;
-      var match = [].find.call(document.querySelectorAll('tr[data-id]'), function (row) {
-        return (row.textContent || '').toLowerCase().indexOf(query) !== -1;
+      var firstResult = searchResults && searchResults.querySelector('a');
+      if (firstResult) {
+        window.location.href = firstResult.href;
+        return;
+      }
+      var match = [].find.call(document.querySelectorAll('tr[data-id], [data-overview-card]'), function (row) {
+        return normalizeSearch(row.textContent).indexOf(query) !== -1;
       });
       if (match) {
         match.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -222,6 +284,9 @@
         return;
       }
       window.location.href = (window.MEYAR_BASE || './') + '#prices';
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('#headerSearchForm')) closeSearchResults();
     });
   }
 
