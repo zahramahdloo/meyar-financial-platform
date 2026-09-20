@@ -63,7 +63,7 @@ function tv_row(array $i): void { ?>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>نمایشگر قیمت — سکه و جواهر معیار</title>
-<link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+<link rel="icon" type="image/png" href="assets/img/meyar-logo/Meyar-logo.png">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
 <style>
@@ -96,7 +96,7 @@ body {
   background: linear-gradient(180deg, #14161f, #0f1118);
 }
 .tv-brand { display: flex; align-items: center; gap: 1.2vw; }
-.tv-brand img { height: 7.5vh; filter: drop-shadow(0 4px 18px rgba(212, 164, 55, .35)); }
+.tv-brand img { width: auto; height: 7.5vh; max-width: 10vw; object-fit: contain; filter: drop-shadow(0 4px 18px rgba(212, 164, 55, .35)); }
 .tv-brand-txt b {
   display: block; font-size: 2.9vh; font-weight: 800;
   background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -204,7 +204,7 @@ body {
 
 <header class="tv-head">
   <div class="tv-brand">
-    <img src="assets/img/logo.svg" alt="MEYAR">
+    <img src="assets/img/meyar-logo/Meyar-logo.png" alt="سکه و جواهر معیار">
     <div class="tv-brand-txt">
       <b>سکه و جواهر معیار</b>
       <span>قیمت لحظه‌ای سکه، طلا و ارز</span>

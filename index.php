@@ -269,7 +269,7 @@ foreach ($overviewIds as $overviewId) {
         <?php else: ?>
           <div class="about-visual-inner">
             <span class="about-visual-kicker">بازار تهران</span>
-            <div class="about-visual-brand"><img src="assets/img/meyar-logo/meyar-logo.svg" alt="سکه و جواهر معیار" loading="lazy"></div>
+            <div class="about-visual-brand"><img src="assets/img/meyar-logo/Meyar-logo.png" alt="سکه و جواهر معیار" loading="lazy"></div>
             <div class="about-visual-caption"><strong>خرید و فروش حضوری</strong><span>سکه و طلا</span></div>
           </div>
           <div class="about-visual-line" aria-hidden="true"></div>

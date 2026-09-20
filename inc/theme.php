@@ -16,7 +16,7 @@ function meyar_theme_head(string $title, string $desc = '', string $canonical = 
 <?php if ($desc): ?><meta property="og:description" content="<?= meyar_h($desc) ?>"><?php endif; ?>
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fa_IR">
-<link rel="icon" type="image/svg+xml" href="<?= meyar_base() ?>assets/img/meyar-logo/meyar-logo.svg">
+<link rel="icon" type="image/png" href="<?= meyar_base() ?>assets/img/meyar-logo/Meyar-logo.png">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
 <link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=7">
@@ -71,11 +71,7 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
     <a class="brand" href="<?= $base ?>">
-      <img src="<?= $base ?>assets/img/meyar-logo/meyar-logo.svg" alt="سکه و جواهر معیار" class="brand-logo">
-      <span class="brand-copy">
-        <small>سکه و جواهر معیار</small>
-        <em>مرجع قیمت و معاملات طلا</em>
-      </span>
+      <img src="<?= $base ?>assets/img/meyar-logo/Meyar-logo.png" alt="سکه و جواهر معیار" class="brand-logo">
     </a>
     <button class="nav-toggle" id="navToggle" type="button" aria-label="باز کردن منو" aria-controls="mainNav" aria-expanded="false"><i class="hgi-stroke hgi-menu-01" aria-hidden="true"></i></button>
     <nav class="main-nav" id="mainNav" aria-label="منوی اصلی">
@@ -125,7 +121,7 @@ function meyar_theme_footer(array $settings): void {
       <div class="footer-glow" aria-hidden="true"></div>
       <div class="container footer-grid">
         <div class="footer-brand reveal" data-reveal="up">
-          <img src="<?= $base ?>assets/img/meyar-logo/meyar-logo.svg" alt="سکه و جواهر معیار" class="footer-logo">
+          <img src="<?= $base ?>assets/img/meyar-logo/Meyar-logo.png" alt="سکه و جواهر معیار" class="footer-logo">
           <div class="footer-brand-fa">سکه و جواهر معیار</div>
           <p class="footer-brand-description">مرجع خرید و فروش حضوری سکه و طلا با اطلاعات دقیق بازار</p>
           <div class="footer-contact">

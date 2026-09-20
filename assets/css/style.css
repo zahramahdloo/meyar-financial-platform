@@ -133,12 +133,9 @@ img { max-width: 100%; }
 .site-header.scrolled { background: rgba(11, 18, 32, .99); box-shadow: 0 12px 32px rgba(3, 8, 18, .28); }
 .site-header.header-hidden { transform: translateY(-100%); }
 .header-inner { display: flex; align-items: center; justify-content: space-between; min-height: 100px; direction: rtl; }
-.brand { display: inline-flex; flex: 1 1 0; flex-direction: column; align-items: center; gap: 5px; justify-content: flex-start; }
-.brand-logo { height: 56px; width: auto; transition: transform .3s; }
-.brand:hover .brand-logo { transform: scale(1.05); }
-.brand-copy { display: flex; flex-direction: column; align-items: center; line-height: 1.2; text-align: center; }
-.brand-copy small { color: #f4d77c; font-size: 11px; font-weight: 700; white-space: nowrap; }
-.brand-copy em { color: #8491a7; font-size: 9px; font-style: normal; white-space: nowrap; margin-top: 3px; }
+.brand { position: relative; display: inline-flex; align-self: stretch; flex: 1 1 0; align-items: center; justify-content: center; }
+.brand-logo { position: absolute; top: 50%; left: 50%; display: block; width: 96px; height: 124px; aspect-ratio: 1103 / 1426; object-fit: contain; transform: translate(-50%, -50%); transition: transform .3s; }
+.brand:hover .brand-logo { transform: translate(-50%, -50%) scale(1.05); }
 .main-nav { display: flex; flex: 0 0 auto; align-items: center; align-self: center; gap: 2px; margin: 0; order: 2; direction: rtl; height: 100%; }
 .main-nav a {
   padding: 29px 12px 25px; font-size: 13px; font-weight: 600;
@@ -583,7 +580,7 @@ main#prices {
 .footer-grid {
   display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 40px; padding: 60px 20px 40px;
 }
-.footer-logo { height: 80px; }
+.footer-logo { width: 100px; height: 129px; aspect-ratio: 1103 / 1426; object-fit: contain; }
 .footer-brand-fa {
   margin: 12px 0 18px; font-size: 20px; font-weight: 800;
   background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -967,9 +964,7 @@ main#prices {
   .ticker-item { padding: 8px 16px; font-size: 11px; }
   .header-inner { display: flex; min-height: 70px; gap: 12px; padding: 0 14px; flex-wrap: wrap; }
   .brand { flex: 0 0 auto; order: 1; justify-self: auto; }
-  .brand-logo { height: 40px; }
-  .brand-copy small { font-size: 9px; }
-  .brand-copy em { display: none; }
+  .brand-logo { width: 65px; height: 84px; }
   .main-nav {
     order: 3;
     height: auto;
@@ -1227,7 +1222,7 @@ main#prices {
 .site-footer::before { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(7,17,31,.72), rgba(7,17,31,.58) 45%, rgba(7,17,31,.7)); content: ''; }
 .footer-glow { position: absolute; z-index: -1; top: -220px; right: 34%; width: 520px; height: 520px; border: 1px solid rgba(201,162,39,.12); border-radius: 50%; box-shadow: 0 0 110px rgba(201,162,39,.08); pointer-events: none; }
 .footer-grid { position: relative; display: grid; grid-template-columns: 1.35fr repeat(3, 1fr); gap: clamp(28px, 4vw, 70px); padding: 78px 0 56px; }
-.footer-logo { width: 112px; height: auto; }
+.footer-logo { width: 100px; height: 129px; aspect-ratio: 1103 / 1426; object-fit: contain; }
 .footer-brand-fa { margin: 14px 0 10px; color: #f1d27d; font-size: 19px; font-weight: 850; }
 .footer-brand-description { max-width: 245px; margin: 0 0 25px; color: #aab5c4; font-size: 12px; line-height: 2; }
 .footer-contact { display: grid; gap: 10px; font-size: 11px; line-height: 1.7; }
@@ -1258,6 +1253,7 @@ main#prices {
   .footer-grid { grid-template-columns: 1fr; gap: 30px; padding: 58px 0 38px; }
   .footer-brand { grid-column: auto; }
   .footer-brand-description { max-width: 290px; }
+  .footer-logo { width: 78px; height: 101px; }
   .footer-col h4 { margin-bottom: 10px; }
   .footer-trust { align-items: flex-start; flex-direction: column; gap: 13px; padding: 18px 0; }
   .footer-bottom .container { justify-content: center; text-align: center; }
