@@ -19,7 +19,7 @@ function meyar_theme_head(string $title, string $desc = '', string $canonical = 
 <link rel="icon" type="image/png" href="<?= meyar_base() ?>assets/img/meyar-logo/Meyar-logo.png">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
-<link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=13">
+<link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=22">
 <?= $extraHead ?>
 </head>
 <body>
@@ -125,15 +125,16 @@ function meyar_theme_footer(array $settings): void {
           <div class="footer-brand-fa">سکه و جواهر معیار</div>
           <p class="footer-brand-description">مرجع خرید و فروش حضوری سکه و طلا با اطلاعات دقیق بازار</p>
           <div class="footer-contact">
-            <a href="tel:<?= meyar_h(str_replace('-', '', $settings['site_phone'])) ?>"><i class="hgi-stroke hgi-call-02" aria-hidden="true"></i><span><?= meyar_h(meyar_fa_num($settings['site_phone'])) ?></span></a>
-            <a href="mailto:<?= meyar_h($settings['site_email']) ?>"><i class="hgi-stroke hgi-mail-01" aria-hidden="true"></i><span><?= meyar_h($settings['site_email']) ?></span></a>
-            <span><i class="hgi-stroke hgi-location-01" aria-hidden="true"></i><span>بازار بزرگ تهران، پانزده خرداد</span></span>
+            <a href="tel:+989123456608"><i class="hgi-stroke hgi-call-02" aria-hidden="true"></i><span>۰۹۱۲۳۴۵۶۶۰۸</span></a>
+            <a href="mailto:meyargroup2000@gmail.com"><i class="hgi-stroke hgi-mail-01" aria-hidden="true"></i><span>meyargroup2000@gmail.com</span></a>
+            <a href="https://www.instagram.com/seke.meyar/" target="_blank" rel="noopener noreferrer"><i class="hgi-stroke hgi-instagram" aria-hidden="true"></i><span>seke.meyar</span></a>
+            <a href="https://wa.me/989123456608?text=سلام، از سایت معیار پیام می‌دهم." target="_blank" rel="noopener noreferrer"><i class="hgi-stroke hgi-whatsapp" aria-hidden="true"></i><span>WhatsApp</span></a>
+            <span><i class="hgi-stroke hgi-location-01" aria-hidden="true"></i><span>تهران، بازار بزرگ، پاساژ طلا و جواهر خادم، طبقه همکف، واحد ۴</span></span>
           </div>
         </div>
 
         <nav class="footer-col reveal" data-reveal="up" aria-label="دسترسی سریع">
           <h4>دسترسی سریع</h4>
-          <a href="<?= $base ?>">صفحه اصلی</a>
           <a href="<?= $base ?>prices.php">قیمت‌ها</a>
           <a href="<?= $base ?>#prices">وضعیت بازار</a>
           <a href="<?= $base ?>#about">درباره ما</a>
@@ -170,7 +171,36 @@ function meyar_theme_footer(array $settings): void {
           <div>تمامی حقوق مادی و معنوی متعلق به سکه معیار می‌باشد.</div>
         </div>
       </div>
-    </footer>
+</footer>
+
+<!-- ═══ پنجره تحلیل هوشمند ═══ -->
+<div class="ai-analysis-modal" id="aiAnalysisModal" hidden>
+  <div class="ai-analysis-modal-backdrop" data-ai-close aria-hidden="true"></div>
+  <div class="ai-analysis-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="aiModalTitle">
+    <button class="ai-analysis-modal-close" type="button" data-ai-close aria-label="بستن تحلیل"><i class="hgi-stroke hgi-cancel-01" aria-hidden="true"></i></button>
+    <section class="ai-analysis-card" data-ai-modal-card data-ai-topic="" data-ai-trend="flat">
+      <div class="ai-analysis-head">
+        <div class="ai-analysis-icon"><i class="hgi hgi-stroke hgi-rounded hgi-magic-wand-01" aria-hidden="true"></i></div>
+        <div>
+          <span class="ai-analysis-label">تحلیل هوشمند معیار</span>
+          <h1 id="aiModalTitle" data-ai-title>تحلیل بازار</h1>
+        </div>
+      </div>
+      <div class="ai-analysis-topic"><span>موضوع تحلیل:</span> <b data-ai-topic-label>بازار امروز</b></div>
+      <div class="ai-analysis-loading" data-ai-loading hidden>
+        <span class="ai-analysis-spinner" aria-hidden="true"></span>
+        <p>در حال بررسی داده‌های لحظه‌ای بازار و آماده‌سازی توضیحات…</p>
+      </div>
+      <div class="ai-analysis-content" data-ai-content hidden>
+        <p class="ai-analysis-explanation" data-ai-explanation></p>
+        <h2>عوامل موثر</h2>
+        <ul data-ai-factors></ul>
+        <p class="ai-analysis-disclaimer" data-ai-disclaimer></p>
+      </div>
+      <div class="ai-analysis-error" data-ai-error hidden>در حال حاضر دریافت تحلیل ممکن نیست. لطفاً چند لحظه بعد دوباره تلاش کنید.</div>
+    </section>
+  </div>
+</div>
 
 <button class="back-top" id="backTop" aria-label="بازگشت به بالا"><i class="hgi-stroke hgi-arrow-up-01" aria-hidden="true"></i></button>
 
@@ -209,8 +239,9 @@ function meyar_theme_footer(array $settings): void {
 </div>
 
 <script>window.MEYAR_BASE = '<?= $base ?>';</script>
-<script src="<?= $base ?>assets/js/main.js?v=10"></script>
+<script src="<?= $base ?>assets/js/main.js?v=12"></script>
 <script src="<?= $base ?>assets/js/chat.js?v=1"></script>
+<script src="<?= $base ?>assets/js/ai.js?v=5"></script>
 </body>
 </html>
 <?php

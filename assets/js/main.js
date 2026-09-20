@@ -636,7 +636,14 @@
         insightList.textContent = '';
         (insight.insights || []).slice(0, 4).forEach(function (value) {
           var li = document.createElement('li');
-          li.textContent = value;
+          var link = document.createElement('a');
+          link.className = 'market-insight-link';
+          link.href = '#ai-analysis';
+          link.setAttribute('data-ai-topic', value);
+          link.setAttribute('data-ai-trend', insight.trend || 'flat');
+          link.textContent = value;
+          link.setAttribute('aria-label', 'توضیحات کامل: ' + value);
+          li.appendChild(link);
           insightList.appendChild(li);
         });
       })

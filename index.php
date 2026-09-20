@@ -163,10 +163,10 @@ foreach ($overviewIds as $overviewId) {
         <section class="market-insight-list" aria-labelledby="marketInsightPoints">
           <h3 id="marketInsightPoints"><i class="hgi hgi-stroke hgi-rounded hgi-note-01" aria-hidden="true"></i> نکات مهم امروز</h3>
           <ul data-market-insights>
-            <li>افزایش تقاضای جهانی طلا</li>
-            <li>تاثیر نوسانات نرخ ارز</li>
-            <li>روند مثبت اونس جهانی</li>
-            <li>حفظ حمایت کلیدی در بازار داخلی</li>
+            <li><a class="market-insight-link" href="#ai-analysis" data-ai-topic="افزایش تقاضای جهانی طلا" data-ai-trend="up">افزایش تقاضای جهانی طلا</a></li>
+            <li><a class="market-insight-link" href="#ai-analysis" data-ai-topic="تاثیر نوسانات نرخ ارز" data-ai-trend="up">تاثیر نوسانات نرخ ارز</a></li>
+            <li><a class="market-insight-link" href="#ai-analysis" data-ai-topic="روند مثبت اونس جهانی" data-ai-trend="up">روند مثبت اونس جهانی</a></li>
+            <li><a class="market-insight-link" href="#ai-analysis" data-ai-topic="حفظ حمایت کلیدی در بازار داخلی" data-ai-trend="up">حفظ حمایت کلیدی در بازار داخلی</a></li>
           </ul>
         </section>
       </div>
