@@ -119,41 +119,60 @@ function meyar_theme_footer(array $settings): void {
     $base = meyar_base();
 ?>
 <!-- ═══ فوتر ═══ -->
-<footer class="site-footer" id="contact">
-  <div class="container footer-grid">
-    <div class="footer-brand reveal" data-reveal="up">
-      <img src="<?= $base ?>assets/img/meyar-logo/meyar-logo.svg" alt="MEYAR" class="footer-logo">
-      <div class="footer-brand-fa">سکه و جواهر معیار</div>
-      <div class="footer-contact">
-        <div>شماره تماس: <a href="tel:<?= meyar_h(str_replace('-', '', $settings['site_phone'])) ?>"><?= meyar_h(meyar_fa_num($settings['site_phone'])) ?></a></div>
-        <div>ایمیل: <a href="mailto:<?= meyar_h($settings['site_email']) ?>"><?= meyar_h($settings['site_email']) ?></a></div>
+    <footer class="site-footer" id="contact">
+      <div class="footer-glow" aria-hidden="true"></div>
+      <div class="container footer-grid">
+        <div class="footer-brand reveal" data-reveal="up">
+          <img src="<?= $base ?>assets/img/meyar-logo/meyar-logo.svg" alt="سکه و جواهر معیار" class="footer-logo">
+          <div class="footer-brand-fa">سکه و جواهر معیار</div>
+          <p class="footer-brand-description">مرجع خرید و فروش حضوری سکه و طلا با اطلاعات دقیق بازار</p>
+          <div class="footer-contact">
+            <a href="tel:<?= meyar_h(str_replace('-', '', $settings['site_phone'])) ?>"><i class="hgi-stroke hgi-call-02" aria-hidden="true"></i><span><?= meyar_h(meyar_fa_num($settings['site_phone'])) ?></span></a>
+            <a href="mailto:<?= meyar_h($settings['site_email']) ?>"><i class="hgi-stroke hgi-mail-01" aria-hidden="true"></i><span><?= meyar_h($settings['site_email']) ?></span></a>
+            <span><i class="hgi-stroke hgi-location-01" aria-hidden="true"></i><span>بازار بزرگ تهران، پانزده خرداد</span></span>
+          </div>
+        </div>
+
+        <nav class="footer-col reveal" data-reveal="up" aria-label="دسترسی سریع">
+          <h4>دسترسی سریع</h4>
+          <a href="<?= $base ?>">صفحه اصلی</a>
+          <a href="<?= $base ?>prices.php">قیمت‌ها</a>
+          <a href="<?= $base ?>#prices">وضعیت بازار</a>
+          <a href="<?= $base ?>#about">درباره ما</a>
+          <a href="<?= $base ?>#contact">تماس با ما</a>
+        </nav>
+
+        <nav class="footer-col reveal" data-reveal="up" aria-label="خدمات بازار">
+          <h4>خدمات بازار</h4>
+          <a href="<?= $base ?>price/geram18">قیمت لحظه‌ای طلا</a>
+          <a href="<?= $base ?>price/sekee">قیمت سکه</a>
+          <a href="<?= $base ?>price/usd">قیمت ارز</a>
+          <a href="<?= $base ?>#prices">تحلیل بازار</a>
+          <a href="<?= $base ?>tv.php">نمایشگر فروشگاه</a>
+        </nav>
+
+        <div class="footer-col footer-info reveal" data-reveal="up">
+          <h4>معیار</h4>
+          <span>سابقه فعالیت</span>
+          <span>خرید و فروش حضوری</span>
+          <span>اطلاعات شفاف بازار</span>
+          <span>قوانین و حریم خصوصی</span>
+        </div>
       </div>
-    </div>
-    <div class="footer-col reveal" data-reveal="up">
-      <h4>دسترسی سریع</h4>
-      <a href="<?= $base ?>price/usd">قیمت دلار</a>
-      <a href="<?= $base ?>price/sekeb">قیمت سکه بهار آزادی</a>
-      <a href="<?= $base ?>price/gbp">قیمت پوند</a>
-      <a href="<?= $base ?>price/eur">قیمت یورو</a>
-      <a href="<?= $base ?>price/aed">قیمت درهم</a>
-      <a href="<?= $base ?>price/geram24">قیمت طلا ۲۴ عیار</a>
-    </div>
-    <div class="footer-col reveal" data-reveal="up">
-      <h4>راهنما</h4>
-      <a href="<?= $base ?>tv.php">نمایشگر فروشگاه (TV)</a>
-      <a href="<?= $base ?>">صفحه اصلی</a>
-      <a href="<?= $base ?>prices.php">قیمت‌ها</a>
-      <a href="<?= $base ?>#about">درباره ما</a>
-      <a href="<?= $base ?>#contact">تماس با ما</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <div class="container">
-      <div>تمامی حقوق مادی و معنوی متعلق به بورس سکه معیار می‌باشد.</div>
-      <div class="footer-credit">طراحی شده توسط <a href="https://hadignz.ir" target="_blank" rel="noopener">هادی قنادزاده</a></div>
-    </div>
-  </div>
-</footer>
+
+      <div class="container footer-trust reveal" data-reveal="up" aria-label="اعتماد و خدمات معیار">
+        <span><i class="hgi-stroke hgi-store-01" aria-hidden="true"></i>خرید و فروش حضوری</span>
+        <span><i class="hgi-stroke hgi-chart-line-data-02" aria-hidden="true"></i>اطلاعات قیمت لحظه‌ای</span>
+        <span><i class="hgi-stroke hgi-location-01" aria-hidden="true"></i>سابقه فعالیت در بازار تهران</span>
+        <span><i class="hgi-stroke hgi-shield-check" aria-hidden="true"></i>اعتماد مشتریان</span>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="container">
+          <div>تمامی حقوق مادی و معنوی متعلق به سکه معیار می‌باشد.</div>
+        </div>
+      </div>
+    </footer>
 
 <button class="back-top" id="backTop" aria-label="بازگشت به بالا"><i class="hgi-stroke hgi-arrow-up-01" aria-hidden="true"></i></button>
 
