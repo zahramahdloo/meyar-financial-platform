@@ -273,6 +273,9 @@ img { max-width: 100%; }
   position: absolute; margin: 0;
   transition: top .45s cubic-bezier(.22, .8, .35, 1), right .45s cubic-bezier(.22, .8, .35, 1);
 }
+.tables-grid.masonry-on.is-layout-animating .price-card {
+  transition: none;
+}
 .row-link { cursor: pointer; }
 .item-link { display: flex; align-items: center; gap: 10px; color: inherit; }
 .item-link:hover { color: var(--gold-dark); }
@@ -314,9 +317,8 @@ img { max-width: 100%; }
 .table-wrap { overflow-x: auto; }
 .price-card[data-market-container] .market-list {
   max-height: 0;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  transition: max-height .55s cubic-bezier(.22, .8, .35, 1);
+  overflow: hidden;
+  transition: max-height .95s cubic-bezier(.22, .8, .35, 1);
   will-change: max-height;
 }
 .price-card[data-market-container]:not(.has-expand) .market-list { max-height: none; overflow: visible; transition: none; }

@@ -106,7 +106,7 @@ function meyar_builtin_items(): array {
         ['geram24',   'طلای ۲۴ عیار',  'tgju',     'geram24'],
         ['mesghal',   'مثقال طلا',     'tgju',     'mesghal'],
         ['ons',       'انس جهانی طلا', 'tgju_usd', 'ons'],
-        ['silver999', 'گرم نقره ۹۹۹',  'tgju',     'silver_999'],
+        ['silver999', 'نقره ۹۹۹.۹',     'tgju',     'silver_999'],
     ];
     foreach ($gold as $g) {
         $items[] = ['id'=>$g[0], 'title'=>$g[1], 'group'=>'gold', 'source'=>[$g[2],$g[3]], 'icon'=>'gold'];

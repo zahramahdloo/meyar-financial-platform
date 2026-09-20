@@ -97,17 +97,32 @@
   }
   if (mGrid) {
     var mT;
-    window.addEventListener('resize', function () { clearTimeout(mT); mT = setTimeout(masonry, 120); });
-    window.addEventListener('load', masonry);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(masonry);
+    function stabilizeMasonry() {
+      requestAnimationFrame(function () {
+        masonry();
+        requestAnimationFrame(masonry);
+      });
+    }
+    window.addEventListener('resize', function () { clearTimeout(mT); mT = setTimeout(stabilizeMasonry, 120); });
+    window.addEventListener('load', stabilizeMasonry);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(stabilizeMasonry);
+    if ('ResizeObserver' in window) {
+      var gridObserver = new ResizeObserver(function () { stabilizeMasonry(); });
+      gridObserver.observe(mGrid);
+      mGrid.querySelectorAll('[data-market-container]').forEach(function (card) { gridObserver.observe(card); });
+    }
     masonry();
-    setTimeout(masonry, 400);
+    setTimeout(stabilizeMasonry, 400);
   }
 
   /* ---------- فیلتر بازار در صفحه قیمت‌ها ---------- */
   var marketFilters = document.querySelectorAll('[data-market-filter]');
   if (marketFilters.length && mGrid) {
     var marketCards = mGrid.querySelectorAll('[data-market-container]');
+    function expandMarketCard(card) {
+      var button = card.querySelector('.table-expand-toggle');
+      if (button && button.getAttribute('aria-expanded') !== 'true') button.click();
+    }
     marketFilters.forEach(function (filter) {
       filter.addEventListener('click', function () {
         var selected = filter.getAttribute('data-market-filter');
@@ -119,6 +134,7 @@
         marketCards.forEach(function (card) {
           var visible = selected === 'all' || card.getAttribute('data-market-group') === selected;
           card.classList.toggle('is-filtered-out', !visible);
+          if (visible && selected !== 'all') expandMarketCard(card);
         });
         masonry();
       });
@@ -126,7 +142,7 @@
     var requestedMarket = new URLSearchParams(window.location.search).get('market');
     if (requestedMarket) {
       var requestedFilter = document.querySelector('[data-market-filter="' + requestedMarket + '"]');
-      if (requestedFilter) requestedFilter.click();
+      if (requestedFilter) setTimeout(function () { requestedFilter.click(); }, 0);
     }
   }
 
@@ -323,19 +339,47 @@
     if (!wrap) return;
     wrap.style.maxHeight = wrap.scrollHeight + 'px';
   }
-  function animateMarketLayout(wrap) {
-    if (!wrap) return;
-    var active = true;
-    function frame() {
-      masonry();
-      if (active) requestAnimationFrame(frame);
+  function toggleMarketTable(container, expanded) {
+    var wrap = container.querySelector('[data-collapsible-table]');
+    var button = container.querySelector('.table-expand-toggle');
+    if (!wrap || !button) return;
+
+    // بسته‌شدن کمی آهسته‌تر از بازشدن انجام شود تا جمع‌شدن container نرم‌تر دیده شود.
+    var animationDuration = expanded ? 950 : 1350;
+    wrap.style.transitionDuration = animationDuration + 'ms';
+
+    var currentHeight = wrap.getBoundingClientRect().height;
+    wrap.style.maxHeight = currentHeight + 'px';
+    void wrap.offsetHeight;
+
+    if (expanded) {
+      wrap.classList.add('is-expanded');
+    } else {
+      wrap.classList.remove('is-expanded');
     }
-    wrap.addEventListener('transitionend', function done(e) {
-      if (e.propertyName !== 'max-height') return;
-      active = false;
+
+    requestAnimationFrame(function () {
+      wrap.style.maxHeight = wrap.scrollHeight + 'px';
       masonry();
-    }, { once: true });
-    requestAnimationFrame(frame);
+    });
+
+    // کارت‌های بعدی در چیدمان Masonry باید همزمان با تغییر ارتفاع حرکت کنند.
+    var animationToken = {};
+    wrap._masonryAnimationToken = animationToken;
+    if (mGrid) mGrid.classList.add('is-layout-animating');
+    var startedAt = performance.now();
+    function animateLayout(now) {
+      if (wrap._masonryAnimationToken !== animationToken) return;
+      masonry();
+      if (now - startedAt < animationDuration + 60) {
+        requestAnimationFrame(animateLayout);
+      } else {
+        masonry();
+        if (mGrid) mGrid.classList.remove('is-layout-animating');
+        wrap.style.transitionDuration = '';
+      }
+    }
+    requestAnimationFrame(animateLayout);
   }
   marketContainers.forEach(function (container) {
     var wrap = container.querySelector('[data-collapsible-table]');
@@ -346,25 +390,7 @@
     button.addEventListener('click', function () {
       var expanded = wrap.classList.contains('is-expanded');
       var label = button.querySelector('.table-expand-label');
-      if (expanded) {
-        var openHeight = wrap.scrollHeight;
-        wrap.style.maxHeight = openHeight + 'px';
-        void wrap.offsetHeight;
-        requestAnimationFrame(function () {
-          wrap.classList.remove('is-expanded');
-          syncMarketTableHeight(wrap);
-          animateMarketLayout(wrap);
-        });
-      } else {
-        var closedHeight = wrap.scrollHeight;
-        wrap.style.maxHeight = closedHeight + 'px';
-        wrap.classList.add('is-expanded');
-        void wrap.offsetHeight;
-        requestAnimationFrame(function () {
-          syncMarketTableHeight(wrap);
-          animateMarketLayout(wrap);
-        });
-      }
+      toggleMarketTable(container, !expanded);
       button.setAttribute('aria-expanded', expanded ? 'false' : 'true');
       button.setAttribute('aria-label', expanded ? 'نمایش موارد بیشتر' : 'بستن موارد اضافی');
       if (label) label.textContent = expanded ? 'نمایش بیشتر' : 'بستن';

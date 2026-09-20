@@ -4,6 +4,8 @@ require_once __DIR__ . '/inc/theme.php';
 
 $settings = meyar_load_settings();
 $data     = meyar_build_prices();
+$requestedMarket = (string)($_GET['market'] ?? '');
+$requestedMarket = in_array($requestedMarket, ['gold', 'coins', 'currency', 'silver'], true) ? $requestedMarket : '';
 $items    = array_values(array_filter($data['items'], function ($i) { return empty($i['hidden']); }));
 $byGroup  = ['coins'=>[], 'parsian'=>[], 'gold'=>[], 'silver'=>[], 'currency'=>[]];
 $marketTitles = [
@@ -41,18 +43,19 @@ meyar_theme_topbar($settings, $ticker);
     <p>مرجع کامل قیمت طلا، سکه، ارز و نقره با به‌روزرسانی آنلاین</p>
   </header>
   <nav class="prices-filter-tabs" aria-label="فیلتر بازار" role="tablist">
-    <button type="button" class="prices-filter-tab is-active" data-market-filter="all" role="tab" aria-selected="true">همه</button>
-    <button type="button" class="prices-filter-tab" data-market-filter="gold" role="tab" aria-selected="false">طلا</button>
-    <button type="button" class="prices-filter-tab" data-market-filter="coins" role="tab" aria-selected="false">سکه</button>
-    <button type="button" class="prices-filter-tab" data-market-filter="currency" role="tab" aria-selected="false">ارز</button>
-    <button type="button" class="prices-filter-tab" data-market-filter="silver" role="tab" aria-selected="false">نقره</button>
+    <button type="button" class="prices-filter-tab<?= $requestedMarket === '' ? ' is-active' : '' ?>" data-market-filter="all" role="tab" aria-selected="<?= $requestedMarket === '' ? 'true' : 'false' ?>">همه</button>
+    <button type="button" class="prices-filter-tab<?= $requestedMarket === 'gold' ? ' is-active' : '' ?>" data-market-filter="gold" role="tab" aria-selected="<?= $requestedMarket === 'gold' ? 'true' : 'false' ?>">طلا</button>
+    <button type="button" class="prices-filter-tab<?= $requestedMarket === 'coins' ? ' is-active' : '' ?>" data-market-filter="coins" role="tab" aria-selected="<?= $requestedMarket === 'coins' ? 'true' : 'false' ?>">سکه</button>
+    <button type="button" class="prices-filter-tab<?= $requestedMarket === 'currency' ? ' is-active' : '' ?>" data-market-filter="currency" role="tab" aria-selected="<?= $requestedMarket === 'currency' ? 'true' : 'false' ?>">ارز</button>
+    <button type="button" class="prices-filter-tab<?= $requestedMarket === 'silver' ? ' is-active' : '' ?>" data-market-filter="silver" role="tab" aria-selected="<?= $requestedMarket === 'silver' ? 'true' : 'false' ?>">نقره</button>
   </nav>
   <div class="tables-grid">
     <?php foreach (['gold', 'coins', 'currency', 'parsian', 'silver'] as $gid):
         if (empty($byGroup[$gid])) continue;
         $itemsInGroup = $byGroup[$gid];
         $hasExtraItems = count($itemsInGroup) > 5; ?>
-    <section class="price-card<?= $hasExtraItems ? ' has-expand' : '' ?>" data-market-container data-market-group="<?= $gid === 'parsian' ? 'coins' : meyar_h($gid) ?>">
+    <?php $marketGroup = $gid === 'parsian' ? 'coins' : $gid; $isRequestedGroup = $requestedMarket !== '' && $requestedMarket === $marketGroup; ?>
+    <section class="price-card<?= $hasExtraItems ? ' has-expand' : '' ?><?= $requestedMarket !== '' && !$isRequestedGroup ? ' is-filtered-out' : '' ?>" data-market-container data-market-group="<?= meyar_h($marketGroup) ?>">
       <header class="price-card-head"><h2><?= meyar_h($marketTitles[$gid]) ?></h2></header>
       <div class="market-list" data-collapsible-table role="list">
         <?php foreach ($itemsInGroup as $index => $i): ?>
