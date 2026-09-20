@@ -133,9 +133,9 @@ img { max-width: 100%; }
 .site-header.scrolled { background: rgba(11, 18, 32, .99); box-shadow: 0 12px 32px rgba(3, 8, 18, .28); }
 .site-header.header-hidden { transform: translateY(-100%); }
 .header-inner { display: flex; align-items: center; justify-content: space-between; min-height: 100px; direction: rtl; }
-.brand { position: relative; display: inline-flex; align-self: stretch; flex: 1 1 0; align-items: center; justify-content: center; }
-.brand-logo { position: absolute; top: 50%; left: 50%; display: block; width: 96px; height: 124px; aspect-ratio: 1103 / 1426; object-fit: contain; transform: translate(-50%, -50%); transition: transform .3s; }
-.brand:hover .brand-logo { transform: translate(-50%, -50%) scale(1.05); }
+.brand { position: relative; z-index: 2; display: inline-flex; align-self: stretch; flex: 1 1 0; align-items: center; justify-content: flex-start; min-width: 96px; }
+.brand-logo { position: relative; z-index: 2; display: block; width: 96px; height: 124px; aspect-ratio: 1103 / 1426; object-fit: contain; transform: none; transition: transform .3s; }
+.brand:hover .brand-logo { transform: scale(1.05); }
 .main-nav { display: flex; flex: 0 0 auto; align-items: center; align-self: center; gap: 2px; margin: 0; order: 2; direction: rtl; height: 100%; }
 .main-nav a {
   padding: 29px 12px 25px; font-size: 13px; font-weight: 600;
@@ -1105,6 +1105,8 @@ main#prices {
 .market-insight-list ul { display: grid; gap: 9px; list-style: none; }
 .market-insight-list li { position: relative; padding-right: 14px; color: #cbd5e1; font-size: 10px; line-height: 1.8; }
 .market-insight-list li::before { position: absolute; top: .75em; right: 0; width: 5px; height: 5px; border-radius: 50%; background: #d4af37; box-shadow: 0 0 8px rgba(212,175,55,.5); content: ''; }
+.market-insight-link { display: inline; color: inherit; text-decoration: none; text-decoration-thickness: 1px; text-underline-offset: 3px; transition: color .2s, text-decoration-color .2s; }
+.market-insight-link:hover { color: #f1d27d; text-decoration: underline; text-decoration-color: rgba(212,175,55,.75); }
 
 @media (max-width: 1024px) {
   .hero-static-content { grid-template-columns: 1fr .9fr; gap: 30px; }
@@ -1404,6 +1406,46 @@ main#prices {
 .footer-bottom .container { justify-content: center; text-align: center; }
 
 /* ═══ صفحه قیمت‌ها — هم‌راستا با تم اصلی ═══ */
+.ai-analysis-page { position: relative; min-height: 640px; padding-top: 58px; padding-bottom: 78px; }
+.ai-analysis-back { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 18px; color: #a17a1c; font-size: 12px; font-weight: 700; }
+.ai-analysis-back:hover { color: #071426; }
+.ai-analysis-card { max-width: 820px; margin: 0 auto; padding: 30px 34px; border: 1px solid rgba(201,162,39,.28); border-radius: 24px; background: linear-gradient(145deg, #10223a, #071426 78%); box-shadow: 0 24px 60px rgba(11,20,38,.2); color: #dbe7f4; }
+.ai-analysis-head { display: flex; align-items: center; gap: 13px; padding-bottom: 20px; border-bottom: 1px solid rgba(148,163,184,.16); }
+.ai-analysis-icon { display: grid; width: 46px; height: 46px; flex: 0 0 46px; place-items: center; border: 1px solid rgba(212,175,55,.5); border-radius: 14px; color: #f0cf7a; background: rgba(212,175,55,.12); font-size: 22px; }
+.ai-analysis-label { color: #d4af37; font-size: 10px; }
+.ai-analysis-card h1 { margin-top: 4px; color: #fff; font-size: clamp(18px, 3vw, 27px); line-height: 1.6; }
+.ai-analysis-topic { margin-top: 20px; padding: 11px 14px; border-right: 3px solid #d4af37; border-radius: 9px; color: #94a3b8; background: rgba(2,6,23,.3); font-size: 11px; }
+.ai-analysis-topic b { color: #f1d27d; font-weight: 700; }
+.ai-analysis-loading { display: grid; justify-items: center; gap: 12px; padding: 58px 12px 38px; color: #94a3b8; font-size: 12px; text-align: center; }
+.ai-analysis-loading[hidden],
+.ai-analysis-content[hidden],
+.ai-analysis-error[hidden] { display: none !important; }
+.ai-analysis-spinner { width: 28px; height: 28px; border: 2px solid rgba(212,175,55,.25); border-top-color: #d4af37; border-radius: 50%; animation: ai-spin .8s linear infinite; }
+@keyframes ai-spin { to { transform: rotate(360deg); } }
+.ai-analysis-content { padding-top: 24px; }
+.ai-analysis-explanation { color: #dbe7f4; font-size: 14px; line-height: 2.35; white-space: pre-line; }
+.ai-analysis-content h2 { margin: 28px 0 12px; color: #f1d27d; font-size: 15px; }
+.ai-analysis-content ul { display: grid; gap: 10px; padding: 0; list-style: none; }
+.ai-analysis-content li { position: relative; padding-right: 17px; color: #b7c7d9; font-size: 12px; line-height: 2; }
+.ai-analysis-content li::before { position: absolute; top: .82em; right: 0; width: 6px; height: 6px; border-radius: 50%; background: #d4af37; box-shadow: 0 0 8px rgba(212,175,55,.55); content: ''; }
+.ai-analysis-disclaimer { margin-top: 26px; padding: 12px 14px; border: 1px solid rgba(214,58,58,.48); border-radius: 10px; color: #fecaca; background: rgba(127,29,29,.28); box-shadow: inset 3px 0 0 #d63a3a, 0 8px 22px rgba(127,29,29,.12); font-size: 10px; line-height: 2; }
+.ai-analysis-error { margin-top: 25px; padding: 16px; border: 1px solid rgba(220,38,38,.25); border-radius: 10px; color: #fca5a5; background: rgba(127,29,29,.16); font-size: 12px; text-align: center; }
+.ai-analysis-modal[hidden] { display: none; }
+.ai-analysis-modal { position: fixed; z-index: 110; inset: 0; display: grid; place-items: center; padding: 22px; }
+.ai-analysis-modal-backdrop { position: absolute; inset: 0; background: rgba(2,8,18,.74); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.ai-analysis-modal-dialog { position: relative; z-index: 1; width: min(850px, 100%); max-height: min(88vh, 760px); overflow-y: auto; border-radius: 24px; box-shadow: 0 30px 90px rgba(0,0,0,.46); }
+.ai-analysis-modal-dialog .ai-analysis-card { max-width: none; margin: 0; }
+.ai-analysis-modal-close { position: absolute; z-index: 2; top: 13px; left: 13px; display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid rgba(212,175,55,.35); border-radius: 50%; color: #cbd5e1; background: rgba(7,20,38,.75); cursor: pointer; transition: color .2s, background .2s, transform .2s; }
+.ai-analysis-modal-close:hover { color: #071426; background: #d4b038; transform: rotate(90deg); }
+.ai-analysis-modal-close i { font-size: 15px; }
+body.ai-modal-open { overflow: hidden; }
+@media (max-width: 600px) {
+  .ai-analysis-page { min-height: 520px; padding-top: 36px; padding-bottom: 54px; }
+  .ai-analysis-card { padding: 23px 18px; border-radius: 18px; }
+  .ai-analysis-explanation { font-size: 12.5px; line-height: 2.2; }
+  .ai-analysis-modal { padding: 10px; }
+  .ai-analysis-modal-dialog { max-height: 92vh; border-radius: 18px; }
+}
 main#prices.prices-page {
   margin-top: 0; padding-top: 58px; padding-bottom: 72px; border-radius: 0;
   background: radial-gradient(circle at 88% 4%, rgba(201,162,39,.08), transparent 22%), #f5f7fc;
@@ -1614,3 +1656,157 @@ main#prices.prices-page .market-asset { min-height: 56px; }
 .chat-msg.a .chat-bubble { border-radius: 14px; }
 .chat-input-row button,
 .chat-input-row button i { color: #071426; }
+
+/* ═══ هدر تبلت — جلوگیری از فشردگی و بیرون‌زدگی جستجو ═══ */
+@media (min-width: 769px) and (max-width: 920px) {
+  .header-inner {
+    min-height: 76px;
+    gap: 10px;
+    padding: 0 14px;
+    flex-wrap: nowrap;
+  }
+  .brand {
+    flex: 0 0 64px;
+    order: 1;
+  }
+  .brand-logo {
+    width: 58px;
+    height: 75px;
+  }
+  .main-nav {
+    display: none;
+    position: absolute;
+    top: 76px;
+    right: 0;
+    left: 0;
+    height: auto;
+    padding: 10px 14px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    background: #0b1220;
+    box-shadow: 0 20px 40px rgba(3, 8, 18, .34);
+    border-bottom: 1px solid rgba(201, 162, 39, .22);
+  }
+  .main-nav.open { display: flex; }
+  .main-nav a,
+  .nav-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 12px;
+    color: #cbd5e1;
+    font: 600 13px var(--font);
+    text-align: right;
+    transition: color .25s, background .25s;
+  }
+  .nav-dropdown-toggle { justify-content: flex-start; }
+  .main-nav a:hover,
+  .main-nav a.active,
+  .nav-dropdown-toggle:hover,
+  .nav-dropdown-toggle.active {
+    border-radius: 8px;
+    color: #f4d77c;
+    background: rgba(201, 162, 39, .08);
+  }
+  .nav-dropdown-toggle i {
+    margin-right: 6px;
+    transition: transform .25s;
+  }
+  .nav-dropdown.open .nav-dropdown-toggle i { transform: rotate(180deg); }
+  .main-nav a::after,
+  .nav-dropdown-toggle::after { right: 10px; left: auto; bottom: 7px; width: 28px; }
+  .nav-dropdown-menu {
+    position: static;
+    display: none;
+    min-width: 0;
+    margin: 0 12px 5px 0;
+    padding: 3px 7px;
+    border: 0;
+    border-right: 1px solid rgba(201, 162, 39, .3);
+    border-radius: 0;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+  .nav-dropdown.open .nav-dropdown-menu { display: block; }
+  .nav-dropdown-menu a { padding: 7px 10px; }
+  .header-actions {
+    flex: 0 1 auto;
+    order: 2;
+    margin-right: 0;
+    margin-left: auto;
+  }
+  .header-search {
+    width: min(38vw, 210px);
+    min-width: 150px;
+    height: 34px;
+  }
+  .nav-toggle { display: flex; order: 3; }
+}
+
+/* رفتار و ظاهر مشترک آیتم‌های منوی بازشونده در تبلت و موبایل */
+@media (max-width: 920px) {
+  .main-nav a,
+  .nav-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 12px;
+    color: #cbd5e1;
+    font: 600 13px var(--font);
+    text-align: right;
+    transition: color .25s, background .25s;
+  }
+  .nav-dropdown-toggle { justify-content: flex-start; }
+  .main-nav a:hover,
+  .main-nav a.active,
+  .nav-dropdown-toggle:hover,
+  .nav-dropdown-toggle.active {
+    border-radius: 8px;
+    color: #f4d77c;
+    background: rgba(201, 162, 39, .08);
+  }
+  .nav-dropdown-toggle i {
+    margin-right: 6px;
+    transition: transform .25s;
+  }
+  .nav-dropdown.open .nav-dropdown-toggle i { transform: rotate(180deg); }
+  .main-nav a::after,
+  .nav-dropdown-toggle::after { right: 10px; left: auto; bottom: 7px; width: 28px; }
+  .nav-dropdown-menu a { min-height: 38px; padding: 7px 10px; background: transparent; }
+}
+
+/* ═══ چیدمان مخصوص موبایل‌های کوچک مثل iPhone SE ═══ */
+@media (max-width: 430px) {
+  .header-inner {
+    min-height: 70px;
+    gap: 8px;
+    padding: 0 10px;
+    flex-wrap: nowrap;
+  }
+  .brand {
+    flex: 0 0 56px;
+    min-width: 56px;
+    order: 1;
+  }
+  .brand-logo { width: 54px; height: 70px; }
+  .nav-toggle {
+    flex: 0 0 auto;
+    order: 2;
+    padding: 7px 9px;
+  }
+  .header-actions {
+    flex: 0 1 auto;
+    order: 3;
+    margin-right: 0;
+    margin-left: 0;
+  }
+  .header-search {
+    width: min(45vw, 170px);
+    min-width: 0;
+    height: 34px;
+  }
+}

@@ -7,7 +7,7 @@ header('Cache-Control: no-store');
 
 $cacheFile = MEYAR_DATA . '/market_insight_cache.json';
 $cacheTtl  = 900;
-$apiKey    = trim((string)(getenv('OPENAI_API_KEY') ?: ($_ENV['OPENAI_API_KEY'] ?? $_SERVER['OPENAI_API_KEY'] ?? '')));
+$apiKey    = meyar_env('OPENAI_API_KEY');
 
 function market_insight_response(array $payload, int $status = 200): void {
     http_response_code($status);
@@ -54,7 +54,7 @@ $prompt = 'بر اساس داده‌های لحظه‌ای بازار زیر، �
     . ' اگر داده کافی نیست، از عبارت‌های احتمالی مثل «می‌تواند» استفاده کن. داده‌ها: ' . $marketJson;
 
 $requestBody = json_encode([
-    'model' => getenv('OPENAI_MODEL') ?: 'gpt-5-mini',
+    'model' => meyar_env('OPENAI_MODEL') ?: 'gpt-5-mini',
     'store' => false,
     'input' => [
         [

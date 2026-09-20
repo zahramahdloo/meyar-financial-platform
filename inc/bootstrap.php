@@ -13,6 +13,34 @@ date_default_timezone_set('Asia/Tehran');
 
 if (!is_dir(MEYAR_DATA)) { @mkdir(MEYAR_DATA, 0755, true); }
 
+/* ---------- server environment ---------- */
+function meyar_env(string $key): string {
+    static $fileValues = null;
+    $value = getenv($key);
+    if ($value !== false && trim((string)$value) !== '') return trim((string)$value);
+    if (!empty($_ENV[$key])) return trim((string)$_ENV[$key]);
+    if (!empty($_SERVER[$key])) return trim((string)$_SERVER[$key]);
+
+    if ($fileValues === null) {
+        $fileValues = [];
+        foreach ([MEYAR_ROOT . '/.env.local', MEYAR_ROOT . '/.env'] as $envFile) {
+            if (!is_file($envFile)) continue;
+            foreach ((array)@file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+                $line = trim((string)$line);
+                if ($line === '' || $line[0] === '#' || strpos($line, '=') === false) continue;
+                [$name, $envValue] = explode('=', $line, 2);
+                $name = trim($name);
+                $envValue = trim($envValue);
+                if ((strlen($envValue) >= 2) && (($envValue[0] === '"' && substr($envValue, -1) === '"') || ($envValue[0] === "'" && substr($envValue, -1) === "'"))) {
+                    $envValue = substr($envValue, 1, -1);
+                }
+                if ($name !== '' && !array_key_exists($name, $fileValues)) $fileValues[$name] = $envValue;
+            }
+        }
+    }
+    return trim((string)($fileValues[$key] ?? ''));
+}
+
 /* ---------- settings ---------- */
 
 function meyar_default_settings(): array {
