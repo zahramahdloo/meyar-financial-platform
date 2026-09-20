@@ -61,7 +61,9 @@
   var mGrid = document.querySelector('.tables-grid');
   function masonry() {
     if (!mGrid) return;
-    var cards = [].filter.call(mGrid.children, function (c) { return c.offsetParent !== null || mGrid.classList.contains('masonry-on'); });
+    var cards = [].filter.call(mGrid.children, function (c) {
+      return !c.classList.contains('is-filtered-out') && (c.offsetParent !== null || mGrid.classList.contains('masonry-on'));
+    });
     if (!cards.length) return;
     var W = mGrid.clientWidth;
     var cols = W > 900 ? 2 : 1;
@@ -100,6 +102,32 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(masonry);
     masonry();
     setTimeout(masonry, 400);
+  }
+
+  /* ---------- فیلتر بازار در صفحه قیمت‌ها ---------- */
+  var marketFilters = document.querySelectorAll('[data-market-filter]');
+  if (marketFilters.length && mGrid) {
+    var marketCards = mGrid.querySelectorAll('[data-market-container]');
+    marketFilters.forEach(function (filter) {
+      filter.addEventListener('click', function () {
+        var selected = filter.getAttribute('data-market-filter');
+        marketFilters.forEach(function (item) {
+          var active = item === filter;
+          item.classList.toggle('is-active', active);
+          item.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        marketCards.forEach(function (card) {
+          var visible = selected === 'all' || card.getAttribute('data-market-group') === selected;
+          card.classList.toggle('is-filtered-out', !visible);
+        });
+        masonry();
+      });
+    });
+    var requestedMarket = new URLSearchParams(window.location.search).get('market');
+    if (requestedMarket) {
+      var requestedFilter = document.querySelector('[data-market-filter="' + requestedMarket + '"]');
+      if (requestedFilter) requestedFilter.click();
+    }
   }
 
   /* ---------- هدر و منو ---------- */
@@ -230,6 +258,20 @@
     if (!wrap) return;
     wrap.style.maxHeight = wrap.scrollHeight + 'px';
   }
+  function animateMarketLayout(wrap) {
+    if (!wrap) return;
+    var active = true;
+    function frame() {
+      masonry();
+      if (active) requestAnimationFrame(frame);
+    }
+    wrap.addEventListener('transitionend', function done(e) {
+      if (e.propertyName !== 'max-height') return;
+      active = false;
+      masonry();
+    }, { once: true });
+    requestAnimationFrame(frame);
+  }
   marketContainers.forEach(function (container) {
     var wrap = container.querySelector('[data-collapsible-table]');
     var button = container.querySelector('.table-expand-toggle');
@@ -240,20 +282,27 @@
       var expanded = wrap.classList.contains('is-expanded');
       var label = button.querySelector('.table-expand-label');
       if (expanded) {
-        syncMarketTableHeight(wrap);
+        var openHeight = wrap.scrollHeight;
+        wrap.style.maxHeight = openHeight + 'px';
+        void wrap.offsetHeight;
         requestAnimationFrame(function () {
           wrap.classList.remove('is-expanded');
           syncMarketTableHeight(wrap);
+          animateMarketLayout(wrap);
         });
       } else {
+        var closedHeight = wrap.scrollHeight;
+        wrap.style.maxHeight = closedHeight + 'px';
         wrap.classList.add('is-expanded');
-        syncMarketTableHeight(wrap);
+        void wrap.offsetHeight;
+        requestAnimationFrame(function () {
+          syncMarketTableHeight(wrap);
+          animateMarketLayout(wrap);
+        });
       }
       button.setAttribute('aria-expanded', expanded ? 'false' : 'true');
       button.setAttribute('aria-label', expanded ? 'نمایش موارد بیشتر' : 'بستن موارد اضافی');
       if (label) label.textContent = expanded ? 'نمایش بیشتر' : 'بستن';
-      requestAnimationFrame(masonry);
-      setTimeout(masonry, 480);
     });
   });
   masonry();
@@ -426,9 +475,6 @@
       if (overviewTime) overviewTime.textContent = updateTime;
       if (!overviewDate && !overviewTime) overviewUpdated.textContent = updateTime;
     }
-    document.querySelectorAll('[data-head-time]').forEach(function (el) {
-      if (data.updated) el.textContent = data.updated;
-    });
   }
 
   /* ---------- نمودار واقعی داشبورد بازار ---------- */

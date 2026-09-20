@@ -33,15 +33,27 @@ meyar_theme_topbar($settings, $ticker);
 <main class="container prices-page" id="prices">
   <header class="prices-page-head">
     <a class="prices-back" href="./">بازگشت به صفحه اصلی <i class="hgi-stroke hgi-arrow-right-01" aria-hidden="true"></i></a>
-    <h1>قیمت‌های بازار</h1>
-    <p>مشاهده لحظه‌ای قیمت طلا، ارز، سکه و سایر دارایی‌ها</p>
+    <div class="prices-page-updated" aria-label="آخرین به‌روزرسانی">
+      <span>آخرین به‌روزرسانی</span>
+      <strong><?= meyar_h($data['updated_date'] ?? '—') ?> <b aria-hidden="true">—</b> <?= meyar_h($data['updated'] ?? '—') ?></strong>
+    </div>
+    <h1>قیمت‌های لحظه‌ای بازار</h1>
+    <p>مرجع کامل قیمت طلا، سکه، ارز و نقره با به‌روزرسانی آنلاین</p>
   </header>
+  <nav class="prices-filter-tabs" aria-label="فیلتر بازار" role="tablist">
+    <button type="button" class="prices-filter-tab is-active" data-market-filter="all" role="tab" aria-selected="true">همه</button>
+    <button type="button" class="prices-filter-tab" data-market-filter="gold" role="tab" aria-selected="false">طلا</button>
+    <button type="button" class="prices-filter-tab" data-market-filter="coins" role="tab" aria-selected="false">سکه</button>
+    <button type="button" class="prices-filter-tab" data-market-filter="currency" role="tab" aria-selected="false">ارز</button>
+    <button type="button" class="prices-filter-tab" data-market-filter="silver" role="tab" aria-selected="false">نقره</button>
+  </nav>
   <div class="tables-grid">
-    <?php foreach (['gold', 'currency', 'coins', 'silver', 'parsian'] as $gid):
+    <?php foreach (['gold', 'coins', 'currency', 'parsian', 'silver'] as $gid):
         if (empty($byGroup[$gid])) continue;
-        $itemsInGroup = $byGroup[$gid]; ?>
-    <section class="price-card <?= $gid === 'parsian' ? 'w-full' : 'w-half' ?>" data-market-container>
-      <header class="price-card-head"><h2><?= meyar_h($marketTitles[$gid]) ?></h2><span class="head-time" data-head-time><?= meyar_h($data['updated']) ?></span></header>
+        $itemsInGroup = $byGroup[$gid];
+        $hasExtraItems = count($itemsInGroup) > 5; ?>
+    <section class="price-card<?= $hasExtraItems ? ' has-expand' : '' ?>" data-market-container data-market-group="<?= $gid === 'parsian' ? 'coins' : meyar_h($gid) ?>">
+      <header class="price-card-head"><h2><?= meyar_h($marketTitles[$gid]) ?></h2></header>
       <div class="market-list" data-collapsible-table role="list">
         <?php foreach ($itemsInGroup as $index => $i): ?>
         <a class="market-asset<?= $index >= 5 ? ' is-extra' : '' ?>" href="price/<?= meyar_h($i['id']) ?>" data-id="<?= meyar_h($i['id']) ?>" role="listitem">
@@ -54,7 +66,9 @@ meyar_theme_topbar($settings, $ticker);
         </a>
         <?php endforeach; ?>
       </div>
-      <button type="button" class="table-expand-toggle" aria-expanded="false" aria-label="نمایش موارد بیشتر" <?= count($itemsInGroup) <= 5 ? 'disabled' : '' ?>><span aria-hidden="true">⌄</span><span class="table-expand-label">نمایش بیشتر</span></button>
+      <?php if ($hasExtraItems): ?>
+      <button type="button" class="table-expand-toggle" aria-expanded="false" aria-label="نمایش موارد بیشتر"><span aria-hidden="true">⌄</span><span class="table-expand-label">نمایش بیشتر</span></button>
+      <?php endif; ?>
     </section>
     <?php endforeach; ?>
   </div>

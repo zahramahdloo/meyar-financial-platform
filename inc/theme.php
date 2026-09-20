@@ -35,8 +35,9 @@ function meyar_base(): string {
 function meyar_theme_topbar(array $settings, array $ticker): void {
     $base = meyar_base();
     $requestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
-    $isPricePage = strpos($requestUri, '/price/') !== false;
-    $isTvPage = strpos($requestUri, '/tv') !== false;
+    $requestPath = (string)(parse_url($requestUri, PHP_URL_PATH) ?? $requestUri);
+    $isPricePage = strpos($requestPath, '/price/') !== false || basename($requestPath) === 'prices.php';
+    $isTvPage = strpos($requestPath, '/tv') !== false;
 ?>
 <!-- ═══ نوار بازار و تیکر قیمت ═══ -->
 <div class="ticker-bar" id="tickerBar">
