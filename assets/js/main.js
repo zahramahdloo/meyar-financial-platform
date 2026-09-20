@@ -228,6 +228,19 @@
     function normalizeSearch(value) {
       return String(value || '').toLowerCase().replace(/[يى]/g, 'ی').replace(/ك/g, 'ک').replace(/\u200c/g, '').replace(/[،,٬]/g, '').replace(/\s+/g, ' ').trim();
     }
+    function marketForItem(itemId, text) {
+      var id = normalizeSearch(itemId);
+      var value = normalizeSearch(text);
+      if (/^(sekee|sekeb|nim|rob|gerami|parsian_)/.test(id) || /سکه|پارسیان/.test(value)) return 'coins';
+      if (id === 'silver999' || /نقره/.test(value)) return 'silver';
+      if (/^(geram|mesghal|ons)/.test(id) || /طلا|اونس|مثقال|عیار/.test(value)) return 'gold';
+      if (/^(usd|eur|aed|gbp|try|chf|cny|jpy|krw|cad|aud|nzd|sgd|inr|pkr|iqd|syp|afn|dkk|sek|nok|sar|qar|omr|kwd|bhd|thb|myr|rub|azn|amd|gel|tjs|tmt|kgs)$/.test(id)) return 'currency';
+      if (/دلار|یورو|درهم|پوند|لیر|فرانک|یوان|ین|وون|روپیه|دینار|افغانی|کرون|ریال|بات|روبل|منات|درام|لاری|سامانی|سوم/.test(value)) return 'currency';
+      return null;
+    }
+    function marketHref(market) {
+      return (window.MEYAR_BASE || './') + 'prices.php?market=' + encodeURIComponent(market);
+    }
     function closeSearchResults() {
       if (!searchResults) return;
       searchResults.hidden = true;
@@ -239,26 +252,26 @@
       if (!query) { closeSearchResults(); return; }
       var entries = [];
       var categories = [
-        { key: 'طلا', label: 'بازار طلا', market: 'gold' },
-        { key: 'سکه', label: 'بازار سکه', market: 'coins' },
-        { key: 'ارز', label: 'بازار ارز', market: 'currency' },
-        { key: 'نقره', label: 'بازار نقره', market: 'silver' }
+        { keys: ['طلا', 'اونس', 'مثقال', 'عیار'], label: 'بازار طلا', market: 'gold' },
+        { keys: ['سکه', 'پارسیان'], label: 'بازار سکه', market: 'coins' },
+        { keys: ['ارز', 'دلار', 'یورو', 'درهم', 'پوند', 'لیر'], label: 'بازار ارز', market: 'currency' },
+        { keys: ['نقره'], label: 'بازار نقره', market: 'silver' }
       ];
       categories.forEach(function (category) {
-        if (query.indexOf(category.key) === -1) return;
-        entries.push({ text: category.label, href: (window.MEYAR_BASE || './') + 'prices.php?market=' + category.market, meta: 'ورود به بازار' });
+        if (!category.keys.some(function (key) { return query.indexOf(key) !== -1; })) return;
+        entries.push({ text: category.label, href: marketHref(category.market), meta: 'مشاهده کامل بازار' });
       });
       document.querySelectorAll('[data-id], [data-overview-card]').forEach(function (item) {
         var title = item.querySelector('.market-asset-title, .cell-title, .market-card-title, .market-overview-title');
         var text = (title || item).textContent.trim();
         var searchableText = item.textContent.trim();
         if (!text || normalizeSearch(searchableText).indexOf(query) === -1) return;
-        var href = item.getAttribute('href') || item.getAttribute('data-href');
         var itemId = item.getAttribute('data-id') || item.getAttribute('data-overview-card');
-        if (!href && itemId) href = (window.MEYAR_BASE || './') + 'price/' + itemId;
-        if (!href) return;
+        var market = marketForItem(itemId, text);
+        if (!market) return;
+        var href = marketHref(market);
         if (entries.some(function (entry) { return entry.href === href; })) return;
-        entries.push({ text: text, href: href, meta: 'مشاهده قیمت' });
+        entries.push({ text: text, href: href, meta: 'مشاهده کامل بازار' });
       });
       entries.slice(0, 7).forEach(function (entry) {
         var link = document.createElement('a');
@@ -290,16 +303,12 @@
         window.location.href = firstResult.href;
         return;
       }
-      var match = [].find.call(document.querySelectorAll('tr[data-id], [data-overview-card]'), function (row) {
-        return normalizeSearch(row.textContent).indexOf(query) !== -1;
-      });
-      if (match) {
-        match.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        match.classList.add('search-hit');
-        setTimeout(function () { match.classList.remove('search-hit'); }, 1600);
-        return;
-      }
-      window.location.href = (window.MEYAR_BASE || './') + '#prices';
+      var fallbackMarket = null;
+      if (query.indexOf('سکه') !== -1 || query.indexOf('پارسیان') !== -1) fallbackMarket = 'coins';
+      else if (query.indexOf('نقره') !== -1) fallbackMarket = 'silver';
+      else if (query.indexOf('طلا') !== -1 || query.indexOf('اونس') !== -1 || query.indexOf('مثقال') !== -1) fallbackMarket = 'gold';
+      else if (query.indexOf('ارز') !== -1 || /دلار|یورو|درهم|پوند|لیر/.test(query)) fallbackMarket = 'currency';
+      window.location.href = fallbackMarket ? marketHref(fallbackMarket) : (window.MEYAR_BASE || './') + 'prices.php';
     });
     document.addEventListener('click', function (e) {
       if (!e.target.closest('#headerSearchForm')) closeSearchResults();
