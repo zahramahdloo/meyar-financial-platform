@@ -19,7 +19,7 @@ function meyar_theme_head(string $title, string $desc = '', string $canonical = 
 <link rel="icon" type="image/png" href="<?= meyar_base() ?>assets/img/meyar-logo/Meyar-logo.png">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
-<link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=13">
+<link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=20">
 <?= $extraHead ?>
 </head>
 <body>
@@ -183,17 +183,22 @@ function meyar_theme_footer(array $settings): void {
   <div class="chat-panel" id="chatPanel" hidden>
     <div class="chat-head">
       <div class="chat-head-info">
-        <span class="online-dot"></span>
+        <span class="chat-head-brand"><img src="<?= $base ?>assets/img/meyar-logo/Meyar-logo.png" alt="معیار"></span>
         <div>
-          <div class="chat-head-title">پشتیبانی سکه معیار</div>
-          <div class="chat-head-sub">معمولاً سریع پاسخ می‌دهیم</div>
+          <div class="chat-head-title">پشتیبانی معیار</div>
+          <div class="chat-head-sub">پاسخ‌گوی سوالات شما هستیم</div>
         </div>
       </div>
-      <button class="chat-close" id="chatClose" aria-label="بستن"><i class="hgi-stroke hgi-cancel-01" aria-hidden="true"></i></button>
+      <div class="chat-head-actions">
+        <button class="chat-minimize" id="chatMinimize" type="button" aria-label="کوچک کردن گفتگو" aria-expanded="true"><i class="hgi-stroke hgi-minus-sign" aria-hidden="true"></i></button>
+        <button class="chat-close" id="chatClose" type="button" aria-label="بستن"><i class="hgi-stroke hgi-cancel-01" aria-hidden="true"></i></button>
+      </div>
     </div>
     <div class="chat-body" id="chatBody">
       <div class="chat-msg a">
+        <span class="chat-avatar"><img src="<?= $base ?>assets/img/meyar-logo/Meyar-logo.png" alt="معیار"></span>
         <div class="chat-bubble">سلام 👋 به بورس سکه معیار خوش آمدید. سوال‌تان را بنویسید؛ همکاران ما پاسخ می‌دهند.</div>
+        <div class="chat-meta">۱۴:۳۲</div>
       </div>
     </div>
     <form class="chat-input" id="chatForm" autocomplete="off">
@@ -201,7 +206,7 @@ function meyar_theme_footer(array $settings): void {
       <div class="chat-input-row">
         <input type="text" id="chatText" placeholder="پیام خود را بنویسید…" maxlength="800" required>
         <button type="submit" aria-label="ارسال">
-          <i class="hgi-stroke hgi-sent-01" aria-hidden="true"></i>
+          <i class="hgi hgi-stroke hgi-rounded hgi-sent" aria-hidden="true"></i>
         </button>
       </div>
     </form>
@@ -210,7 +215,7 @@ function meyar_theme_footer(array $settings): void {
 
 <script>window.MEYAR_BASE = '<?= $base ?>';</script>
 <script src="<?= $base ?>assets/js/main.js?v=10"></script>
-<script src="<?= $base ?>assets/js/chat.js?v=1"></script>
+<script src="<?= $base ?>assets/js/chat.js?v=5"></script>
 </body>
 </html>
 <?php

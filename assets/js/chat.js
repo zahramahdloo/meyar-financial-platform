@@ -4,6 +4,7 @@
   var fab = document.getElementById('chatFab');
   var panel = document.getElementById('chatPanel');
   var closeBtn = document.getElementById('chatClose');
+  var minimizeBtn = document.getElementById('chatMinimize');
   var body = document.getElementById('chatBody');
   var form = document.getElementById('chatForm');
   var nameInp = document.getElementById('chatName');
@@ -27,7 +28,10 @@
     var div = document.createElement('div');
     div.className = 'chat-msg ' + (m.s === 'a' ? 'a' : 'v');
     var who = m.s === 'a' ? (m.name ? m.name + ' — پشتیبانی' : 'پشتیبانی') : 'شما';
-    div.innerHTML = '<div class="chat-bubble"></div><div class="chat-meta"></div>';
+    div.innerHTML = (m.s === 'a'
+      ? '<span class="chat-avatar"><img src="' + (window.MEYAR_BASE || './') + 'assets/img/meyar-logo/Meyar-logo.png" alt="معیار"></span><div class="chat-bubble"></div>'
+      : '<span class="chat-avatar chat-user-avatar"><i class="hgi hgi-stroke hgi-rounded hgi-user-03" aria-hidden="true"></i></span><div class="chat-bubble"></div>')
+      + '<div class="chat-meta"></div>';
     div.querySelector('.chat-bubble').textContent = m.body;
     div.querySelector('.chat-meta').textContent = who + ' · ' + (m.t || '');
     body.appendChild(div);
@@ -79,6 +83,13 @@
     panel.hidden = true;
     startPolling(false);
   });
+  if (minimizeBtn) {
+    minimizeBtn.addEventListener('click', function () {
+      var minimized = panel.classList.toggle('is-minimized');
+      minimizeBtn.setAttribute('aria-expanded', minimized ? 'false' : 'true');
+      minimizeBtn.setAttribute('aria-label', minimized ? 'باز کردن گفتگو' : 'کوچک کردن گفتگو');
+    });
+  }
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
