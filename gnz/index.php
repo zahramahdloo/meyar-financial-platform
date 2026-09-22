@@ -127,7 +127,7 @@ new Chart(document.getElementById('visitsChart'), {
     plugins: { legend: { labels: { font: {family:'IRANSansXFaNum'}, color: '#9aa0b5' }, rtl: true } },
     scales: {
       x: { ticks: { font:{family:'IRANSansXFaNum',size:10}, color:'#9aa0b5', maxTicksLimit: 10 }, grid: { display:false } },
-      y: { ticks: { color:'#9aa0b5', precision: 0 }, grid: { color:'rgba(255,255,255,.05)' } }
+      y: { ticks: { font:{family:'IRANSansXFaNum',size:10}, color:'#9aa0b5', precision: 0 }, grid: { color:'rgba(255,255,255,.05)' } }
     }
   }
 });
