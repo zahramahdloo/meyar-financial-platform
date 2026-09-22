@@ -9,7 +9,7 @@ $requestedMarket = in_array($requestedMarket, ['gold', 'coins', 'currency', 'sil
 $items    = array_values(array_filter($data['items'], function ($i) { return empty($i['hidden']); }));
 $byGroup  = ['coins'=>[], 'parsian'=>[], 'gold'=>[], 'silver'=>[], 'currency'=>[]];
 $marketTitles = [
-    'gold'    => 'بازار طلا',
+    'gold'    => 'بازار طلا (آب شده)',
     'currency'=> 'بازار ارز',
     'coins'   => 'بازار سکه',
     'parsian' => 'سکه‌های پارسیان',
@@ -26,7 +26,7 @@ $currencyOrder = ['usd'=>1, 'eur'=>2, 'aed'=>3, 'try'=>4, 'cny'=>5];
 usort($byGroup['currency'], function ($a, $b) use ($currencyOrder) {
     return ($currencyOrder[$a['id']] ?? 99) <=> ($currencyOrder[$b['id']] ?? 99);
 });
-$tickerIds = ['sekee','sekeb','nim','rob','gerami','geram18','usd','eur','ons'];
+$tickerIds = ['sekee','sekeb','nim','rob','gerami','geram18','silver999','usd','eur','ons'];
 $ticker = array_values(array_filter($items, function ($i) use ($tickerIds) { return in_array($i['id'], $tickerIds, true); }));
 
 meyar_theme_head('همه قیمت‌های بازار | سکه معیار', 'قیمت کامل طلا، سکه، ارز و نقره در بازار سکه معیار.');
@@ -56,7 +56,15 @@ meyar_theme_topbar($settings, $ticker);
         $hasExtraItems = count($itemsInGroup) > 5; ?>
     <?php $marketGroup = $gid === 'parsian' ? 'coins' : $gid; $isRequestedGroup = $requestedMarket !== '' && $requestedMarket === $marketGroup; ?>
     <section class="price-card<?= $hasExtraItems ? ' has-expand' : '' ?><?= $requestedMarket !== '' && !$isRequestedGroup ? ' is-filtered-out' : '' ?>" data-market-container data-market-group="<?= meyar_h($marketGroup) ?>">
-      <header class="price-card-head"><h2><?= meyar_h($marketTitles[$gid]) ?></h2></header>
+      <header class="price-card-head">
+        <div class="price-card-title">
+          <span class="price-card-icon" aria-hidden="true"><i class="hgi hgi-stroke hgi-rounded <?= $gid === 'currency' ? 'hgi-cash-02' : ($gid === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01') ?>"></i></span>
+          <h2><?= meyar_h($marketTitles[$gid]) ?></h2>
+        </div>
+      </header>
+      <div class="market-columns-head" aria-hidden="true">
+        <i class="market-columns-spacer" aria-hidden="true"></i><span>تغییر</span><span>فروش</span><span>خرید</span>
+      </div>
       <div class="market-list" data-collapsible-table role="list">
         <?php foreach ($itemsInGroup as $index => $i): ?>
         <a class="market-asset<?= $index >= 5 ? ' is-extra' : '' ?>" href="price/<?= meyar_h($i['id']) ?>" data-id="<?= meyar_h($i['id']) ?>" role="listitem">
@@ -64,8 +72,15 @@ meyar_theme_topbar($settings, $ticker);
             <i class="hgi hgi-stroke hgi-rounded <?= $i['group'] === 'currency' ? 'hgi-cash-02' : ($i['group'] === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01') ?>" aria-hidden="true"></i>
             <span><?= meyar_h($i['title']) ?></span>
           </span>
-          <strong class="market-asset-price" data-cell="live"><?= meyar_h($i['live_fmt']) ?><small><?= meyar_h($i['unit']) ?></small></strong>
-          <span class="market-asset-change <?= $i['dir'] === 'high' ? 'up' : ($i['dir'] === 'low' ? 'down' : 'flat') ?>" data-cell="chg"><span class="market-asset-trend" aria-hidden="true"><i class="hgi-stroke <?= $i['dir'] === 'high' ? 'hgi-arrow-up-right-01' : ($i['dir'] === 'low' ? 'hgi-arrow-down-right-01' : 'hgi-arrow-right-01') ?>"></i></span> <?= meyar_h($i['change_pct']) ?>٪</span>
+          <span class="market-asset-quote buy">
+            <small>خرید</small>
+            <strong data-cell="buy"><?= meyar_h($i['buy_fmt']) ?></strong>
+          </span>
+          <span class="market-asset-quote sell">
+            <small>فروش</small>
+            <strong data-cell="sell"><?= meyar_h($i['sell_fmt']) ?></strong>
+          </span>
+          <span class="market-asset-change <?= $i['dir'] === 'high' ? 'up' : ($i['dir'] === 'low' ? 'down' : 'flat') ?>" data-cell="chg"><?= meyar_h($i['change_pct']) ?>٪ <span class="market-asset-trend" aria-hidden="true"><i class="hgi-stroke <?= $i['dir'] === 'high' ? 'hgi-arrow-up-right-01' : ($i['dir'] === 'low' ? 'hgi-arrow-down-right-01' : 'hgi-arrow-right-01') ?>"></i></span></span>
         </a>
         <?php endforeach; ?>
       </div>

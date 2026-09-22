@@ -69,7 +69,7 @@ $extraHead = '<script type="application/ld+json">' . $schema . '</script>'
 meyar_theme_head($title, $desc, $canonical, $extraHead);
 
 // تیکر
-$tickerIds = ['sekee','sekeb','nim','rob','gerami','geram18','usd','eur','ons'];
+$tickerIds = ['sekee','sekeb','nim','rob','gerami','geram18','silver999','usd','eur','ons'];
 $ticker = array_values(array_filter($data['items'], function ($i) use ($tickerIds) {
     return in_array($i['id'], $tickerIds, true) && empty($i['hidden']);
 }));
