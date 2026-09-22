@@ -19,7 +19,7 @@ function meyar_theme_head(string $title, string $desc = '', string $canonical = 
 <link rel="icon" type="image/png" href="<?= meyar_base() ?>assets/img/meyar-logo/Meyar-logo.png">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
-<link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=22">
+<link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=26">
 <?= $extraHead ?>
 </head>
 <body>
@@ -49,8 +49,6 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
     </div>
     <div class="ticker-viewport" aria-label="قیمت‌های لحظه‌ای بازار">
       <div class="ticker-track" id="tickerTrack">
-        <?php for ($rep = 0; $rep < 2; $rep++): ?>
-          <div class="ticker-group">
       <?php foreach ($ticker as $t): ?>
         <a class="ticker-item" href="<?= $base ?>price/<?= meyar_h($t['id']) ?>" data-tid="<?= meyar_h($t['id']) ?>">
           <span class="ticker-name"><?= meyar_h($t['title']) ?></span>
@@ -60,8 +58,6 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
           </span>
         </a>
       <?php endforeach; ?>
-          </div>
-        <?php endfor; ?>
       </div>
     </div>
   </div>
@@ -80,14 +76,15 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
         <button type="button" class="nav-dropdown-toggle <?= $isPricePage ? 'active' : '' ?>" aria-expanded="false">قیمت‌ها <i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i></button>
         <div class="nav-dropdown-menu">
           <a href="<?= $base ?>prices.php">همه قیمت‌ها</a>
-          <a href="<?= $base ?>price/usd">قیمت ارز</a>
-          <a href="<?= $base ?>price/geram18">قیمت طلا</a>
-          <a href="<?= $base ?>price/sekee">قیمت سکه</a>
-          <a href="<?= $base ?>price/geram18">طلای ۱۸ عیار</a>
-          <a href="<?= $base ?>price/ons">انس جهانی طلا</a>
+          <a href="<?= $base ?>prices.php?market=currency">قیمت ارز</a>
+          <a href="<?= $base ?>prices.php?market=gold">قیمت طلا</a>
+          <a href="<?= $base ?>prices.php?market=coins">قیمت سکه</a>
+          <a href="<?= $base ?>prices.php?market=gold">طلای ۱۸ عیار</a>
+          <a href="<?= $base ?>prices.php?market=silver">نقره</a>
         </div>
       </div>
       <a href="<?= $base ?>tv.php">نمایشگر فروشگاه (TV)</a>
+      <!--
       <div class="nav-dropdown">
         <button type="button" class="nav-dropdown-toggle" aria-expanded="false">خدمات <i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i></button>
         <div class="nav-dropdown-menu">
@@ -97,6 +94,7 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
           <a href="<?= $base ?>#contact">مشاوره تخصصی</a>
         </div>
       </div>
+      -->
       <a href="<?= $base ?>#about">درباره ما</a>
       <a href="<?= $base ?>#contact">تماس با ما</a>
     </nav>
@@ -244,7 +242,7 @@ function meyar_theme_footer(array $settings): void {
 </div>
 
 <script>window.MEYAR_BASE = '<?= $base ?>';</script>
-<script src="<?= $base ?>assets/js/main.js?v=12"></script>
+<script src="<?= $base ?>assets/js/main.js?v=13"></script>
 <script src="<?= $base ?>assets/js/chat.js?v=5"></script>
 <script src="<?= $base ?>assets/js/ai.js?v=5"></script>
 </body>
