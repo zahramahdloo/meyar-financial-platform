@@ -201,6 +201,7 @@
       e.preventDefault();
       var dropdown = toggle.closest('.nav-dropdown');
       var open = dropdown.classList.toggle('open');
+      dropdown.classList.toggle('is-click-closed', !open);
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       document.querySelectorAll('.nav-dropdown').forEach(function (other) {
         if (other !== dropdown) {
@@ -209,6 +210,11 @@
           if (otherToggle) otherToggle.setAttribute('aria-expanded', 'false');
         }
       });
+    });
+  });
+  document.querySelectorAll('.nav-dropdown').forEach(function (dropdown) {
+    dropdown.addEventListener('mouseleave', function () {
+      dropdown.classList.remove('is-click-closed');
     });
   });
   document.addEventListener('click', function (e) {
@@ -414,7 +420,8 @@
 
   /* ---------- بروزرسانی زنده قیمت‌ها ---------- */
   var API = (window.MEYAR_BASE || './') + 'api/prices.php';
-  var REFRESH_MS = 60000;
+  var REFRESH_MS = 30000;
+  var refreshMarketInsights = null;
 
   function updateCell(cell, newVal) {
     if (!cell || cell.textContent.trim() === newVal) return 0;
@@ -462,13 +469,10 @@
     document.querySelectorAll('.market-asset[data-id]').forEach(function (asset) {
       var it = byId[asset.getAttribute('data-id')];
       if (!it) return;
-      var price = asset.querySelector('[data-cell="live"]');
-      if (price) {
-        price.textContent = it.live_fmt || '';
-        var unit = document.createElement('small');
-        unit.textContent = it.unit || '';
-        price.appendChild(unit);
-      }
+      var buyPrice = asset.querySelector('[data-cell="buy"]');
+      var sellPrice = asset.querySelector('[data-cell="sell"]');
+      if (buyPrice) buyPrice.textContent = it.buy_fmt || '';
+      if (sellPrice) sellPrice.textContent = it.sell_fmt || '';
       var chg = asset.querySelector('[data-cell="chg"]');
       if (chg) {
         chg.textContent = '';
@@ -476,8 +480,8 @@
         trend.className = 'market-asset-trend';
         trend.setAttribute('aria-hidden', 'true');
         setDirectionValue(trend, it.dir, '', true);
+        chg.appendChild(document.createTextNode((it.change_pct || '') + '٪'));
         chg.appendChild(trend);
-        chg.appendChild(document.createTextNode(' ' + (it.change_pct || '') + '٪'));
         chg.className = 'market-asset-change ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : 'flat'));
       }
     });
@@ -486,8 +490,10 @@
     document.querySelectorAll('[data-overview-card]').forEach(function (card) {
       var it = byId[card.getAttribute('data-overview-card')];
       if (!it) return;
-      var price = card.querySelector('.market-overview-price strong');
-      if (price) price.textContent = it.live_fmt || '';
+      var buyPrice = card.querySelector('[data-cell="buy"]');
+      var sellPrice = card.querySelector('[data-cell="sell"]');
+      if (buyPrice) buyPrice.textContent = it.buy_fmt || '';
+      if (sellPrice) sellPrice.textContent = it.sell_fmt || '';
       var change = card.querySelector('.market-overview-change');
       if (change) {
         var direction = it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : 'flat');
@@ -518,6 +524,8 @@
     document.querySelectorAll('.market-insight-asset[data-id]').forEach(function (asset) {
       var it = byId[asset.getAttribute('data-id')];
       if (!it) return;
+      var live = asset.querySelector('[data-cell="insight-live"]');
+      if (live) live.textContent = (it.live_fmt || '') + ' ' + (it.unit || '');
       var change = asset.querySelector('[data-cell="insight-change"]');
       if (change) {
         change.textContent = (it.dir === 'high' ? '+' : (it.dir === 'low' ? '−' : '')) + (it.change_pct || '۰') + '٪';
@@ -563,6 +571,10 @@
       }
     });
 
+    // همگام‌سازی نمودارهای وضعیت بازار با همان قیمت لحظه‌ای چارت هیرو
+    if (typeof updateOverviewCharts === 'function') updateOverviewCharts(data, byId);
+    if (typeof refreshMarketInsights === 'function') refreshMarketInsights();
+
     // زمان‌ها
     var lu = document.getElementById('lastUpdate');
     if (lu && data.updated) lu.textContent = data.updated;
@@ -579,79 +591,256 @@
 
   /* ---------- نمودار واقعی داشبورد بازار ---------- */
   var historyEl = document.getElementById('marketHistoryData');
-  var chart = document.getElementById('marketChart');
-  if (historyEl && chart) {
+  var marketChartEl = document.getElementById('marketChart');
+  if (historyEl && marketChartEl) {
     var marketHistory = {};
     try { marketHistory = JSON.parse(historyEl.textContent || '{}'); } catch (e) { marketHistory = {}; }
-    var chartLine = chart.querySelector('.market-chart-line');
-    var chartArea = chart.querySelector('.market-chart-area');
-    var chartButtons = document.querySelectorAll('[data-chart-market]');
+    var chartTooltip = marketChartEl.querySelector('[data-chart-tooltip]');
+    var chartMessage = marketChartEl.querySelector('[data-chart-message]');
+    var marketChartInstance = null;
+    var goldSeries = null;
+    var goldPriceLine = null;
+    var goldChartData = [];
+    var goldPollTimer = null;
+    var goldPollInFlight = false;
+    var goldResizeObserver = null;
+    var goldResizeHandler = null;
+    var GOLD_POLL_MS = 30000;
 
-    function drawMarketChart(marketId) {
-      var points = Array.isArray(marketHistory[marketId]) ? marketHistory[marketId] : [];
-      if (!chartLine || !chartArea || !points.length) {
-        if (chartLine) chartLine.setAttribute('d', '');
-        if (chartArea) chartArea.setAttribute('d', '');
-        return;
+    function faNum(value) {
+      return String(value).replace(/\d/g, function (digit) { return ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'][+digit]; });
+    }
+    function formatGoldPrice(value) {
+      return faNum(Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+    }
+    function normalizeUnixTimestamp(value) {
+      var timestamp = typeof value === 'number' ? value : Number(value);
+      if (!Number.isFinite(timestamp) || timestamp <= 0) return NaN;
+      if (timestamp > 100000000000) timestamp /= 1000;
+      return Math.floor(timestamp);
+    }
+    function historicalDateToUnix(dateValue) {
+      var dateText = String(dateValue || '').replace(/\//g, '-');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateText)) return NaN;
+      var timestamp = Date.parse(dateText + 'T12:00:00+03:30');
+      return Number.isFinite(timestamp) ? Math.floor(timestamp / 1000) : NaN;
+    }
+    function formatChartDate(timestamp) {
+      var date = new Date(timestamp * 1000);
+      try {
+        var datePart = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { timeZone: 'Asia/Tehran', year: 'numeric', month: 'long', day: 'numeric' }).format(date);
+        var timePart = new Intl.DateTimeFormat('fa-IR', { timeZone: 'Asia/Tehran', hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
+        return datePart + ' - ' + timePart;
+      } catch (e) {
+        return date.toLocaleString('fa-IR');
       }
-      var values = points.map(function (p) { return Number(p.v) || 0; });
-      var min = Math.min.apply(null, values), max = Math.max.apply(null, values);
-      var spread = max - min || Math.max(max * .01, 1);
-      var coords = values.map(function (value, index) {
-        var x = values.length === 1 ? 260 : 8 + (index / (values.length - 1)) * 504;
-        var y = 72 - ((value - min) / spread) * 60;
-        return [x, y];
+    }
+    function formatChartAxisDate(timestamp) {
+      var date = new Date(timestamp * 1000);
+      try {
+        var parts = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+          timeZone: 'Asia/Tehran', year: 'numeric', month: 'long', day: 'numeric'
+        }).formatToParts(date).reduce(function (result, part) {
+          if (part.type === 'day' || part.type === 'month' || part.type === 'year') result[part.type] = part.value;
+          return result;
+        }, {});
+        return '\u2067' + parts.day + '\u00a0' + parts.month + '\u00a0' + parts.year + '\u2069';
+      } catch (e) {
+        return formatChartDate(timestamp).split(' - ')[0];
+      }
+    }
+    function normalizeChartData(rows) {
+      var unique = {};
+      (Array.isArray(rows) ? rows : []).forEach(function (row) {
+        var time = normalizeUnixTimestamp(row && (row.time || row.ts));
+        if (!Number.isFinite(time) && row) time = historicalDateToUnix(row.g);
+        var value = Number(row && (row.value !== undefined ? row.value : row.v));
+        if (Number.isFinite(time) && Number.isFinite(value) && value > 0) unique[time] = { time: time, value: value };
       });
-      var d = coords.map(function (p, index) { return (index ? 'L' : 'M') + p[0].toFixed(2) + ' ' + p[1].toFixed(2); }).join(' ');
-      var area = d + ' L512 82 L8 82 Z';
-      chartLine.setAttribute('d', d);
-      chartArea.setAttribute('d', area);
-      chartLine.style.opacity = '0';
-      chartArea.style.opacity = '0';
-      requestAnimationFrame(function () {
-        chartLine.style.opacity = '1';
-        chartArea.style.opacity = '.16';
+      return Object.keys(unique).map(function (key) { return unique[key]; }).sort(function (a, b) { return a.time - b.time; });
+    }
+    function showChartMessage(message) {
+      if (!chartMessage) return;
+      chartMessage.textContent = message;
+      chartMessage.hidden = false;
+    }
+    function hideChartMessage() {
+      if (chartMessage) chartMessage.hidden = true;
+    }
+    function showChartTooltip(time, price, point) {
+      if (!chartTooltip || !Number.isFinite(time) || !Number.isFinite(price) || !point) return;
+      chartTooltip.textContent = 'قیمت: ' + formatGoldPrice(price) + ' تومان';
+      chartTooltip.hidden = false;
+      var left = Math.max(8, Math.min(marketChartEl.clientWidth - chartTooltip.offsetWidth - 8, point.x + 10));
+      var top = Math.max(5, Math.min(marketChartEl.clientHeight - chartTooltip.offsetHeight - 5, point.y - chartTooltip.offsetHeight - 8));
+      chartTooltip.style.left = left + 'px';
+      chartTooltip.style.top = top + 'px';
+    }
+    function hideChartTooltip() {
+      if (chartTooltip) chartTooltip.hidden = true;
+    }
+    function resizeMarketChart() {
+      if (marketChartInstance) marketChartInstance.resize(marketChartEl.clientWidth, marketChartEl.clientHeight);
+    }
+    function setupChartCrosshair() {
+      if (!marketChartInstance || !goldSeries) return;
+      marketChartInstance.subscribeCrosshairMove(function (param) {
+        if (!param || !param.time || !param.point) { hideChartTooltip(); return; }
+        var data = param.seriesData && param.seriesData.get(goldSeries);
+        if (!data || !Number.isFinite(Number(data.value))) { hideChartTooltip(); return; }
+        showChartTooltip(normalizeUnixTimestamp(param.time), Number(data.value), param.point);
       });
     }
-    chartButtons.forEach(function (button) {
-      button.addEventListener('click', function () {
-        chartButtons.forEach(function (b) { b.classList.toggle('active', b === button); b.setAttribute('aria-selected', b === button ? 'true' : 'false'); });
-        drawMarketChart(button.getAttribute('data-chart-market'));
+    function destroyMarketChart() {
+      if (goldPollTimer) { clearTimeout(goldPollTimer); goldPollTimer = null; }
+      if (goldResizeObserver) { goldResizeObserver.disconnect(); goldResizeObserver = null; }
+      if (goldResizeHandler) { window.removeEventListener('resize', goldResizeHandler); goldResizeHandler = null; }
+      if (marketChartInstance) { marketChartInstance.remove(); marketChartInstance = null; }
+      goldSeries = null;
+      goldPriceLine = null;
+      goldPollInFlight = false;
+      hideChartTooltip();
+    }
+    function updateLatestGoldPrice(latestPrice, latestTimestamp) {
+      if (!goldSeries) return;
+      var price = Number(latestPrice);
+      var time = normalizeUnixTimestamp(latestTimestamp);
+      if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(time)) return;
+      var last = goldChartData.length ? goldChartData[goldChartData.length - 1] : null;
+      if (last && time < last.time) return;
+      var point = { time: time, value: price };
+      goldSeries.update(point);
+      if (goldPriceLine) goldPriceLine.applyOptions({ price: price });
+      if (last && last.time === time) last.value = price;
+      else if (!last || time > last.time) goldChartData.push(point);
+      hideChartMessage();
+    }
+    function loadHistoricalGoldData() {
+      goldChartData = normalizeChartData(marketHistory.geram18);
+      if (!goldChartData.length) {
+        showChartMessage('تاریخچه قیمت طلای ۱۸ عیار در دسترس نیست.');
+        return;
+      }
+      goldSeries.setData(goldChartData);
+      goldPriceLine = goldSeries.createPriceLine({ price: goldChartData[goldChartData.length - 1].value, color: 'rgba(212,175,55,.7)', lineWidth: 1, lineStyle: 2, axisLabelVisible: false, title: '' });
+      marketChartInstance.timeScale().fitContent();
+      hideChartMessage();
+    }
+    function scheduleGoldPoll() {
+      if (goldPollTimer) clearTimeout(goldPollTimer);
+      if (!document.hidden) goldPollTimer = setTimeout(startRealtimeGoldUpdates, GOLD_POLL_MS);
+    }
+    function startRealtimeGoldUpdates() {
+      if (goldPollInFlight || document.hidden || !goldSeries) { scheduleGoldPoll(); return; }
+      goldPollInFlight = true;
+      fetch((window.MEYAR_BASE || './') + 'api/prices.php', { cache: 'no-store' })
+        .then(function (response) { if (!response.ok) throw new Error('price_api_failed'); return response.json(); })
+        .then(function (data) {
+          var item = (data.items || []).find(function (entry) { return entry.id === 'geram18'; });
+          if (item) updateLatestGoldPrice(item.live, data.fetched_at);
+        })
+        .catch(function () { /* داده قبلی حفظ می‌شود */ })
+        .then(function () { goldPollInFlight = false; scheduleGoldPoll(); });
+    }
+    function initializeMarketChart() {
+      destroyMarketChart();
+      if (!window.LightweightCharts || typeof window.LightweightCharts.createChart !== 'function') {
+        console.error('Lightweight Charts is not available.');
+        showChartMessage('نمودار در حال حاضر در دسترس نیست.');
+        return;
+      }
+      marketChartInstance = window.LightweightCharts.createChart(marketChartEl, {
+        width: marketChartEl.clientWidth,
+        height: marketChartEl.clientHeight,
+        layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#94a3b8', fontFamily: 'IRANSansXFaNum', attributionLogo: false },
+        localization: { priceFormatter: formatGoldPrice, timeFormatter: function (time) { return formatChartAxisDate(normalizeUnixTimestamp(time)); } },
+        grid: { vertLines: { color: 'rgba(148,163,184,.06)' }, horzLines: { color: 'rgba(148,163,184,.06)' } },
+        rightPriceScale: { borderColor: 'rgba(212,175,55,.15)', visible: true },
+        leftPriceScale: { visible: false },
+        timeScale: { borderColor: 'rgba(212,175,55,.15)', timeVisible: true, secondsVisible: false, rightOffset: 2 },
+        crosshair: { mode: 0, vertLine: { color: 'rgba(212,175,55,.65)', width: 1, style: 0 }, horzLine: { color: 'rgba(212,175,55,.35)', width: 1, style: 2 } },
+        handleScroll: { mouseWheel: false, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
+        handleScale: { mouseWheel: false, pinch: true, axisPressedMouseMove: false },
       });
+      goldSeries = marketChartInstance.addAreaSeries({
+        lineColor: '#d4af37', topColor: 'rgba(212,175,55,.26)', bottomColor: 'rgba(212,175,55,0)',
+        lineWidth: 2, priceScaleId: 'right', priceFormat: { type: 'price', precision: 0, minMove: 1 },
+      });
+      loadHistoricalGoldData();
+      setupChartCrosshair();
+      if ('ResizeObserver' in window) {
+        goldResizeObserver = new ResizeObserver(resizeMarketChart);
+        goldResizeObserver.observe(marketChartEl);
+      } else {
+        goldResizeHandler = resizeMarketChart;
+        window.addEventListener('resize', goldResizeHandler);
+      }
+      startRealtimeGoldUpdates();
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        if (goldPollTimer) { clearTimeout(goldPollTimer); goldPollTimer = null; }
+      } else {
+        startRealtimeGoldUpdates();
+      }
     });
-    drawMarketChart('geram18');
+    initializeMarketChart();
   }
 
   /* ---------- تحلیل هوشمند بازار ---------- */
   var insightList = document.querySelector('[data-market-insights]');
   var insightTrend = document.querySelector('[data-insight-trend]');
+  var insightRequest = null;
+  var insightHasValidResponse = false;
   if (insightList && insightTrend) {
-    fetch((window.MEYAR_BASE || './') + 'api/market-insight.php', { cache: 'no-store' })
-      .then(function (response) { return response.ok ? response.json() : null; })
-      .then(function (payload) {
-        if (!payload || !payload.ok || !payload.insight) return;
-        var insight = payload.insight;
-        insightTrend.textContent = insight.trend_label || 'خنثی';
-        insightTrend.className = insight.trend || 'flat';
-        insightList.textContent = '';
-        (insight.insights || []).slice(0, 4).forEach(function (value) {
-          var li = document.createElement('li');
-          var link = document.createElement('a');
-          link.className = 'market-insight-link';
-          link.href = '#ai-analysis';
-          link.setAttribute('data-ai-topic', value);
-          link.setAttribute('data-ai-trend', insight.trend || 'flat');
-          link.textContent = value;
-          link.setAttribute('aria-label', 'توضیحات کامل: ' + value);
-          li.appendChild(link);
-          insightList.appendChild(li);
-        });
-      })
-      .catch(function () { /* متن اولیه کارت حفظ می‌شود */ });
+    function renderMarketInsights(insight) {
+      var trend = insight.trend === 'up' ? 'up' : (insight.trend === 'down' ? 'down' : 'flat');
+      insightTrend.textContent = insight.trend_label || (trend === 'flat' ? 'نامشخص' : trend === 'up' ? 'صعودی' : 'نزولی');
+      insightTrend.className = trend;
+      insightList.textContent = '';
+      (insight.insights || []).slice(0, 4).forEach(function (entry) {
+        var value = typeof entry === 'string' ? entry : entry && entry.title;
+        if (!value) return;
+        var li = document.createElement('li');
+        var link = document.createElement('a');
+        link.className = 'market-insight-link';
+        link.href = '#ai-analysis';
+        link.setAttribute('data-ai-topic', value);
+        link.setAttribute('data-ai-trend', trend);
+        link.textContent = value;
+        link.setAttribute('aria-label', 'توضیحات کامل: ' + value);
+        li.appendChild(link);
+        insightList.appendChild(li);
+      });
+      insightList.setAttribute('aria-busy', 'false');
+    }
+    function renderMarketInsightFallback() {
+      renderMarketInsights({ trend: 'mixed', trend_label: 'نامشخص', insights: ['اطلاعات کافی برای جمع‌بندی بازار در دسترس نیست'] });
+    }
+    refreshMarketInsights = function () {
+      if (insightRequest) return insightRequest;
+      insightList.setAttribute('aria-busy', 'true');
+      insightRequest = fetch((window.MEYAR_BASE || './') + 'api/market-insight.php', { cache: 'no-store' })
+        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (payload) {
+          if (!payload || !payload.ok || !payload.insight || !Array.isArray(payload.insight.insights)) throw new Error('invalid_market_insight');
+          renderMarketInsights(payload.insight);
+          insightHasValidResponse = true;
+        })
+        .catch(function (error) {
+          if (!insightHasValidResponse) renderMarketInsightFallback();
+          console.warn('Market insights unavailable:', error);
+        })
+        .then(function () { insightRequest = null; });
+      return insightRequest;
+    }
+    refreshMarketInsights();
   }
 
   /* ---------- ویجت‌های نمای کلی بازار ---------- */
   var overviewHistory = {};
+  var overviewSelectedRanges = {};
+  var overviewDirections = {};
   if (historyEl) {
     try { overviewHistory = JSON.parse(historyEl.textContent || '{}'); } catch (e) { overviewHistory = {}; }
   }
@@ -687,11 +876,34 @@
     var d = smoothOverviewPath(coords);
     line.setAttribute('d', d);
     area.setAttribute('d', d + ' L315 76 L5 76 Z');
-    var direction = values[values.length - 1] > values[0] ? 'up' : (values[values.length - 1] < values[0] ? 'down' : 'flat');
+    var direction = overviewDirections[marketId] || (values[values.length - 1] > values[0] ? 'up' : (values[values.length - 1] < values[0] ? 'down' : 'flat'));
     chartEl.classList.remove('up', 'down', 'flat');
     chartEl.classList.add(direction);
   }
+  function updateOverviewCharts(data, byId) {
+    var timestamp = normalizeUnixTimestamp(data && data.fetched_at);
+    if (!Number.isFinite(timestamp)) timestamp = Math.floor(Date.now() / 1000);
+    document.querySelectorAll('[data-overview-card]').forEach(function (card) {
+      var marketId = card.getAttribute('data-overview-card');
+      var item = byId && byId[marketId];
+      var live = Number(item && item.live);
+      if (!Number.isFinite(live) || live <= 0) return;
+
+      overviewDirections[marketId] = item.dir === 'high' ? 'up' : (item.dir === 'low' ? 'down' : 'flat');
+
+      var rows = Array.isArray(overviewHistory[marketId]) ? overviewHistory[marketId] : [];
+      var last = rows.length ? rows[rows.length - 1] : null;
+      if (last && String(last.time || '') === String(timestamp)) last.v = live;
+      else rows.push({ time: timestamp, v: live });
+      overviewHistory[marketId] = rows.slice(-120);
+      drawOverviewChart(card, overviewSelectedRanges[marketId] || 'day');
+    });
+  }
   document.querySelectorAll('[data-overview-card]').forEach(function (card) {
+    var marketId = card.getAttribute('data-overview-card');
+    overviewSelectedRanges[marketId] = 'day';
+    var initialChart = card.querySelector('[data-overview-chart]');
+    overviewDirections[marketId] = initialChart && initialChart.classList.contains('down') ? 'down' : (initialChart && initialChart.classList.contains('flat') ? 'flat' : 'up');
     var buttons = card.querySelectorAll('[data-overview-range]');
     buttons.forEach(function (button) {
       button.addEventListener('click', function () {
@@ -700,10 +912,57 @@
           other.classList.toggle('active', selected);
           other.setAttribute('aria-selected', selected ? 'true' : 'false');
         });
-        drawOverviewChart(card, button.getAttribute('data-overview-range'));
+        var selectedRange = button.getAttribute('data-overview-range');
+        overviewSelectedRanges[marketId] = selectedRange;
+        drawOverviewChart(card, selectedRange);
       });
     });
     drawOverviewChart(card, 'day');
+  });
+
+  /* ---------- تیکر بی‌نهایت ---------- */
+  function initializeInfiniteTicker() {
+    var tickerTrack = document.querySelector('.ticker-track');
+    if (!tickerTrack) return;
+
+    tickerTrack.querySelectorAll(':scope > .ticker-item[data-ticker-clone="true"]').forEach(function (item) {
+      item.remove();
+    });
+
+    var originalItems = Array.prototype.slice.call(tickerTrack.children).filter(function (item) {
+      return item.classList.contains('ticker-item') && item.getAttribute('data-ticker-clone') !== 'true';
+    });
+    if (!originalItems.length) return;
+
+    var cycleSources = originalItems.slice();
+    var cycleWidth = cycleSources.reduce(function (total, item) { return total + item.offsetWidth; }, 0);
+    var viewportWidth = tickerTrack.parentElement ? tickerTrack.parentElement.clientWidth : 0;
+    var sourceIndex = 0;
+
+    while (cycleWidth < viewportWidth && originalItems.length) {
+      var source = originalItems[sourceIndex % originalItems.length];
+      var filler = source.cloneNode(true);
+      filler.setAttribute('data-ticker-clone', 'true');
+      filler.setAttribute('aria-hidden', 'true');
+      tickerTrack.appendChild(filler);
+      cycleSources.push(source);
+      cycleWidth += source.offsetWidth;
+      sourceIndex += 1;
+    }
+
+    cycleSources.forEach(function (source) {
+      var clonedItem = source.cloneNode(true);
+      clonedItem.setAttribute('data-ticker-clone', 'true');
+      clonedItem.setAttribute('aria-hidden', 'true');
+      tickerTrack.appendChild(clonedItem);
+    });
+  }
+
+  initializeInfiniteTicker();
+  var tickerResizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(tickerResizeTimer);
+    tickerResizeTimer = setTimeout(initializeInfiniteTicker, 150);
   });
 
   function refresh() {
