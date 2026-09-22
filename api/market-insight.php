@@ -1,13 +1,9 @@
 <?php
-/** MEYAR — تحلیل هوشمند بازار با OpenAI */
+/** MEYAR — جمع‌بندی داده‌محور بازار */
 require_once dirname(__DIR__) . '/inc/fetcher.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
-
-$cacheFile = MEYAR_DATA . '/market_insight_cache.json';
-$cacheTtl  = 900;
-$apiKey    = meyar_env('OPENAI_API_KEY');
 
 function market_insight_response(array $payload, int $status = 200): void {
     http_response_code($status);
@@ -15,114 +11,92 @@ function market_insight_response(array $payload, int $status = 200): void {
     exit;
 }
 
-if ($apiKey === '') {
-    market_insight_response(['ok' => false, 'error' => 'not_configured'], 503);
+function market_insight_label(string $trend): string {
+    return [
+        'up' => 'صعودی', 'down' => 'نزولی', 'stable' => 'باثبات', 'mixed' => 'نامشخص',
+    ][$trend] ?? 'نامشخص';
 }
 
-if (is_file($cacheFile)) {
-    $cached = json_decode((string)@file_get_contents($cacheFile), true);
-    if (is_array($cached) && isset($cached['created_at'], $cached['insights'])
-        && time() - (int)$cached['created_at'] < $cacheTtl
-        && is_array($cached['insights'])) {
-        unset($cached['created_at']);
-        market_insight_response(['ok' => true, 'insight' => $cached, 'cached' => true]);
-    }
+function market_insight_title(string $text): string {
+    $text = trim(preg_replace('/\s+/u', ' ', $text));
+    return mb_substr($text, 0, 95);
 }
 
 $data = meyar_build_prices();
-$items = [];
+$target = null;
 foreach ((array)($data['items'] ?? []) as $item) {
-    if (!empty($item['hidden']) || !in_array($item['id'], ['geram18', 'usd', 'sekee', 'silver999', 'ons'], true)) continue;
-    $items[] = [
-        'id'        => (string)$item['id'],
-        'name'      => (string)$item['title'],
-        'price'     => (string)$item['live_fmt'],
-        'change'    => (string)$item['change_pct'],
-        'direction' => (string)$item['dir'],
-    ];
-}
-
-$marketJson = json_encode([
-    'updated' => (string)($data['updated'] ?? ''),
-    'markets' => $items,
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
-$prompt = 'بر اساس داده‌های لحظه‌ای بازار زیر، یک خلاصه کوتاه و محتاطانه به زبان فارسی برای کارت تحلیل بازار سایت معیار تولید کن.'
-    . ' فقط JSON معتبر با ساختار زیر برگردان و هیچ متن دیگری اضافه نکن:'
-    . ' {"trend":"up|down|flat","trend_label":"صعودی|نزولی|خنثی","insights":["...", "...", "...", "..."]}.'
-    . ' دقیقاً ۴ نکته کوتاه، واقعی و غیرتکراری بنویس. از پیش‌بینی قطعی، توصیه خرید و فروش و ادعای علت قطعی خودداری کن.'
-    . ' اگر داده کافی نیست، از عبارت‌های احتمالی مثل «می‌تواند» استفاده کن. داده‌ها: ' . $marketJson;
-
-$requestBody = json_encode([
-    'model' => meyar_env('OPENAI_MODEL') ?: 'gpt-5-mini',
-    'store' => false,
-    'input' => [
-        [
-            'role' => 'system',
-            'content' => [[
-                'type' => 'input_text',
-                'text' => 'تو تحلیل‌گر خلاصه‌نویس بازار مالی هستی. خروجی فقط JSON معتبر باشد.',
-            ]],
-        ],
-        [
-            'role' => 'user',
-            'content' => [['type' => 'input_text', 'text' => $prompt]],
-        ],
-    ],
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
-$ch = curl_init('https://api.openai.com/v1/responses');
-curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST           => true,
-    CURLOPT_POSTFIELDS     => $requestBody,
-    CURLOPT_CONNECTTIMEOUT => 8,
-    CURLOPT_TIMEOUT        => 25,
-    CURLOPT_HTTPHEADER     => [
-        'Authorization: Bearer ' . $apiKey,
-        'Content-Type: application/json',
-    ],
-]);
-$raw = curl_exec($ch);
-$httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-if ($raw === false || $httpCode < 200 || $httpCode >= 300) {
-    market_insight_response(['ok' => false, 'error' => 'openai_request_failed'], 502);
-}
-
-$response = json_decode((string)$raw, true);
-$text = trim((string)($response['output_text'] ?? ''));
-if ($text === '' && !empty($response['output']) && is_array($response['output'])) {
-    foreach ($response['output'] as $output) {
-        foreach ((array)($output['content'] ?? []) as $content) {
-            if (($content['type'] ?? '') === 'output_text') {
-                $text .= (string)($content['text'] ?? '');
-            }
-        }
+    if (($item['id'] ?? '') === 'geram18' && empty($item['hidden'])) {
+        $target = $item;
+        break;
     }
 }
-$text = trim(preg_replace('/^\x60\x60\x60(?:json)?|\x60\x60\x60$/m', '', $text));
-$insight = json_decode($text, true);
-
-if (!is_array($insight) || !is_array($insight['insights'] ?? null)) {
-    market_insight_response(['ok' => false, 'error' => 'invalid_openai_response'], 502);
+if (!is_array($target) || !is_numeric($target['live'] ?? null)) {
+    market_insight_response(['ok' => false, 'error' => 'market_data_unavailable'], 503);
 }
 
-$trend = in_array($insight['trend'] ?? '', ['up', 'down', 'flat'], true) ? $insight['trend'] : 'flat';
-$labels = ['up' => 'صعودی', 'down' => 'نزولی', 'flat' => 'خنثی'];
-$insights = array_values(array_filter(array_map(function ($value) {
-    return trim(mb_substr((string)$value, 0, 120));
-}, array_slice($insight['insights'], 0, 4))));
-if (count($insights) < 4) {
-    market_insight_response(['ok' => false, 'error' => 'incomplete_openai_response'], 502);
+$historyFile = MEYAR_DATA . '/history_geram18.json';
+$historyJson = is_file($historyFile) ? json_decode((string)@file_get_contents($historyFile), true) : null;
+$historyRows = is_array($historyJson) ? (array)($historyJson['rows'] ?? []) : [];
+$historyValues = [];
+foreach ($historyRows as $row) {
+    $value = (float)($row['v'] ?? 0);
+    if ($value > 0) $historyValues[] = $value;
 }
 
-$normalized = [
-    'trend'       => $trend,
-    'trend_label' => $labels[$trend],
-    'insights'    => $insights,
-    'created_at'  => time(),
-];
-@file_put_contents($cacheFile, json_encode($normalized, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
-unset($normalized['created_at']);
-market_insight_response(['ok' => true, 'insight' => $normalized, 'cached' => false]);
+$current = (float)$target['live'];
+$series = array_values(array_filter(array_slice($historyValues, -7), static fn ($value) => $value > 0));
+$series[] = $current;
+$recent = array_slice($series, -5);
+$upMoves = 0;
+$downMoves = 0;
+$epsilon = max(abs($current) * 0.0001, 0.01);
+for ($i = 1, $count = count($recent); $i < $count; $i++) {
+    $delta = $recent[$i] - $recent[$i - 1];
+    if ($delta > $epsilon) $upMoves++;
+    elseif ($delta < -$epsilon) $downMoves++;
+}
+
+$reference = count($recent) > 1 ? $recent[0] : $current;
+$windowChange = $reference > 0 ? (($current - $reference) / $reference) * 100 : 0;
+$range = count($recent) ? max($recent) - min($recent) : 0;
+$average = count($recent) ? array_sum($recent) / count($recent) : $current;
+$volatility = $average > 0 ? ($range / $average) * 100 : 0;
+
+if (count($recent) < 3) $trend = 'mixed';
+elseif (abs($windowChange) < 0.12 && abs($upMoves - $downMoves) <= 1) $trend = 'stable';
+elseif ($upMoves >= $downMoves + 2 && $windowChange > 0.08) $trend = 'up';
+elseif ($downMoves >= $upMoves + 2 && $windowChange < -0.08) $trend = 'down';
+else $trend = 'mixed';
+
+$assetName = trim((string)($target['title'] ?? 'طلای ۱۸ عیار'));
+if ($trend === 'up') {
+    $insights = ["روند صعودی قیمت {$assetName}", 'افزایش خالص قیمت در بازه اخیر', $volatility > 0.8 ? 'افزایش دامنه نوسان کوتاه‌مدت' : 'تداوم حرکت مثبت در داده‌های اخیر'];
+} elseif ($trend === 'down') {
+    $insights = ["روند نزولی قیمت {$assetName}", 'کاهش خالص قیمت در بازه اخیر', $volatility > 0.8 ? 'افزایش دامنه نوسان کوتاه‌مدت' : 'تداوم حرکت منفی در داده‌های اخیر'];
+} elseif ($trend === 'stable') {
+    $insights = ["ثبات نسبی قیمت {$assetName}", 'کاهش جهت‌گیری غالب در حرکت اخیر', $volatility < 0.35 ? 'دامنه نوسان کوتاه‌مدت محدود است' : 'نوسان محدود پیرامون سطح اخیر'];
+} else {
+    $insights = ["نوسان رفت‌وبرگشتی قیمت {$assetName}", 'جهت غالبی در حرکت اخیر مشاهده نشد', 'برای جمع‌بندی قطعی، داده بیشتری لازم است'];
+}
+$insights = array_values(array_unique(array_map('market_insight_title', $insights)));
+$insightRecords = [];
+foreach ($insights as $index => $title) {
+    $insightRecords[] = [
+        'title' => $title,
+        'type' => $index === 0 ? 'trend' : ($index === 2 ? 'volatility' : 'movement'),
+        'direction' => $trend === 'up' ? 'positive' : ($trend === 'down' ? 'negative' : 'neutral'),
+        'source' => 'market_data',
+    ];
+}
+$confidence = count($recent) >= 3 ? min(0.95, max(0.45, (abs($upMoves - $downMoves) + 1) / max(1, $upMoves + $downMoves + 1))) : 0.35;
+
+market_insight_response([
+    'ok' => true,
+    'success' => true,
+    'cached' => false,
+    'insight' => [
+        'market' => 'gold', 'asset' => 'geram18', 'trend' => $trend,
+        'trend_label' => market_insight_label($trend), 'confidence' => round($confidence, 2),
+        'generated_at' => date(DATE_ATOM), 'insights' => $insightRecords, 'source' => 'market_data',
+    ],
+]);
