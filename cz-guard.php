@@ -42,7 +42,7 @@ if ($czKey === '' || $czSecret === '') {
         header('Retry-After: 3600');
         header('Content-Type: text/html; charset=utf-8');
     }
-    echo '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>در حال تعمیر</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;background:#0f1420;color:#e6ebf5"><div style="text-align:center;max-width:480px;padding:40px"><div style="font-size:54px">&#128295;</div><h1 style="margin:12px 0">سایت در حال تعمیر است</h1><p style="color:#8ea0c0;line-height:1.9">پیکربندی سرویس کامل نیست. لطفاً بعداً مراجعه کنید.</p></div></body></html>';
+    echo '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>در حال تعمیر</title><style>@font-face{font-family:IRANSansXFaNum;src:url("assets/Sans-fonts/Woff2/IRANSansXFaNum-Regular.woff2") format("woff2");font-weight:400;font-display:swap}@font-face{font-family:IRANSansXFaNum;src:url("assets/Sans-fonts/Woff2/IRANSansXFaNum-Bold.woff2") format("woff2");font-weight:700 900;font-display:swap}</style></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:IRANSansXFaNum,sans-serif;background:#0f1420;color:#e6ebf5"><div style="text-align:center;max-width:480px;padding:40px"><div style="font-size:54px">&#128295;</div><h1 style="margin:12px 0">سایت در حال تعمیر است</h1><p style="color:#8ea0c0;line-height:1.9">پیکربندی سرویس کامل نیست. لطفاً بعداً مراجعه کنید.</p></div></body></html>';
     exit;
 }
 
@@ -176,6 +176,6 @@ if ($czStatus !== 'active') {
         header('Content-Type: text/html; charset=utf-8');
     }
     $czText = $czMsg ? $czMsg : 'این سرویس موقتاً غیرفعال است. لطفاً بعداً مراجعه کنید.';
-    echo '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>در حال تعمیر</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;background:#0f1420;color:#e6ebf5"><div style="text-align:center;max-width:480px;padding:40px"><div style="font-size:54px">&#128295;</div><h1 style="margin:12px 0">سایت در حال تعمیر است</h1><p style="color:#8ea0c0;line-height:1.9">' . htmlspecialchars($czText, ENT_QUOTES) . '</p></div></body></html>';
+    echo '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>در حال تعمیر</title><style>@font-face{font-family:IRANSansXFaNum;src:url("assets/Sans-fonts/Woff2/IRANSansXFaNum-Regular.woff2") format("woff2");font-weight:400;font-display:swap}@font-face{font-family:IRANSansXFaNum;src:url("assets/Sans-fonts/Woff2/IRANSansXFaNum-Bold.woff2") format("woff2");font-weight:700 900;font-display:swap}</style></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:IRANSansXFaNum,sans-serif;background:#0f1420;color:#e6ebf5"><div style="text-align:center;max-width:480px;padding:40px"><div style="font-size:54px">&#128295;</div><h1 style="margin:12px 0">سایت در حال تعمیر است</h1><p style="color:#8ea0c0;line-height:1.9">' . htmlspecialchars($czText, ENT_QUOTES) . '</p></div></body></html>';
     exit;
 }
