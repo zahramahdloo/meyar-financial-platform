@@ -11,7 +11,7 @@ $items    = array_values(array_filter($data['items'], function ($i) {
 }));
 
 // تیکر
-$tickerIds = ['sekee', 'sekeb', 'nim', 'rob', 'gerami', 'geram18', 'usd', 'eur', 'ons'];
+$tickerIds = ['sekee', 'sekeb', 'nim', 'rob', 'gerami', 'geram18', 'silver999', 'usd', 'eur', 'ons'];
 $ticker = array_values(array_filter($items, function ($i) use ($tickerIds) {
   return in_array($i['id'], $tickerIds, true);
 }));
@@ -110,7 +110,7 @@ foreach ($overviewIds as $overviewId) {
   <div class="container hero-content hero-static-content">
     <div class="hero-text">
       <div class="hero-badge"><span class="online-dot"></span> مرجع معتبر بازار طلا و سکه</div>
-      <h1 class="hero-title" id="heroTitle">خرید و فروش مطمئن<br><span class="gold-text">سکه و طلا</span></h1>
+      <h1 class="hero-title" id="heroTitle">خرید و فروش مطمئن<br><span class="gold-text">سکه، طلا و نقره</span></h1>
       <p class="hero-desc">قیمت لحظه‌ای بازار، مشاوره تخصصی و خرید و فروش حضوری با اعتماد و شفافیت</p>
       <div class="hero-actions">
         <a href="#prices" class="btn btn-gold">مشاهده قیمت‌های لحظه‌ای</a>
@@ -123,52 +123,42 @@ foreach ($overviewIds as $overviewId) {
       </div>
     </div>
 
-    <aside class="market-dashboard market-insight-card" aria-label="تحلیل هوشمند بازار">
-      <header class="market-insight-head">
-        <div class="market-insight-heading">
-          <span class="market-insight-icon"><i class="hgi hgi-stroke hgi-rounded hgi-magic-wand-01" aria-hidden="true"></i></span>
-          <div>
-            <div class="market-insight-title-row">
-              <h2>تحلیل هوشمند بازار</h2><span class="market-insight-ai">AI</span>
-            </div>
-            <p>جمع‌بندی هوشمند بازار با هوش مصنوعی معیار</p>
+    <aside class="market-dashboard market-insight-card" aria-label="نمایش وضعیت بازار">
+      <div class="market-insight-body">
+        <?php $goldInsight = $hsItems['geram18'] ?? null; ?>
+        <div class="market-insight-chart-wide" aria-label="روند امروز طلا">
+          <div id="marketChart" class="market-chart market-insight-chart marketChart" role="img" aria-label="نمودار روند طلای ۱۸ عیار">
+            <div class="chart-tooltip" data-chart-tooltip hidden></div>
+            <div class="market-chart-message" data-chart-message hidden></div>
           </div>
         </div>
-        <span class="market-insight-date"><i class="hgi hgi-stroke hgi-rounded hgi-calendar-03" aria-hidden="true"></i><?= meyar_h($data['updated_date'] ?? 'امروز') ?></span>
-      </header>
-      <div class="market-insight-body">
-        <section class="market-insight-chart-panel" aria-label="روند امروز طلا">
-          <div class="market-insight-chart-label"><span>روند امروز</span><b data-insight-trend>صعودی</b></div>
-          <div class="market-chart market-insight-chart" aria-label="نمودار روند واقعی طلای ۱۸ عیار">
-            <svg id="marketChart" viewBox="0 0 520 120" preserveAspectRatio="none" role="img" aria-label="نمودار روند طلای ۱۸ عیار">
-              <defs>
-                <linearGradient id="marketFill" x1="0" x2="0" y1="0" y2="1">
-                  <stop stop-color="#d4af37" />
-                  <stop offset="1" stop-color="#d4af37" stop-opacity="0" />
-                </linearGradient>
-              </defs>
-              <path class="market-chart-area" fill="url(#marketFill)" opacity=".18"></path>
-              <path class="market-chart-line" fill="none" stroke="#d4af37" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
-          </div>
-          <?php $goldInsight = $hsItems['geram18'] ?? null; ?>
-          <?php if ($goldInsight): ?>
-            <a class="market-insight-asset" href="price/geram18" data-id="geram18">
-              <span class="market-insight-asset-icon"><i class="hgi hgi-stroke hgi-rounded hgi-gold-ingots" aria-hidden="true"></i></span>
-              <span><b>طلا ۱۸ عیار</b><small>دارایی منتخب بازار</small></span>
-              <strong class="up" data-cell="insight-change">+<?= meyar_h($goldInsight['change_pct']) ?>٪</strong>
-            </a>
-          <?php endif; ?>
-        </section>
-        <section class="market-insight-list" aria-labelledby="marketInsightPoints">
-          <h3 id="marketInsightPoints"><i class="hgi hgi-stroke hgi-rounded hgi-note-01" aria-hidden="true"></i> نکات مهم امروز</h3>
-          <ul data-market-insights>
-            <li><a class="market-insight-link" href="#ai-analysis" data-ai-topic="افزایش تقاضای جهانی طلا" data-ai-trend="up">افزایش تقاضای جهانی طلا</a></li>
-            <li><a class="market-insight-link" href="#ai-analysis" data-ai-topic="تاثیر نوسانات نرخ ارز" data-ai-trend="up">تاثیر نوسانات نرخ ارز</a></li>
-            <li><a class="market-insight-link" href="#ai-analysis" data-ai-topic="روند مثبت اونس جهانی" data-ai-trend="up">روند مثبت اونس جهانی</a></li>
-            <li><a class="market-insight-link" href="#ai-analysis" data-ai-topic="حفظ حمایت کلیدی در بازار داخلی" data-ai-trend="up">حفظ حمایت کلیدی در بازار داخلی</a></li>
-          </ul>
-        </section>
+        <?php
+          $insightTrend = ($goldInsight['dir'] ?? 'flat') === 'high' ? 'up' : (($goldInsight['dir'] ?? 'flat') === 'low' ? 'down' : 'flat');
+          $insightTrendLabel = ['up' => 'صعودی', 'down' => 'نزولی', 'flat' => 'خنثی'][$insightTrend];
+        ?>
+        <?php if ($goldInsight): ?>
+        <div class="market-asset-summary">
+          <a class="market-insight-asset" href="<?= meyar_base() ?>prices.php?market=gold" data-id="geram18">
+            <span class="market-insight-asset-icon"><i class="hgi hgi-stroke hgi-rounded hgi-gold-ingots" aria-hidden="true"></i></span>
+            <span class="market-insight-asset-content">
+              <span class="market-insight-asset-title-row">
+                <b>طلا ۱۸ عیار</b>
+              </span>
+              <div class="market-insight-chart-label"><span>روند:</span><b class="<?= $insightTrend ?>" data-insight-trend><?= $insightTrendLabel ?></b></div>
+              <span class="market-insight-asset-price-row">
+                <strong class="<?= $goldInsight['dir'] === 'low' ? 'down' : ($goldInsight['dir'] === 'high' ? 'up' : 'flat') ?>" data-cell="insight-change"><?= $goldInsight['dir'] === 'high' ? '+' : ($goldInsight['dir'] === 'low' ? '−' : '') ?><?= meyar_h($goldInsight['change_pct']) ?>٪</strong>
+                <small class="market-insight-asset-price" data-cell="insight-live"><?= meyar_h($goldInsight['live_fmt']) ?> <?= meyar_h($goldInsight['unit']) ?></small>
+              </span>
+            </span>
+          </a>
+        </div>
+        <?php endif; ?>
+        <div class="market-insight-footer">
+          <section class="market-insight-list" aria-labelledby="marketInsightPoints">
+            <h3 id="marketInsightPoints"><i class="hgi hgi-stroke hgi-rounded hgi-note-01" aria-hidden="true"></i> نکات مهم امروز</h3>
+            <ul data-market-insights aria-live="polite" aria-busy="true"></ul>
+          </section>
+        </div>
       </div>
       <script type="application/json" id="marketHistoryData">
         <?= json_encode($marketHistory, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
@@ -213,7 +203,18 @@ foreach ($overviewIds as $overviewId) {
               <h3><?= meyar_h($overview['name']) ?></h3>
             </div>
           </header>
-          <div class="market-overview-price"><strong><?= meyar_h($i['live_fmt']) ?></strong><span><?= meyar_h($i['unit']) ?></span></div>
+          <div class="market-overview-price" aria-label="قیمت خرید و فروش">
+            <div class="market-overview-quote buy">
+              <span>خرید</span>
+              <strong data-cell="buy"><?= meyar_h($i['buy_fmt']) ?></strong>
+              <small><?= meyar_h($i['unit']) ?></small>
+            </div>
+            <div class="market-overview-quote sell">
+              <span>فروش</span>
+              <strong data-cell="sell"><?= meyar_h($i['sell_fmt']) ?></strong>
+              <small><?= meyar_h($i['unit']) ?></small>
+            </div>
+          </div>
           <div class="market-overview-change <?= $dir ?>">
             <strong><?= $dir === 'up' ? '+' : ($dir === 'down' ? '−' : '') ?><?= meyar_h($i['change_pct']) ?>٪</strong>
             <span><?= meyar_h($diffText) ?></span>
@@ -355,4 +356,5 @@ foreach ($overviewIds as $overviewId) {
   </div>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
 <?php meyar_theme_footer($settings); ?>
