@@ -69,7 +69,11 @@ meyar_theme_topbar($settings, $ticker);
         <?php foreach ($itemsInGroup as $index => $i): ?>
         <a class="market-asset<?= $index >= 5 ? ' is-extra' : '' ?>" href="price/<?= meyar_h($i['id']) ?>" data-id="<?= meyar_h($i['id']) ?>" role="listitem">
           <span class="market-asset-title">
-            <i class="hgi hgi-stroke hgi-rounded <?= $i['group'] === 'currency' ? 'hgi-cash-02' : ($i['group'] === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01') ?>" aria-hidden="true"></i>
+            <?php if ($i['group'] === 'currency'): ?>
+              <span class="mini-flag" aria-hidden="true"><?= meyar_h($i['icon']) ?></span>
+            <?php else: ?>
+              <i class="hgi hgi-stroke hgi-rounded <?= $i['group'] === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01' ?>" aria-hidden="true"></i>
+            <?php endif; ?>
             <span><?= meyar_h($i['title']) ?></span>
           </span>
           <span class="market-asset-quote buy">

@@ -39,6 +39,14 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 button, input, select, textarea { font-family: var(--font); }
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #d8ad3c !important;
+  outline-offset: 3px;
+}
 html { scroll-behavior: smooth; }
 body {
   font-family: var(--font);
@@ -173,6 +181,16 @@ img { max-width: 100%; }
 .header-actions { display: flex; flex: 1 1 0; align-items: center; align-self: center; justify-content: flex-end; gap: 10px; direction: rtl; order: 3; }
 .header-search { position: relative; display: flex; align-items: center; width: 215px; height: 38px; border: 1px solid rgba(148,163,184,.28); border-radius: 9px; background: #151c2e; overflow: visible; }
 .header-search input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: #f8fafc; padding: 0 12px; font: 11.5px var(--font); }
+.header-search:focus-within { border-color: rgba(216,173,60,.62); }
+.header-search input,
+.header-search input:hover,
+.header-search input:focus,
+.header-search input:focus-visible,
+.header-search input:active {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
 .header-search input::placeholder { color: #718096; }
 .header-search button { width: 38px; height: 100%; border: 0; background: transparent; color: #c9a227; font-size: 18px; cursor: pointer; }
 .header-search-results { position: absolute; top: calc(100% + 8px); right: 0; left: 0; z-index: 90; overflow: hidden; border: 1px solid rgba(201,162,39,.3); border-radius: 12px; background: #151c2e; box-shadow: 0 16px 36px rgba(3,8,18,.32); }
@@ -486,7 +504,7 @@ main#prices {
 .market-overview-price { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
 .market-overview-quote { min-width: 0; padding: 7px 8px 6px; border: 1px solid #eef2f7; border-radius: 9px; background: #f8fafc; }
 .market-overview-quote > span { display: block; color: #64748b; font-size: 9px; line-height: 1.2; }
-.market-overview-quote strong { display: block; overflow: hidden; margin-top: 4px; color: #071a33; font-size: clamp(14px, 1.35vw, 18px); font-weight: 850; font-variant-numeric: tabular-nums; letter-spacing: -.3px; text-overflow: ellipsis; white-space: nowrap; }
+.market-overview-quote strong { display: block; overflow: visible; margin-top: 4px; color: #071a33; font-size: clamp(12px, 1.35vw, 18px); font-weight: 850; font-variant-numeric: tabular-nums; letter-spacing: -.3px; text-overflow: clip; white-space: nowrap; }
 .market-overview-quote small { display: block; margin-top: 2px; color: #94a3b8; font-size: 8px; }
 .market-overview-quote.buy { border-color: rgba(22,163,74,.16); }
 .market-overview-quote.sell { border-color: rgba(201,162,39,.22); }
@@ -536,6 +554,14 @@ main#prices {
   .market-overview-all { grid-column: 2; grid-row: 2; justify-self: end; }
   .market-overview-grid { grid-template-columns: 1fr; gap: 14px; }
   .market-overview-card { padding: 18px; }
+}
+@media (min-width: 601px) and (max-width: 1100px) {
+  .market-overview-price { gap: 6px; }
+  .market-overview-quote { padding-right: 6px; padding-left: 6px; }
+  .market-overview-quote strong { font-size: clamp(12px, 1.25vw, 16px); }
+}
+@media (max-width: 430px) {
+  .market-overview-price { grid-template-columns: 1fr; }
 }
 .price-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .price-table thead th {
@@ -1175,6 +1201,46 @@ main#prices {
   .market-dashboard { padding: 18px; }
   .market-insight-chart, .marketChart { height: 250px; min-height: 250px; }
 }
+/* Hero intermediate layout: stack content before the desktop columns become cramped. */
+@media (min-width: 761px) and (max-width: 1025px) {
+  .hero-static { min-height: 0; }
+  .hero-static-content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    min-height: 0;
+    padding-top: 48px;
+    padding-bottom: 58px;
+  }
+  .hero-static .hero-text {
+    grid-column: 1;
+    width: 100%;
+    max-width: 780px;
+    margin-inline: auto;
+  }
+  .hero-static .hero-desc { max-width: 700px; }
+  .market-dashboard {
+    grid-column: 1;
+    width: 100%;
+    max-width: 900px;
+    min-width: 0;
+    justify-self: center;
+    padding: 14px;
+  }
+  .market-insight-body,
+  .market-insight-chart-wide,
+  .market-asset-summary,
+  .market-insight-footer,
+  .market-insight-list { min-width: 0; }
+  .market-insight-list ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 16px;
+  }
+  .market-insight-list li {
+    min-width: 0;
+    white-space: normal;
+  }
+  .marketChart { width: 100%; max-width: 100%; }
+}
 @media (max-width: 760px) {
   .hero-static { min-height: 0; }
   .hero-static-content { display: flex; flex-direction: column; align-items: stretch; min-height: 0; gap: 34px; padding-top: 54px; padding-bottom: 58px; }
@@ -1327,6 +1393,165 @@ main#prices {
   .footer-col h4 { margin-bottom: 10px; }
   .footer-trust { align-items: flex-start; flex-direction: column; gap: 13px; padding: 18px 0; }
   .footer-bottom .container { justify-content: center; text-align: center; }
+}
+
+/* ═══ رفتار responsive فوتر؛ فقط چیدمان داخلی فوتر تغییر می‌کند ═══ */
+@media (min-width: 701px) and (max-width: 1025px) {
+  .site-footer { background-position: 58% center; }
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 36px;
+    padding: 58px 0 38px;
+  }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-info { grid-column: 1 / -1; }
+  .footer-brand-description { max-width: 520px; }
+  .footer-contact a,
+  .footer-contact > span,
+  .footer-col a,
+  .footer-info > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .footer-trust {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    padding: 8px 0;
+  }
+  .footer-trust span {
+    min-width: 0;
+    padding: 10px 12px;
+    white-space: normal;
+  }
+  .footer-bottom .container { gap: 10px 22px; }
+}
+
+@media (min-width: 761px) and (max-width: 1025px) {
+  .footer-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 28px;
+  }
+  .footer-grid > .footer-col {
+    grid-column: auto;
+    min-width: 0;
+  }
+  .footer-brand {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    column-gap: 24px;
+    align-items: start;
+    direction: rtl;
+  }
+  .footer-brand .footer-logo {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+  .footer-brand .footer-brand-fa,
+  .footer-brand .footer-brand-description,
+  .footer-brand .footer-contact {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .footer-brand .footer-contact { width: 100%; }
+}
+
+@media (max-width: 700px) {
+  .site-footer {
+    background-position: 63% center;
+    background-size: auto 100%;
+    padding-bottom: 72px;
+  }
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 26px 22px;
+    padding: 44px 0 32px;
+  }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-info { grid-column: auto; }
+  .footer-brand-description { max-width: none; }
+  .footer-contact a,
+  .footer-contact > span,
+  .footer-col a,
+  .footer-info > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .footer-trust {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+  }
+  .footer-trust span {
+    min-width: 0;
+    justify-content: flex-start;
+    padding: 13px 8px;
+    white-space: normal;
+  }
+}
+
+/* ═══ فوتر فشرده برای تبلت کوچک و موبایل افقی ═══ */
+@media (min-width: 460px) and (max-width: 758px) {
+  .footer-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(10px, 2.8vw, 22px);
+    row-gap: 22px;
+    padding: 38px 0 28px;
+  }
+  .footer-brand {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) minmax(110px, 32%);
+    grid-template-rows: auto auto auto;
+    column-gap: clamp(14px, 3vw, 28px);
+    align-items: start;
+    direction: rtl;
+  }
+  .footer-brand .footer-logo {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    width: clamp(90px, 20vw, 135px);
+    height: auto;
+    justify-self: center;
+  }
+  .footer-brand .footer-brand-fa,
+  .footer-brand .footer-brand-description,
+  .footer-brand .footer-contact {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .footer-brand-fa { font-size: clamp(15px, 3vw, 19px); }
+  .footer-brand-description { max-width: none; font-size: clamp(10px, 1.8vw, 12px); }
+  .footer-contact {
+    min-width: 0;
+    font-size: clamp(9px, 1.8vw, 11px);
+  }
+  .footer-contact a,
+  .footer-contact > span,
+  .footer-contact a > span,
+  .footer-contact > span > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .footer-grid > .footer-col {
+    grid-column: auto;
+    min-width: 0;
+  }
+  .footer-col h4 { margin-bottom: 12px; font-size: clamp(12px, 2vw, 14px); }
+  .footer-col a,
+  .footer-info > span {
+    min-width: 0;
+    padding: 4px 0;
+    font-size: clamp(10px, 1.7vw, 11px);
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 430px) {
+  .footer-trust { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ═══ کنترل‌های شناور — هماهنگ با تم لوکس معیار ═══ */
@@ -2005,4 +2230,9 @@ main#prices.prices-page .tables-grid .price-card[data-market-container] .market-
     min-width: 0;
     height: 34px;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-analysis-modal-dialog,
+  .chat-panel { animation: none; }
 }

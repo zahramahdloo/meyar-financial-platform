@@ -181,7 +181,7 @@ function meyar_theme_footer(array $settings): void {
         <div class="ai-analysis-icon"><i class="hgi hgi-stroke hgi-rounded hgi-magic-wand-01" aria-hidden="true"></i></div>
         <div>
           <span class="ai-analysis-label">تحلیل هوشمند معیار</span>
-          <h1 id="aiModalTitle" data-ai-title>تحلیل بازار</h1>
+          <h1 id="aiModalTitle" data-ai-title aria-live="polite">تحلیل بازار</h1>
         </div>
       </div>
       <div class="ai-analysis-topic"><span>موضوع تحلیل:</span> <b data-ai-topic-label>بازار امروز</b></div>
@@ -204,16 +204,16 @@ function meyar_theme_footer(array $settings): void {
 
 <!-- ═══ چت آنلاین ═══ -->
 <div class="chat-widget" id="chatWidget">
-  <button class="chat-fab" id="chatFab" aria-label="گفتگو با پشتیبانی">
+  <button class="chat-fab" id="chatFab" type="button" aria-label="گفتگو با پشتیبانی" aria-controls="chatPanel" aria-expanded="false">
     <i class="hgi-stroke hgi-message-01" aria-hidden="true"></i>
     <span class="chat-fab-badge" id="chatBadge" hidden>۱</span>
   </button>
-  <div class="chat-panel" id="chatPanel" hidden>
+  <div class="chat-panel" id="chatPanel" role="dialog" aria-modal="true" aria-labelledby="chatTitle" hidden>
     <div class="chat-head">
       <div class="chat-head-info">
         <span class="chat-head-brand"><img src="<?= $base ?>assets/img/meyar-logo/Meyar-logo.png" alt="معیار"></span>
         <div>
-          <div class="chat-head-title">پشتیبانی معیار</div>
+          <div class="chat-head-title" id="chatTitle">پشتیبانی معیار</div>
           <div class="chat-head-sub">پاسخ‌گوی سوالات شما هستیم</div>
         </div>
       </div>
@@ -222,7 +222,7 @@ function meyar_theme_footer(array $settings): void {
         <button class="chat-close" id="chatClose" type="button" aria-label="بستن"><i class="hgi-stroke hgi-cancel-01" aria-hidden="true"></i></button>
       </div>
     </div>
-    <div class="chat-body" id="chatBody">
+    <div class="chat-body" id="chatBody" role="log" aria-live="polite" aria-relevant="additions text">
       <div class="chat-msg a">
         <span class="chat-avatar"><img src="<?= $base ?>assets/img/meyar-logo/Meyar-logo.png" alt="معیار"></span>
         <div class="chat-bubble">سلام 👋 به بورس سکه معیار خوش آمدید. سوال‌تان را بنویسید؛ همکاران ما پاسخ می‌دهند.</div>
@@ -230,9 +230,9 @@ function meyar_theme_footer(array $settings): void {
       </div>
     </div>
     <form class="chat-input" id="chatForm" autocomplete="off">
-      <input type="text" id="chatName" placeholder="نام شما (اختیاری)" maxlength="40">
+      <input type="text" id="chatName" aria-label="نام شما (اختیاری)" placeholder="نام شما (اختیاری)" maxlength="40">
       <div class="chat-input-row">
-        <input type="text" id="chatText" placeholder="پیام خود را بنویسید…" maxlength="800" required>
+        <input type="text" id="chatText" aria-label="پیام شما" placeholder="پیام خود را بنویسید…" maxlength="800" required>
         <button type="submit" aria-label="ارسال">
           <i class="hgi hgi-stroke hgi-rounded hgi-sent" aria-hidden="true"></i>
         </button>

@@ -422,16 +422,48 @@
   var API = (window.MEYAR_BASE || './') + 'api/prices.php';
   var REFRESH_MS = 30000;
   var refreshMarketInsights = null;
+  var pricesRequest = null;
+  var pricesRequestSeq = 0;
+  var priceBaseline = Object.create(null);
+  var priceBaselineReady = false;
 
-  function updateCell(cell, newVal) {
-    if (!cell || cell.textContent.trim() === newVal) return 0;
-    var dir = cell.textContent.trim() < newVal ? 'up' : 'down'; // مقایسه‌ی تقریبی نمایشی
+  function normalizeNumeric(value) {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : NaN;
+    var text = String(value == null ? '' : value)
+      .replace(/[۰-۹]/g, function (digit) { return String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)); })
+      .replace(/[٠-٩]/g, function (digit) { return String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)); })
+      .replace(/[−–—]/g, '-')
+      .replace(/[٬،]/g, ',')
+      .replace(/\s+/g, '')
+      .replace(/,/g, '')
+      .replace(/٫/g, '.')
+      .replace(/[^\d.-]/g, '');
+    var number = Number(text);
+    return Number.isFinite(number) ? number : NaN;
+  }
+
+  function priceDirection(previous, next) {
+    var oldValue = normalizeNumeric(previous);
+    var newValue = normalizeNumeric(next);
+    if (!Number.isFinite(oldValue) || !Number.isFinite(newValue) || oldValue === newValue) return '';
+    return newValue > oldValue ? 'up' : 'down';
+  }
+
+  function updateCell(cell, newVal, dir) {
+    if (!cell || cell.textContent.trim() === String(newVal == null ? '' : newVal)) return 0;
+    if (dir) {
+      window.clearTimeout(cell._priceFlashTimer);
+      cell.classList.remove('flash-up', 'flash-down');
+      void cell.offsetWidth;
+      cell.classList.add(dir === 'up' ? 'flash-up' : 'flash-down');
+      cell._priceFlashTimer = window.setTimeout(function () {
+        cell.classList.remove('flash-up', 'flash-down');
+      }, 1250);
+    }
     cell.textContent = newVal;
-    cell.classList.remove('flash-up', 'flash-down');
-    void cell.offsetWidth;
-    cell.classList.add(dir === 'up' ? 'flash-up' : 'flash-down');
     return 1;
   }
+
   function setDirectionValue(el, dir, value, diagonal) {
     if (!el) return;
     el.textContent = '';
@@ -449,15 +481,25 @@
   function applyData(data) {
     if (!data || !data.items) return;
     var byId = {};
-    data.items.forEach(function (i) { byId[i.id] = i; });
+    var directions = {};
+    data.items.forEach(function (i) {
+      byId[i.id] = i;
+      directions[i.id] = {};
+      ['live', 'buy', 'sell'].forEach(function (field) {
+        var key = i.id + ':' + field;
+        var next = normalizeNumeric(i[field]);
+        directions[i.id][field] = priceBaselineReady ? priceDirection(priceBaseline[key], next) : '';
+        priceBaseline[key] = next;
+      });
+    });
 
     // جداول
     document.querySelectorAll('tr[data-id]').forEach(function (row) {
       var it = byId[row.getAttribute('data-id')];
       if (!it) return;
-      updateCell(row.querySelector('[data-cell="live"]'), it.live_fmt);
-      updateCell(row.querySelector('[data-cell="buy"]'), it.buy_fmt);
-      updateCell(row.querySelector('[data-cell="sell"]'), it.sell_fmt);
+      updateCell(row.querySelector('[data-cell="live"]'), it.live_fmt, directions[it.id].live);
+      updateCell(row.querySelector('[data-cell="buy"]'), it.buy_fmt, directions[it.id].buy);
+      updateCell(row.querySelector('[data-cell="sell"]'), it.sell_fmt, directions[it.id].sell);
       var chg = row.querySelector('[data-cell="chg"]');
       if (chg) {
         setDirectionValue(chg, it.dir, it.change_pct, false);
@@ -471,8 +513,8 @@
       if (!it) return;
       var buyPrice = asset.querySelector('[data-cell="buy"]');
       var sellPrice = asset.querySelector('[data-cell="sell"]');
-      if (buyPrice) buyPrice.textContent = it.buy_fmt || '';
-      if (sellPrice) sellPrice.textContent = it.sell_fmt || '';
+      if (buyPrice) updateCell(buyPrice, it.buy_fmt || '', directions[it.id].buy);
+      if (sellPrice) updateCell(sellPrice, it.sell_fmt || '', directions[it.id].sell);
       var chg = asset.querySelector('[data-cell="chg"]');
       if (chg) {
         chg.textContent = '';
@@ -492,8 +534,8 @@
       if (!it) return;
       var buyPrice = card.querySelector('[data-cell="buy"]');
       var sellPrice = card.querySelector('[data-cell="sell"]');
-      if (buyPrice) buyPrice.textContent = it.buy_fmt || '';
-      if (sellPrice) sellPrice.textContent = it.sell_fmt || '';
+      if (buyPrice) updateCell(buyPrice, it.buy_fmt || '', directions[it.id].buy);
+      if (sellPrice) updateCell(sellPrice, it.sell_fmt || '', directions[it.id].sell);
       var change = card.querySelector('.market-overview-change');
       if (change) {
         var direction = it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : 'flat');
@@ -509,11 +551,8 @@
       if (!it) return;
       var live = card.querySelector('[data-cell="live"]');
       if (live) {
-        live.textContent = it.live_fmt || '';
-        var unit = document.createElement('small');
-        unit.textContent = it.unit || '';
-        live.appendChild(document.createTextNode(' '));
-        live.appendChild(unit);
+        var liveText = (it.live_fmt || '') + (it.unit ? ' ' + it.unit : '');
+        updateCell(live, liveText, directions[it.id].live);
       }
       var chg = card.querySelector('[data-cell="chg"]');
       if (chg) {
@@ -525,7 +564,7 @@
       var it = byId[asset.getAttribute('data-id')];
       if (!it) return;
       var live = asset.querySelector('[data-cell="insight-live"]');
-      if (live) live.textContent = (it.live_fmt || '') + ' ' + (it.unit || '');
+      if (live) updateCell(live, (it.live_fmt || '') + ' ' + (it.unit || ''), directions[it.id].live);
       var change = asset.querySelector('[data-cell="insight-change"]');
       if (change) {
         change.textContent = (it.dir === 'high' ? '+' : (it.dir === 'low' ? '−' : '')) + (it.change_pct || '۰') + '٪';
@@ -538,7 +577,7 @@
       var it = byId[box.getAttribute('data-item-price')];
       if (!it) return;
       var lv = box.querySelector('[data-cell="live"]');
-      if (lv) lv.textContent = it.live_fmt;
+      if (lv) updateCell(lv, it.live_fmt, directions[it.id].live);
       var chg = box.querySelector('[data-cell="chg"]');
       if (chg) {
         setDirectionValue(chg, it.dir, it.change_pct, false);
@@ -549,13 +588,13 @@
       var box = document.querySelector('[data-item-price]');
       if (!box) return;
       var it = byId[box.getAttribute('data-item-price')];
-      if (it) el.textContent = it.sell_fmt;
+      if (it) updateCell(el, it.sell_fmt, directions[it.id].sell);
     });
     document.querySelectorAll('.item-cards [data-cell="buy"]').forEach(function (el) {
       var box = document.querySelector('[data-item-price]');
       if (!box) return;
       var it = byId[box.getAttribute('data-item-price')];
-      if (it) el.textContent = it.buy_fmt;
+      if (it) updateCell(el, it.buy_fmt, directions[it.id].buy);
     });
 
     // تیکر
@@ -563,7 +602,7 @@
       var it = byId[t.getAttribute('data-tid')];
       if (!it) return;
       var priceEl = t.querySelector('.ticker-price');
-      if (priceEl) priceEl.textContent = it.live_fmt;
+      if (priceEl) updateCell(priceEl, it.live_fmt, directions[it.id].live);
       var chEl = t.querySelector('.ticker-change');
       if (chEl) {
         setDirectionValue(chEl, it.dir, it.change_pct, false);
@@ -587,6 +626,25 @@
       if (overviewTime) overviewTime.textContent = updateTime;
       if (!overviewDate && !overviewTime) overviewUpdated.textContent = updateTime;
     }
+    priceBaselineReady = true;
+  }
+
+  function requestPrices() {
+    if (pricesRequest) return pricesRequest;
+    var requestSeq = ++pricesRequestSeq;
+    pricesRequest = fetch(API, { cache: 'no-store' })
+      .then(function (response) {
+        if (!response.ok) throw new Error('price_api_failed');
+        return response.json();
+      })
+      .then(function (data) {
+        if (requestSeq === pricesRequestSeq) applyData(data);
+        return data;
+      })
+      .finally(function () {
+        if (requestSeq === pricesRequestSeq) pricesRequest = null;
+      });
+    return pricesRequest;
   }
 
   /* ---------- نمودار واقعی داشبورد بازار ---------- */
@@ -733,8 +791,7 @@
     function startRealtimeGoldUpdates() {
       if (goldPollInFlight || document.hidden || !goldSeries) { scheduleGoldPoll(); return; }
       goldPollInFlight = true;
-      fetch((window.MEYAR_BASE || './') + 'api/prices.php', { cache: 'no-store' })
-        .then(function (response) { if (!response.ok) throw new Error('price_api_failed'); return response.json(); })
+      requestPrices()
         .then(function (data) {
           var item = (data.items || []).find(function (entry) { return entry.id === 'geram18'; });
           if (item) updateLatestGoldPrice(item.live, data.fetched_at);
@@ -966,13 +1023,16 @@
   });
 
   function refresh() {
-    fetch(API, { cache: 'no-store' })
-      .then(function (r) { return r.json(); })
-      .then(applyData)
-      .catch(function () { /* بی‌صدا؛ تلاش بعدی */ });
+    requestPrices().catch(function () { /* بی‌صدا؛ تلاش بعدی */ });
   }
-  setInterval(refresh, REFRESH_MS);
+  var refreshTimer = window.setInterval(refresh, REFRESH_MS);
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) refresh();
+    if (document.hidden) {
+      window.clearInterval(refreshTimer);
+      refreshTimer = null;
+      return;
+    }
+    refresh();
+    if (!refreshTimer) refreshTimer = window.setInterval(refresh, REFRESH_MS);
   });
 })();

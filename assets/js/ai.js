@@ -4,6 +4,20 @@
   var modal = document.getElementById('aiAnalysisModal');
   var page = document.querySelector('[data-ai-page]');
   var lastTrigger = null;
+  var modalCard = modal ? modal.querySelector('[data-ai-modal-card]') : null;
+  var dialog = modal ? modal.querySelector('.ai-analysis-modal-dialog') : null;
+
+  function getFocusable(container) {
+    if (!container) return [];
+    return Array.prototype.slice.call(container.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter(function (el) { return !el.hidden && el.offsetParent !== null; });
+  }
+
+  function focusDialog() {
+    var focusables = getFocusable(dialog);
+    (focusables[0] || dialog).focus();
+  }
 
   function typeExplanation(card, text) {
     var target = card.querySelector('[data-ai-explanation]');
@@ -12,6 +26,11 @@
     var index = 0;
     target.textContent = '';
     target.classList.add('is-typing');
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      target.textContent = chars.join('');
+      target.classList.remove('is-typing');
+      return;
+    }
     card._typingTimer = setInterval(function () {
       target.textContent += chars[index++] || '';
       if (index >= chars.length) {
@@ -28,6 +47,7 @@
     var content = card.querySelector('[data-ai-content]');
     card.setAttribute('data-ai-topic', topic);
     card.setAttribute('data-ai-trend', trend);
+    card.setAttribute('aria-busy', 'true');
     card.querySelector('[data-ai-title]').textContent = 'در حال آماده‌سازی تحلیل…';
     card.querySelector('[data-ai-topic-label]').textContent = topic || 'بازار امروز';
     loading.hidden = false;
@@ -51,11 +71,13 @@
         card.querySelector('[data-ai-disclaimer]').textContent = detail.disclaimer || '';
         loading.hidden = true;
         content.hidden = false;
+        card.setAttribute('aria-busy', 'false');
         typeExplanation(card, explanation);
       })
       .catch(function () {
         loading.hidden = true;
         error.hidden = false;
+        card.setAttribute('aria-busy', 'false');
       });
   }
 
@@ -67,22 +89,49 @@
     }
     modal.hidden = true;
     document.body.classList.remove('ai-modal-open');
-    if (lastTrigger) lastTrigger.focus();
+    if (lastTrigger && document.contains(lastTrigger)) lastTrigger.focus();
   }
 
   if (modal) {
-    var modalCard = modal.querySelector('[data-ai-modal-card]');
+    if (dialog && !dialog.hasAttribute('tabindex')) dialog.setAttribute('tabindex', '-1');
+    function openModal(trigger) {
+      lastTrigger = trigger || null;
+      modal.hidden = false;
+      document.body.classList.add('ai-modal-open');
+      window.requestAnimationFrame(focusDialog);
+      loadCard(modalCard, trigger.getAttribute('data-ai-topic') || trigger.textContent.trim(), trigger.getAttribute('data-ai-trend') || 'flat');
+    }
     document.addEventListener('click', function (event) {
       var link = event.target.closest('.market-insight-link');
       if (!link) return;
       event.preventDefault();
-      lastTrigger = link;
-      modal.hidden = false;
-      document.body.classList.add('ai-modal-open');
-      loadCard(modalCard, link.getAttribute('data-ai-topic') || link.textContent.trim(), link.getAttribute('data-ai-trend') || 'flat');
+      openModal(link);
     });
     modal.querySelectorAll('[data-ai-close]').forEach(function (button) { button.addEventListener('click', closeModal); });
-    document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !modal.hidden) closeModal(); });
+    document.addEventListener('keydown', function (event) {
+      if (modal.hidden) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeModal();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      var focusables = getFocusable(dialog);
+      if (!focusables.length) {
+        event.preventDefault();
+        focusDialog();
+        return;
+      }
+      var first = focusables[0];
+      var last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
   }
 
   if (page) loadCard(page, page.getAttribute('data-ai-topic') || 'روند کلی قیمت‌های امروز بازار', page.getAttribute('data-ai-trend') || 'flat');

@@ -11,9 +11,13 @@
   var textInp = document.getElementById('chatText');
   var badge = document.getElementById('chatBadge');
   if (!fab || !panel) return;
+  if (!panel.hasAttribute('tabindex')) panel.setAttribute('tabindex', '-1');
 
   var API = (window.MEYAR_BASE || './') + 'api/chat.php';
   var token = null, lastId = 0, open = false, pollTimer = null;
+  var lastTrigger = null;
+  var widget = document.getElementById('chatWidget') || panel.parentElement;
+  var inertBackground = [];
   var faD = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
   function faNum(s){return String(s).replace(/\d/g,function(d){return faD[+d];});}
 
@@ -66,23 +70,51 @@
     pollTimer = setInterval(poll, fast ? 6000 : 25000);
   }
 
-  fab.addEventListener('click', function () {
-    open = !open;
-    panel.hidden = !open;
-    if (open) {
-      badge.hidden = true;
-      textInp.focus();
-      poll();
-      startPolling(true);
+  function getFocusable() {
+    return Array.prototype.slice.call(panel.querySelectorAll(
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter(function (el) { return !el.hidden && el.offsetParent !== null; });
+  }
+
+  function setBackgroundInert(enabled) {
+    if (!widget) return;
+    if (enabled) {
+      inertBackground = Array.prototype.slice.call(document.body.children).filter(function (node) { return node !== widget; });
+      inertBackground.forEach(function (node) { node.inert = true; });
     } else {
-      startPolling(false);
+      inertBackground.forEach(function (node) { node.inert = false; });
+      inertBackground = [];
     }
-  });
-  closeBtn.addEventListener('click', function () {
-    open = false;
-    panel.hidden = true;
-    startPolling(false);
-  });
+  }
+
+  function setOpen(nextOpen, trigger) {
+    open = nextOpen;
+    if (open) lastTrigger = trigger || lastTrigger || fab;
+    panel.hidden = !open;
+    fab.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (!open) {
+      setBackgroundInert(false);
+      panel.classList.remove('is-minimized');
+      if (minimizeBtn) {
+        minimizeBtn.setAttribute('aria-expanded', 'true');
+        minimizeBtn.setAttribute('aria-label', 'کوچک کردن گفتگو');
+      }
+      if (lastTrigger && document.contains(lastTrigger)) lastTrigger.focus();
+      startPolling(false);
+      return;
+    }
+    setBackgroundInert(true);
+    badge.hidden = true;
+    window.requestAnimationFrame(function () {
+      var focusables = getFocusable();
+      (textInp || focusables[0] || panel).focus();
+    });
+    poll();
+    startPolling(true);
+  }
+
+  fab.addEventListener('click', function () { setOpen(!open, fab); });
+  closeBtn.addEventListener('click', function () { setOpen(false); });
   if (minimizeBtn) {
     minimizeBtn.addEventListener('click', function () {
       var minimized = panel.classList.toggle('is-minimized');
@@ -90,6 +122,31 @@
       minimizeBtn.setAttribute('aria-label', minimized ? 'باز کردن گفتگو' : 'کوچک کردن گفتگو');
     });
   }
+
+  document.addEventListener('keydown', function (event) {
+    if (!open) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setOpen(false);
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    var focusables = getFocusable();
+    if (!focusables.length) {
+      event.preventDefault();
+      panel.focus();
+      return;
+    }
+    var first = focusables[0];
+    var last = focusables[focusables.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();

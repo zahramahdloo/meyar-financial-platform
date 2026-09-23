@@ -10,8 +10,14 @@ meyar_track('/tv');
 $settings = meyar_load_settings();
 $data     = meyar_build_prices();
 $items    = array_values(array_filter($data['items'], function ($i) { return empty($i['hidden']); }));
-$byGroup  = ['coins'=>[], 'parsian'=>[], 'gold'=>[], 'currency'=>[]];
-foreach ($items as $i) { if (isset($byGroup[$i['group']])) $byGroup[$i['group']][] = $i; }
+$byGroup  = ['coins'=>[], 'parsian'=>[], 'gold'=>[], 'silver'=>[], 'currency'=>[]];
+foreach ($items as $i) {
+    if ($i['id'] === 'silver999') {
+        $byGroup['silver'][] = $i;
+    } elseif (isset($byGroup[$i['group']])) {
+        $byGroup[$i['group']][] = $i;
+    }
+}
 $importantCurrencyIds = ['usd', 'eur', 'aed', 'gbp', 'try', 'chf'];
 $byGroup['currency'] = array_values(array_filter($byGroup['currency'], function ($i) use ($importantCurrencyIds) {
     return in_array($i['id'], $importantCurrencyIds, true);
@@ -39,6 +45,11 @@ if ($byGroup['currency']) {
         ['title' => 'ارزها', 'group' => 'currency', 'items' => array_slice($byGroup['currency'], 0, 6)],
     ];
 }
+if ($byGroup['silver']) {
+    $pages[] = [
+        ['title' => 'نقره', 'group' => 'silver', 'items' => $byGroup['silver']],
+    ];
+}
 
 $tickerIds = ['sekee','sekeb','nim','rob','gerami','geram18','silver999','usd','eur','ons'];
 $ticker = array_values(array_filter($items, function ($i) use ($tickerIds) { return in_array($i['id'], $tickerIds, true); }));
@@ -46,7 +57,9 @@ $ticker = array_values(array_filter($items, function ($i) use ($tickerIds) { ret
 function tv_row(array $i): void { ?>
   <div class="tv-row" data-id="<?= meyar_h($i['id']) ?>">
     <span class="tv-name">
-      <i class="hgi hgi-stroke hgi-rounded <?= $i['group'] === 'currency' ? 'hgi-cash-02' : ($i['group'] === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01') ?>" aria-hidden="true"></i>
+      <?php if ($i['group'] === 'currency'): ?>
+        <span class="tv-flag" aria-hidden="true"><?= meyar_h($i['icon']) ?></span>
+      <?php endif; ?>
       <?= meyar_h($i['title']) ?>
     </span>
     <span class="tv-chg <?= $i['dir'] === 'high' ? 'up' : ($i['dir'] === 'low' ? 'down' : 'flat') ?>" data-cell="chg">
@@ -75,7 +88,6 @@ function tv_row(array $i): void { ?>
   --bg: #0b0c11; --panel: #14161f; --line: rgba(212, 164, 55, .18);
   --green: #3ddc84; --red: #ff6b6b; --soft: #9298ab;
 }
-.tv-name > i { width: 28px; flex: 0 0 28px; color: var(--gold-light); font-size: 22px; text-align: center; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 button, input, select, textarea { font-family: inherit; }
 html, body { height: 100%; overflow: hidden; }
@@ -88,30 +100,8 @@ body {
   color: #eceef4; display: flex; flex-direction: column;
   cursor: default;
 }
-.num, .tv-buy, .tv-sell, .tv-chg, .tv-clock { font-variant-numeric: tabular-nums; }
+.num, .tv-buy, .tv-sell, .tv-chg { font-variant-numeric: tabular-nums; }
 
-/* ═══ هدر ═══ */
-.tv-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 1.2vh 2.2vw; border-bottom: 1px solid var(--line);
-  background: linear-gradient(180deg, #14161f, #0f1118);
-}
-.tv-brand { display: flex; align-items: center; gap: 1.2vw; }
-.tv-brand img { width: auto; height: 7.5vh; max-width: 10vw; object-fit: contain; filter: drop-shadow(0 4px 18px rgba(212, 164, 55, .35)); }
-.tv-brand-txt b {
-  display: block; font-size: 2.9vh; font-weight: 800;
-  background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.tv-brand-txt span { font-size: 1.7vh; color: var(--soft); }
-.tv-mid { text-align: center; }
-.tv-clock { font-size: 5.2vh; font-weight: 800; color: var(--gold-light); letter-spacing: 2px; line-height: 1.15; }
-.tv-date { font-size: 1.9vh; color: var(--soft); }
-.tv-status { text-align: left; font-size: 1.8vh; color: var(--soft); }
-.tv-live { display: flex; align-items: center; gap: .6vw; justify-content: flex-end; color: var(--green); font-weight: 700; font-size: 1.9vh; }
-.tv-live-dot {
-  width: 1.1vh; height: 1.1vh; border-radius: 50%; background: var(--green);
-  animation: pulse 2s infinite;
-}
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(61, 220, 132, .5); }
   70% { box-shadow: 0 0 0 1.2vh rgba(61, 220, 132, 0); }
@@ -133,6 +123,7 @@ body {
   overflow: hidden; display: flex; flex-direction: column;
   box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
 }
+.tv-panel--silver { align-self: start; min-height: 0 !important; height: max-content; }
 .tv-panel-head {
   display: grid; grid-template-columns: 1fr 22% 22% 16%;
   align-items: center; gap: 1vw;
@@ -140,14 +131,14 @@ body {
   background: linear-gradient(135deg, #1c1f2b, #171a24);
 }
 .tv-panel-head h2 {
-  font-size: 2.5vh; font-weight: 800; display: flex; align-items: center; gap: .7vw;
+  font-weight: 800; display: flex; align-items: center; gap: .7vw;
   background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .tv-panel-head h2::before {
   content: ''; width: 1.1vh; height: 1.1vh; border-radius: .35vh; flex-shrink: 0;
   background: var(--gold-grad); box-shadow: 0 0 12px rgba(212, 164, 55, .8);
 }
-.tv-col-label { font-size: 1.7vh; color: var(--soft); font-weight: 600; text-align: center; }
+.tv-col-label { color: var(--soft); font-weight: 600; text-align: center; }
 .tv-rows { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; padding: .5vh 0; }
 .tv-row {
   display: grid; grid-template-columns: 1fr 22% 22% 16%;
@@ -156,18 +147,18 @@ body {
 }
 .tv-row:first-child { border-top: none; }
 .tv-row:nth-child(even) { background: rgba(255, 255, 255, .022); }
-.tv-name { display: flex; align-items: center; gap: .8vw; font-size: 2.5vh; font-weight: 700; white-space: nowrap; overflow: hidden; }
+.tv-name { display: flex; align-items: center; gap: .8vw; font-weight: 700; white-space: nowrap; overflow: hidden; }
 .tv-coin {
   width: 3vh; height: 3vh; border-radius: 50%; flex-shrink: 0;
   background: radial-gradient(circle at 35% 30%, #ffe9a8, #d4a437 55%, #8a6516);
   box-shadow: inset 0 0 0 .35vh rgba(138, 101, 22, .5);
 }
 .tv-coin.gold { border-radius: .8vh; }
-.tv-flag { font-size: 2.6vh; flex-shrink: 0; }
-.tv-buy, .tv-sell { font-size: 2.8vh; font-weight: 800; text-align: center; white-space: nowrap; }
+.tv-flag { flex-shrink: 0; }
+.tv-buy, .tv-sell { font-weight: 800; text-align: center; white-space: nowrap; }
 .tv-buy { color: #dfe3ee; }
 .tv-sell { color: var(--gold-light); }
-.tv-chg { font-size: 1.9vh; font-weight: 700; text-align: center; white-space: nowrap; }
+.tv-chg { font-weight: 700; text-align: center; white-space: nowrap; }
 .tv-chg.up { color: var(--green); }
 .tv-chg.down { color: var(--red); }
 .tv-chg.flat { color: var(--soft); }
@@ -230,11 +221,10 @@ body {
   height: 100%; flex: 0 0 auto; padding: 0 24px;
   direction: rtl; white-space: nowrap;
   border-left: 1px solid rgba(255, 255, 255, .14);
-  font-size: 2.2vh;
 }
 .tv-tk-name { color: var(--soft); }
 .tv-tk-price { color: var(--gold-light); font-weight: 800; }
-.tv-tk-chg { font-size: 1.7vh; color: var(--soft); }
+.tv-tk-chg { color: var(--soft); }
 .tv-tk-chg.up { color: var(--green); }
 .tv-tk-chg.down { color: var(--red); }
 
@@ -255,20 +245,6 @@ body {
     radial-gradient(900px 480px at 50% -20%, rgba(212, 164, 55, .13), transparent 70%);
   background-size: 42px 42px, 42px 42px, auto;
 }
-.tv-head {
-  min-height: 11vh;
-  padding: 1.5vh 3vw;
-  border-bottom: 1px solid rgba(212, 164, 55, .3);
-  background: rgba(7, 20, 38, .92);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, .16);
-}
-.tv-brand { gap: 1vw; }
-.tv-brand img { height: 6.5vh; max-width: 9vw; }
-.tv-brand-txt b { font-size: 2.6vh; }
-.tv-brand-txt span, .tv-date { color: #91a4bf; }
-.tv-clock { font-size: 4.8vh; color: #f4d77c; text-shadow: 0 0 22px rgba(212, 164, 55, .18); }
-.tv-status { color: #91a4bf; }
-.tv-live { color: #5ee49a; }
 .tv-carousel { position: relative; display: flex; flex: 1; width: 100%; min-width: 0; min-height: 0; padding-inline: clamp(56px, 5vw, 96px); box-sizing: border-box; }
 .tv-main { min-width: 0; padding: 1.7vh 0 0; }
 .tv-page, .tv-page * { cursor: default; }
@@ -282,7 +258,7 @@ body {
   color: #f4d77c; background: rgba(7, 20, 38, .94);
   cursor: pointer; transition: background-color .18s ease, transform .18s ease, box-shadow .18s ease;
 }
-.tv-nav i { font-size: 21px; line-height: 1; }
+.tv-nav i { line-height: 1; }
 .tv-nav--prev { inset-inline-start: clamp(8px, 1.5vw, 28px); }
 .tv-nav--next { inset-inline-end: clamp(8px, 1.5vw, 28px); }
 .tv-nav:hover { background: rgba(212, 164, 55, .16); box-shadow: 0 0 16px rgba(212, 164, 55, .2); transform: translateY(-50%) scale(1.04); }
@@ -321,10 +297,15 @@ body {
   -webkit-text-fill-color: currentColor;
 }
 .tv-panel-head h2::before { display: none; }
-.tv-panel-head h2 > i { flex: 0 0 auto; color: #f0cf7a; font-size: 2.6vh; }
-.tv-panel-head h2 > span { min-width: 0; }
-.tv-panel-head h2 small { display: block; margin-top: .25vh; color: #91a4bf; font-size: 1.35vh; font-weight: 400; }
-.tv-col-label { color: #91a4bf; font-size: 1.55vh; }
+.tv-market-icon { object-fit: contain; }
+.tv-panel-head h2 > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.tv-col-label { color: #91a4bf; }
+.tv-panel-head > .tv-col-label,
+.tv-row > .tv-chg,
+.tv-row > .tv-sell,
+.tv-row > .tv-buy {
+  border-inline-start: 1px solid rgba(148, 163, 184, .18);
+}
 .tv-rows { padding: .7vh 0; }
 .tv-row {
   grid-template-columns: minmax(0, 1fr) 16% 23% 23%;
@@ -334,33 +315,18 @@ body {
   border-top-color: var(--line-soft);
 }
 .tv-row:nth-child(even) { background: rgba(93, 126, 170, .055); }
-.tv-name { gap: .7vw; color: #f3f6fb; font-size: 2.1vh; }
-.tv-name > i { width: 2.8vh; flex-basis: 2.8vh; color: #f0cf7a; font-size: 2.1vh; }
-.tv-buy, .tv-sell { font-size: 2.15vh; }
+.tv-name { gap: .7vw; color: #f3f6fb; }
 .tv-buy { color: #f3f6fb; }
 .tv-sell { color: #f4d77c; }
-.tv-chg { font-size: 1.65vh; }
 .tv-ticker { border-top-color: rgba(201, 162, 39, .24); background: #0b1220; }
-.tv-tk-item { border-left-color: rgba(148, 163, 184, .12); font-size: 1.85vh; }
+.tv-tk-item { border-left-color: rgba(148, 163, 184, .12); }
 .tv-tk-name { color: #91a4bf; }
 @media (max-width: 900px) {
-  .tv-head { padding-inline: 2vw; }
   .tv-panel-head, .tv-row { grid-template-columns: minmax(0, 1fr) 17% 24% 24%; }
-  .tv-name { font-size: 1.9vh; }
-  .tv-buy, .tv-sell { font-size: 1.9vh; }
 }
 @media (max-width: 680px) {
   html, body { overflow: auto; }
   body { min-height: 100vh; }
-  .tv-head { flex-wrap: wrap; gap: 1.5vh 4vw; padding: 1.8vh 4vw; }
-  .tv-brand { order: 1; flex: 1 1 60%; }
-  .tv-brand img { height: 6vh; max-width: 17vw; }
-  .tv-brand-txt b { font-size: 2.2vh; }
-  .tv-brand-txt span { font-size: 1.45vh; }
-  .tv-mid { order: 3; flex: 1 1 100%; }
-  .tv-clock { font-size: 4.2vh; }
-  .tv-status { order: 2; font-size: 1.45vh; }
-  .tv-live { font-size: 1.55vh; }
   .tv-carousel { padding-inline: 50px; }
   .tv-main { padding: 1.5vh 0 0; overflow: visible; }
   .tv-nav { width: 40px; height: 40px; }
@@ -371,19 +337,12 @@ body {
   .tv-page.single-panel .tv-panel { min-height: 0; }
   .tv-panel-head, .tv-row { grid-template-columns: minmax(0, 1fr) 18% 25% 25%; gap: 1.2vw; }
   .tv-panel-head { min-height: 7.5vh; padding-inline: 3vw; }
-  .tv-panel-head h2 { font-size: 2vh; }
-  .tv-panel-head h2 small { font-size: 1.2vh; }
-  .tv-col-label { font-size: 1.35vh; }
   .tv-row { min-height: 6.8vh; padding-inline: 3vw; }
-  .tv-name { font-size: 1.7vh; }
-  .tv-name > i { font-size: 1.8vh; }
-  .tv-buy, .tv-sell { font-size: 1.65vh; }
-  .tv-chg { font-size: 1.3vh; }
-  .tv-tk-item { padding-inline: 4vw; font-size: 1.65vh; }
+  .tv-tk-item { padding-inline: 4vw; }
 }
 @media (max-width: 768px) {
   .tv-ticker-track { --tv-ticker-duration: 30s; }
-  .tv-tk-item { gap: 6px; padding-inline: 18px; font-size: 11px; }
+  .tv-tk-item { gap: 6px; padding-inline: 18px; }
   .tv-ticker::before, .tv-ticker::after { width: 30px; }
 }
 @media (min-width: 1600px) {
@@ -391,21 +350,11 @@ body {
     min-height: clamp(76px, 7vh, 112px);
     padding-inline: clamp(24px, 1.5vw, 34px);
   }
-  .tv-panel-head h2 { font-size: clamp(28px, 1.8vw, 42px); }
-  .tv-panel-head h2 > i { font-size: clamp(28px, 1.7vw, 40px); }
-  .tv-panel-head h2 small { font-size: clamp(15px, .8vw, 20px); }
-  .tv-col-label { font-size: clamp(18px, 1.1vw, 26px); }
   .tv-row {
     min-height: clamp(72px, 5.5vh, 104px);
     padding-inline: clamp(24px, 1.5vw, 34px);
   }
-  .tv-name { font-size: clamp(20px, 1.25vw, 30px); }
-  .tv-name > i { font-size: clamp(22px, 1.3vw, 32px); }
-  .tv-buy, .tv-sell { font-size: clamp(22px, 1.35vw, 34px); }
-  .tv-chg { font-size: clamp(18px, 1.05vw, 28px); }
   .tv-nav { width: clamp(42px, 3vw, 64px); height: clamp(42px, 3vw, 64px); }
-  .tv-nav i { font-size: clamp(22px, 1.4vw, 30px); }
-  .tv-tk-item { font-size: clamp(18px, 1vw, 25px); }
 }
 @media (min-width: 1200px) {
   .tv-page:not(.single-panel) {
@@ -414,37 +363,131 @@ body {
   .tv-page:not(.single-panel) .tv-panel {
     min-height: clamp(500px, 64vh, 760px);
   }
-  .tv-page:not(.single-panel) .tv-panel-head h2 { font-size: clamp(25px, 1.7vw, 38px); }
-  .tv-page:not(.single-panel) .tv-panel-head h2 > i { font-size: clamp(25px, 1.6vw, 36px); }
-  .tv-page:not(.single-panel) .tv-panel-head h2 small { font-size: clamp(14px, .75vw, 18px); }
-  .tv-page:not(.single-panel) .tv-col-label { font-size: clamp(17px, 1vw, 24px); }
-  .tv-page:not(.single-panel) .tv-name { font-size: clamp(21px, 1.35vw, 32px); }
-  .tv-page:not(.single-panel) .tv-name > i { font-size: clamp(22px, 1.3vw, 31px); }
-  .tv-page:not(.single-panel) .tv-buy,
-  .tv-page:not(.single-panel) .tv-sell { font-size: clamp(24px, 1.5vw, 36px); }
-  .tv-page:not(.single-panel) .tv-chg { font-size: clamp(18px, 1.05vw, 27px); }
+}
+
+/* ═══ اندازه‌ی بزرگ‌تر برای نمایشگر TV ═══ */
+@media (min-width: 901px) {
+  .tv-carousel { padding-inline: clamp(36px, 3vw, 64px); }
+  .tv-page:not(.single-panel) { width: min(calc(100% - 80px), 1800px); gap: 2vw; }
+  .tv-page.single-panel { width: min(calc(100% - 80px), 1420px); }
+  .tv-page:not(.single-panel) .tv-panel { min-height: clamp(560px, 72vh, 880px); }
+  .tv-page.single-panel .tv-panel { min-height: clamp(500px, 68vh, 820px); }
+  .tv-panel-head { min-height: 10vh; padding: 1.5vh 1.8vw; }
+  .tv-panel-head h2 > span { white-space: nowrap; }
+  .tv-row { min-height: clamp(72px, 7.5vh, 104px); padding: .9vh 1.8vw; }
+  .tv-nav { width: clamp(46px, 3.4vw, 70px); height: clamp(46px, 3.4vw, 70px); }
+  .tv-ticker { height: 46px; }
+}
+@media (max-width: 680px) {
+  .tv-carousel { padding-inline: 38px; }
+  .tv-page, .tv-page.active { width: calc(100% - 12px); }
+  .tv-page.single-panel { width: calc(100% - 12px); }
+  .tv-panel-head { min-height: 8.5vh; padding-inline: 2.5vw; }
+  .tv-panel-head h2 > span { white-space: nowrap; }
+  .tv-row { min-height: 7.1vh; padding-inline: 2.5vw; }
+  .tv-ticker { height: 42px; }
+}
+
+/* ═══ مقیاس responsive استاندارد برای TV، دسکتاپ، لپ‌تاپ، تبلت و موبایل ═══ */
+@media (min-width: 1600px) {
+  .tv-page .tv-panel-head h2 { font-size: clamp(26px, 1.7vw, 34px); }
+  .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(32px, 1.8vw, 38px); height: clamp(32px, 1.8vw, 38px); flex-basis: clamp(32px, 1.8vw, 38px); }
+  .tv-page .tv-col-label { font-size: clamp(15px, .95vw, 22px); }
+  .tv-page .tv-name { font-size: clamp(22px, 1.25vw, 29px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(24px, 1.35vw, 32px); }
+  .tv-page .tv-chg { font-size: clamp(17px, 1vw, 25px); }
+  .tv-nav i { font-size: clamp(24px, 1.4vw, 32px); }
+  .tv-tk-item { font-size: clamp(16px, .9vw, 22px); }
+  .tv-tk-chg { font-size: clamp(13px, .75vw, 18px); }
+}
+
+@media (min-width: 1200px) and (max-width: 1599px) {
+  .tv-page .tv-panel-head h2 { font-size: clamp(22px, 1.6vw, 30px); }
+  .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(28px, 1.65vw, 34px); height: clamp(28px, 1.65vw, 34px); flex-basis: clamp(28px, 1.65vw, 34px); }
+  .tv-page .tv-col-label { font-size: clamp(14px, .9vw, 19px); }
+  .tv-page .tv-name { font-size: clamp(18px, 1.1vw, 25px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(20px, 1.2vw, 29px); }
+  .tv-page .tv-chg { font-size: clamp(15px, .9vw, 22px); }
+  .tv-nav i { font-size: clamp(22px, 1.25vw, 28px); }
+  .tv-tk-item { font-size: clamp(14px, .8vw, 20px); }
+  .tv-tk-chg { font-size: clamp(12px, .7vw, 16px); }
+}
+
+/* لپ‌تاپ: اندازه‌ی متعادل برای فاصله‌ی دید نزدیک‌تر */
+@media (min-width: 901px) and (max-width: 1199px) {
+  .tv-page .tv-panel-head h2 { font-size: clamp(19px, 1.25vw, 24px); }
+  .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(25px, 1.5vw, 30px); height: clamp(25px, 1.5vw, 30px); flex-basis: clamp(25px, 1.5vw, 30px); }
+  .tv-page .tv-col-label { font-size: clamp(13px, .8vw, 17px); }
+  .tv-page .tv-name { font-size: clamp(17px, 1vw, 22px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(18px, 1.1vw, 25px); }
+  .tv-page .tv-chg { font-size: clamp(14px, .8vw, 19px); }
+  .tv-nav i { font-size: clamp(20px, 1.1vw, 25px); }
+  .tv-tk-item { font-size: clamp(13px, .7vw, 17px); }
+  .tv-tk-chg { font-size: clamp(11px, .6vw, 14px); }
+}
+
+@media (min-width: 681px) and (max-width: 900px) {
+  .tv-page .tv-panel-head h2 { font-size: clamp(17px, 2.2vw, 21px); }
+  .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(23px, 3.1vw, 28px); height: clamp(23px, 3.1vw, 28px); flex-basis: clamp(23px, 3.1vw, 28px); }
+  .tv-page .tv-col-label { font-size: clamp(12px, 1.7vw, 15px); }
+  .tv-page .tv-name { font-size: clamp(15px, 2vw, 19px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(16px, 2.1vw, 21px); }
+  .tv-page .tv-chg { font-size: clamp(12px, 1.7vw, 16px); }
+  .tv-nav i { font-size: clamp(18px, 2.8vw, 23px); }
+  .tv-tk-item { font-size: clamp(12px, 1.7vw, 15px); }
+  .tv-tk-chg { font-size: clamp(10px, 1.4vw, 13px); }
+}
+
+@media (max-width: 680px) {
+  .tv-page .tv-panel-head h2 { font-size: clamp(15px, 4vw, 18px); }
+  .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(22px, 6vw, 26px); height: clamp(22px, 6vw, 26px); flex-basis: clamp(22px, 6vw, 26px); }
+  .tv-page .tv-col-label { font-size: clamp(10px, 2.7vw, 12px); }
+  .tv-page .tv-name { font-size: clamp(14px, 3.7vw, 17px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(15px, 3.9vw, 18px); }
+  .tv-page .tv-chg { font-size: clamp(11px, 3vw, 14px); }
+  .tv-nav i { font-size: clamp(18px, 5vw, 22px); }
+  .tv-tk-item { font-size: clamp(11px, 3.4vw, 14px); }
+  .tv-tk-chg { font-size: clamp(10px, 2.8vw, 12px); }
+
+  .tv-panel-head {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas: 'title title title' 'change sell buy';
+    row-gap: 7px;
+  }
+  .tv-panel-head h2 { grid-area: title; }
+  .tv-panel-head > .tv-col-label:nth-child(2) { grid-area: change; }
+  .tv-panel-head > .tv-col-label:nth-child(3) { grid-area: sell; }
+  .tv-panel-head > .tv-col-label:nth-child(4) { grid-area: buy; }
+  .tv-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: 'name change' 'sell buy';
+    gap: 6px 10px;
+    min-height: 0;
+    padding-block: 11px;
+  }
+  .tv-name { grid-area: name; min-width: 0; }
+  .tv-row > .tv-chg { grid-area: change; justify-self: end; }
+  .tv-row > .tv-sell { grid-area: sell; }
+  .tv-row > .tv-buy { grid-area: buy; }
+  .tv-row > .tv-chg,
+  .tv-row > .tv-sell,
+  .tv-row > .tv-buy { border-inline-start: 0; }
+  .tv-row > .tv-sell,
+  .tv-row > .tv-buy { padding-top: 5px; border-top: 1px solid rgba(148, 163, 184, .12); }
+}
+
+/* آیکون نقره افقی است؛ ارتفاع آن با عنوان و عرض آن با نسبت تصویر تنظیم می‌شود */
+.tv-page .tv-panel-head h2.tv-panel-title--parsian {
+  font-size: .82em;
+}
+.tv-page .tv-panel-head h2 > .tv-market-icon--silver {
+  width: 1.7em;
+  height: 1.15em;
+  flex-basis: 1.7em;
 }
 </style>
 </head>
 <body>
-
-<header class="tv-head">
-  <div class="tv-brand">
-    <img src="assets/img/meyar-logo/Meyar-logo.png" alt="سکه و جواهر معیار">
-    <div class="tv-brand-txt">
-      <b>سکه و جواهر معیار</b>
-      <span>قیمت لحظه‌ای سکه، طلا و ارز</span>
-    </div>
-  </div>
-  <div class="tv-mid">
-    <div class="tv-clock" id="tvClock">--:--:--</div>
-    <div class="tv-date" id="tvDate">—</div>
-  </div>
-  <div class="tv-status">
-    <div class="tv-live"><span class="tv-live-dot"></span> بازار فعال است</div>
-    <div>تلفن: <?= meyar_h(meyar_fa_num($settings['site_phone'])) ?></div>
-  </div>
-</header>
 
 <div class="tv-carousel" id="tvCarousel">
   <button class="tv-nav tv-nav--prev" id="tvPrev" type="button" aria-label="صفحه قبلی">
@@ -454,9 +497,9 @@ body {
   <?php foreach ($pages as $pi => $page): ?>
   <div class="tv-page <?= $pi === 0 ? 'active' : '' ?><?= count($page) === 1 ? ' single-panel' : '' ?>">
     <?php foreach ($page as $panel): if (empty($panel['items'])) continue; ?>
-    <section class="tv-panel">
+    <section class="tv-panel<?= $panel['group'] === 'silver' ? ' tv-panel--silver' : '' ?>">
       <div class="tv-panel-head">
-        <h2><i class="hgi hgi-stroke hgi-rounded <?= $panel['group'] === 'currency' ? 'hgi-cash-02' : ($panel['group'] === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01') ?>" aria-hidden="true"></i><span><?= meyar_h($panel['title']) ?><small>قیمت‌ها به <?= meyar_h($panel['items'][0]['unit'] ?? 'تومان') ?></small></span></h2>
+        <h2 class="tv-panel-title<?= $panel['group'] === 'parsian' ? ' tv-panel-title--parsian' : '' ?>"><img class="tv-market-icon<?= $panel['group'] === 'silver' ? ' tv-market-icon--silver' : '' ?>" src="assets/img/<?= $panel['group'] === 'coins' ? 'emami.png' : ($panel['group'] === 'silver' ? 'silver.png' : 'gold-icon.png') ?>" alt="" aria-hidden="true"><span><?= meyar_h($panel['title']) ?></span></h2>
         <span class="tv-col-label">تغییر</span>
         <span class="tv-col-label">فروش</span>
         <span class="tv-col-label">خرید</span>
@@ -494,20 +537,6 @@ body {
 (function () {
   'use strict';
 
-  /* ساعت و تاریخ شمسی */
-  var clockEl = document.getElementById('tvClock'), dateEl = document.getElementById('tvDate');
-  var dateFmt = null, timeFmt = null;
-  try {
-    dateFmt = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    timeFmt = new Intl.DateTimeFormat('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-  } catch (e) {}
-  function tick() {
-    var now = new Date();
-    clockEl.textContent = timeFmt ? timeFmt.format(now) : now.toLocaleTimeString();
-    if (dateFmt) dateEl.textContent = dateFmt.format(now);
-  }
-  tick(); setInterval(tick, 1000);
-
   /* جابه‌جایی دستی صفحات */
   var pages = document.querySelectorAll('.tv-page');
   var prevButton = document.getElementById('tvPrev');
@@ -536,8 +565,12 @@ body {
     if (typeof value === 'number') return Number.isFinite(value) ? value : NaN;
     var text = String(value == null ? '' : value)
       .replace(/[۰-۹]/g, function (digit) { return String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)); })
+      .replace(/[٠-٩]/g, function (digit) { return String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)); })
+      .replace(/[−–—]/g, '-')
       .replace(/[٬،]/g, ',')
       .replace(/,/g, '')
+      .replace(/٫/g, '.')
+      .replace(/\s+/g, '')
       .replace(/[^\d.-]/g, '');
     var number = Number(text);
     return Number.isFinite(number) ? number : NaN;
@@ -554,17 +587,22 @@ body {
   }
   function setTvDirection(el, dir, value) {
     if (!el) return;
-    el.innerHTML = (dir === 'high'
+    var html = (dir === 'high'
       ? '<i class="hgi-stroke hgi-arrow-up-01" aria-hidden="true"></i>'
       : (dir === 'low' ? '<i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i>' : '–')) + ' ' + value + '٪';
+    if (el.innerHTML !== html) el.innerHTML = html;
   }
+  var priceRequest = null;
+  var priceRequestSeq = 0;
   function refresh() {
+    if (priceRequest) return priceRequest;
+    var requestSeq = ++priceRequestSeq;
     var previousPrices = refresh.previousPrices || (refresh.previousPrices = Object.create(null));
     var hasPriceBaseline = refresh.hasPriceBaseline === true;
-    fetch('api/prices.php', { cache: 'no-store' })
-      .then(function (r) { return r.json(); })
+    priceRequest = fetch('api/prices.php', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('price_api_failed'); return r.json(); })
       .then(function (data) {
-        if (!data || !data.items) return;
+        if (requestSeq !== priceRequestSeq || !data || !data.items) return;
         var byId = {};
         data.items.forEach(function (i) { byId[i.id] = i; });
         document.querySelectorAll('.tv-row[data-id]').forEach(function (row) {
@@ -591,22 +629,31 @@ body {
           var chg = row.querySelector('[data-cell="chg"]');
           if (chg) {
             setTvDirection(chg, it.dir, it.change_pct);
-            chg.className = 'tv-chg ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : 'flat'));
+            var chgClass = 'tv-chg ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : 'flat'));
+            if (chg.className !== chgClass) chg.className = chgClass;
           }
         });
         refresh.hasPriceBaseline = true;
         document.querySelectorAll('.tv-tk-item').forEach(function (t) {
           var it = byId[t.getAttribute('data-tid')];
           if (!it) return;
-          t.querySelector('.tv-tk-price').textContent = it.live_fmt;
+          var tickerPrice = t.querySelector('.tv-tk-price');
+          if (tickerPrice && tickerPrice.textContent !== String(it.live_fmt)) tickerPrice.textContent = it.live_fmt;
           var ch = t.querySelector('.tv-tk-chg');
           setTvDirection(ch, it.dir, it.change_pct);
-          ch.className = 'tv-tk-chg ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : ''));
+          if (ch) {
+            var tickerClass = 'tv-tk-chg ' + (it.dir === 'high' ? 'up' : (it.dir === 'low' ? 'down' : ''));
+            if (ch.className !== tickerClass) ch.className = tickerClass;
+          }
         });
       })
-      .catch(function () { /* تلاش بعدی */ });
+      .catch(function () { /* تلاش بعدی */ })
+      .then(function () {
+        if (requestSeq === priceRequestSeq) priceRequest = null;
+      });
+    return priceRequest;
   }
-  setInterval(refresh, 30000);
+  var refreshTimer = window.setInterval(refresh, 30000);
 
   /* جلوگیری از خاموش شدن صفحه (Wake Lock) */
   var wakeLock = null;
@@ -616,7 +663,16 @@ body {
     }
   }
   reqWake();
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) { reqWake(); refresh(); } });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      window.clearInterval(refreshTimer);
+      refreshTimer = null;
+      return;
+    }
+    reqWake();
+    refresh();
+    if (!refreshTimer) refreshTimer = window.setInterval(refresh, 30000);
+  });
 
   /* رفرش کامل هر ۴ ساعت (پاک شدن حافظه در نمایش طولانی) */
   setTimeout(function () { location.reload(); }, 4 * 3600 * 1000);

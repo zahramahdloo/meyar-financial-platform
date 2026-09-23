@@ -134,16 +134,16 @@ $related = array_slice($related, 0, 8);
     <div class="chart-head">
       <h2>نمودار قیمت <?= meyar_h($item['title']) ?> <small>(تاریخ شمسی)</small></h2>
       <div class="chart-filters" id="chartFilters">
-        <button data-days="30">۱ ماه</button>
-        <button data-days="90">۳ ماه</button>
-        <button data-days="180">۶ ماه</button>
-        <button data-days="365" class="active">۱ سال</button>
-        <button data-days="1095">۳ سال</button>
-        <button data-days="4000">همه</button>
+        <button type="button" data-days="30" aria-pressed="false">۱ ماه</button>
+        <button type="button" data-days="90" aria-pressed="false">۳ ماه</button>
+        <button type="button" data-days="180" aria-pressed="false">۶ ماه</button>
+        <button type="button" data-days="365" class="active" aria-pressed="true">۱ سال</button>
+        <button type="button" data-days="1095" aria-pressed="false">۳ سال</button>
+        <button type="button" data-days="4000" aria-pressed="false">همه</button>
       </div>
     </div>
     <div class="chart-stats" id="chartStats"></div>
-    <div class="chart-wrap"><canvas id="priceChart"></canvas><div class="chart-loading" id="chartLoading">در حال بارگذاری نمودار…</div></div>
+    <div class="chart-wrap"><canvas id="priceChart" role="img" aria-label="نمودار قیمت <?= meyar_h($item['title']) ?>"></canvas><div class="chart-loading" id="chartLoading">در حال بارگذاری نمودار…</div></div>
   </section>
   <?php else: ?>
   <section class="chart-card reveal" data-reveal="up">
@@ -183,7 +183,7 @@ $related = array_slice($related, 0, 8);
   function faNum(s){return String(s).replace(/\d/g,function(d){return faD[+d];});}
   function fmt(n){return faNum(Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,','));}
 
-  var currentDays = 365, retried = false;
+  var currentDays = 365, retried = false, historyRequestSeq = 0;
   function showErr(msg) {
     loading.style.display = 'flex';
     loading.innerHTML = msg + ' <button type="button" class="chart-retry" id="chartRetry">تلاش مجدد</button>';
@@ -192,14 +192,16 @@ $related = array_slice($related, 0, 8);
   }
   function load(days) {
     currentDays = days;
+    var requestSeq = ++historyRequestSeq;
     loading.style.display = 'flex';
     loading.textContent = 'در حال بارگذاری نمودار…';
     fetch(window.MEYAR_BASE + 'api/history.php?id=<?= meyar_h($item['id']) ?>&days=' + days, {cache:'no-store'})
       .then(function (r) { return r.json(); })
       .then(function (j) {
+        if (requestSeq !== historyRequestSeq) return;
         loading.style.display = 'none';
         if (!j.ok || !j.points || !j.points.length) {
-          if (!retried) { retried = true; setTimeout(function () { load(days); }, 2500); loading.style.display='flex'; loading.textContent='در حال تلاش دوباره…'; return; }
+          if (!retried) { retried = true; setTimeout(function () { if (requestSeq === historyRequestSeq) load(days); }, 2500); loading.style.display='flex'; loading.textContent='در حال تلاش دوباره…'; return; }
           showErr('داده‌ای برای این بازه در دسترس نیست.');
           return;
         }
@@ -265,15 +267,20 @@ $related = array_slice($related, 0, 8);
         });
       })
       .catch(function () {
-        if (!retried) { retried = true; setTimeout(function () { load(days); }, 2500); loading.textContent = 'در حال تلاش دوباره…'; return; }
+        if (requestSeq !== historyRequestSeq) return;
+        if (!retried) { retried = true; setTimeout(function () { if (requestSeq === historyRequestSeq) load(days); }, 2500); loading.textContent = 'در حال تلاش دوباره…'; return; }
         showErr('خطا در دریافت داده نمودار.');
       });
   }
 
   document.querySelectorAll('#chartFilters button').forEach(function (b) {
     b.addEventListener('click', function () {
-      document.querySelectorAll('#chartFilters button').forEach(function (x) { x.classList.remove('active'); });
+      document.querySelectorAll('#chartFilters button').forEach(function (x) {
+        x.classList.remove('active');
+        x.setAttribute('aria-pressed', 'false');
+      });
       b.classList.add('active');
+      b.setAttribute('aria-pressed', 'true');
       load(+b.dataset.days);
     });
   });

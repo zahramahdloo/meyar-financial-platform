@@ -198,7 +198,13 @@ foreach ($overviewIds as $overviewId) {
       ?>
         <article class="market-overview-card" data-overview-card="<?= meyar_h($overview['id']) ?>">
           <header class="market-overview-card-head">
-            <span class="market-overview-icon <?= meyar_h($i['icon']) ?>" aria-hidden="true"><i class="hgi hgi-stroke hgi-rounded <?= $i['group'] === 'currency' ? 'hgi-cash-02' : ($i['group'] === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01') ?>"></i></span>
+            <span class="market-overview-icon" aria-hidden="true">
+              <?php if ($i['group'] === 'currency'): ?>
+                <span class="mini-flag"><?= meyar_h($i['icon']) ?></span>
+              <?php else: ?>
+                <i class="hgi hgi-stroke hgi-rounded <?= $i['group'] === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01' ?>"></i>
+              <?php endif; ?>
+            </span>
             <div class="market-overview-title">
               <h3><?= meyar_h($overview['name']) ?></h3>
             </div>
