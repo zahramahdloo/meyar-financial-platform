@@ -3,6 +3,7 @@ data/*.sqlite
 
 # Cache
 data/cache.json
+data/.api-rate/
 
 # History files
 data/history_*.json

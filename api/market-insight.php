@@ -1,14 +1,11 @@
 <?php
 /** MEYAR — جمع‌بندی داده‌محور بازار */
-require_once dirname(__DIR__) . '/inc/fetcher.php';
-
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store');
+require_once dirname(__DIR__) . '/inc/api.php';
+meyar_api_begin();
 
 function market_insight_response(array $payload, int $status = 200): void {
     http_response_code($status);
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
+    meyar_api_response($payload, $status);
 }
 
 function market_insight_label(string $trend): string {
@@ -22,7 +19,10 @@ function market_insight_title(string $text): string {
     return mb_substr($text, 0, 95);
 }
 
-$data = meyar_build_prices();
+try {
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') market_insight_response(['ok' => false, 'error' => 'method_not_allowed', 'message' => 'این درخواست پشتیبانی نمی‌شود.'], 405);
+    require_once dirname(__DIR__) . '/inc/fetcher.php';
+    $data = meyar_build_prices();
 $target = null;
 foreach ((array)($data['items'] ?? []) as $item) {
     if (($item['id'] ?? '') === 'geram18' && empty($item['hidden'])) {
@@ -90,7 +90,7 @@ foreach ($insights as $index => $title) {
 }
 $confidence = count($recent) >= 3 ? min(0.95, max(0.45, (abs($upMoves - $downMoves) + 1) / max(1, $upMoves + $downMoves + 1))) : 0.35;
 
-market_insight_response([
+    market_insight_response([
     'ok' => true,
     'success' => true,
     'cached' => false,
@@ -99,4 +99,8 @@ market_insight_response([
         'trend_label' => market_insight_label($trend), 'confidence' => round($confidence, 2),
         'generated_at' => date(DATE_ATOM), 'insights' => $insightRecords, 'source' => 'market_data',
     ],
-]);
+    ]);
+} catch (Throwable $e) {
+    error_log('Meyar market insight API error: ' . $e->getMessage());
+    market_insight_response(['ok' => false, 'error' => 'server_error', 'message' => 'تحلیل بازار فعلاً در دسترس نیست.'], 500);
+}

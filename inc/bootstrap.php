@@ -13,6 +13,62 @@ date_default_timezone_set('Asia/Tehran');
 
 if (!is_dir(MEYAR_DATA)) { @mkdir(MEYAR_DATA, 0755, true); }
 
+/* ---------- request-scoped cache and safe JSON I/O ---------- */
+function meyar_request_cache_has(string $key): bool {
+    return isset($GLOBALS['meyar_request_cache']) && array_key_exists($key, $GLOBALS['meyar_request_cache']);
+}
+
+function meyar_request_cache_get(string $key, $default = null) {
+    return meyar_request_cache_has($key) ? $GLOBALS['meyar_request_cache'][$key] : $default;
+}
+
+function meyar_request_cache_set(string $key, $value) {
+    if (!isset($GLOBALS['meyar_request_cache']) || !is_array($GLOBALS['meyar_request_cache'])) {
+        $GLOBALS['meyar_request_cache'] = [];
+    }
+    $GLOBALS['meyar_request_cache'][$key] = $value;
+    return $value;
+}
+
+function meyar_atomic_write(string $file, string $contents): bool {
+    $dir = dirname($file);
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) return false;
+    $tmp = @tempnam($dir, basename($file) . '.tmp-');
+    if ($tmp === false) return false;
+
+    $handle = @fopen($tmp, 'wb');
+    if ($handle === false) { @unlink($tmp); return false; }
+    $length = strlen($contents);
+    $written = 0;
+    while ($written < $length) {
+        $count = @fwrite($handle, substr($contents, $written));
+        if ($count === false || $count === 0) { @fclose($handle); @unlink($tmp); return false; }
+        $written += $count;
+    }
+    @fflush($handle);
+    if (function_exists('fsync')) @fsync($handle);
+    @fclose($handle);
+
+    if (is_file($file)) @chmod($tmp, fileperms($file) & 0777);
+    if (!@rename($tmp, $file)) { @unlink($tmp); return false; }
+    return true;
+}
+
+function meyar_read_json_file(string $file, $default = null) {
+    $key = 'json:' . $file;
+    if (meyar_request_cache_has($key)) return meyar_request_cache_get($key);
+    if (!is_file($file)) return meyar_request_cache_set($key, $default);
+    $data = json_decode((string)@file_get_contents($file), true);
+    return meyar_request_cache_set($key, $data === null ? $default : $data);
+}
+
+function meyar_write_json_file(string $file, $value, int $flags = JSON_UNESCAPED_UNICODE): bool {
+    $json = json_encode($value, $flags);
+    if ($json === false || !meyar_atomic_write($file, $json)) return false;
+    meyar_request_cache_set('json:' . $file, $value);
+    return true;
+}
+
 /* ---------- server environment ---------- */
 function meyar_env(string $key): string {
     static $fileValues = null;
@@ -65,20 +121,17 @@ function meyar_default_settings(): array {
 }
 
 function meyar_load_settings(): array {
+    if (meyar_request_cache_has('settings')) return meyar_request_cache_get('settings');
     $defaults = meyar_default_settings();
-    if (is_file(MEYAR_SETTINGS_FILE)) {
-        $raw = @file_get_contents(MEYAR_SETTINGS_FILE);
-        $data = json_decode($raw ?: '', true);
-        if (is_array($data)) {
-            return array_merge($defaults, $data);
-        }
-    }
-    return $defaults;
+    $data = meyar_read_json_file(MEYAR_SETTINGS_FILE, []);
+    $settings = is_array($data) ? array_merge($defaults, $data) : $defaults;
+    return meyar_request_cache_set('settings', $settings);
 }
 
 function meyar_save_settings(array $s): bool {
-    $json = json_encode($s, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-    return @file_put_contents(MEYAR_SETTINGS_FILE, $json, LOCK_EX) !== false;
+    $ok = meyar_write_json_file(MEYAR_SETTINGS_FILE, $s, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    if ($ok) meyar_request_cache_set('settings', array_merge(meyar_default_settings(), $s));
+    return $ok;
 }
 
 /* ---------- helpers ---------- */
@@ -103,6 +156,7 @@ function meyar_h($s): string {
  *   ['manual']             => قیمت دستی از پنل ادمین
  */
 function meyar_builtin_items(): array {
+    if (meyar_request_cache_has('builtin_items')) return meyar_request_cache_get('builtin_items');
     $items = [];
 
     // ---- سکه‌ها ----
@@ -182,14 +236,15 @@ function meyar_builtin_items(): array {
         $items[] = ['id'=>$f[0], 'title'=>$f[1], 'group'=>'currency', 'source'=>['tgju',$f[2]], 'icon'=>$f[3]];
     }
 
-    return $items;
+    return meyar_request_cache_set('builtin_items', $items);
 }
 
 function meyar_groups(): array {
-    return [
+    if (meyar_request_cache_has('groups')) return meyar_request_cache_get('groups');
+    return meyar_request_cache_set('groups', [
         'coins'    => 'جدول سکه‌ها',
         'parsian'  => 'جدول سکه‌های پارسیان',
         'gold'     => 'جدول طلا',
         'currency' => 'جدول ارزها',
-    ];
+    ]);
 }

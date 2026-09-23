@@ -61,16 +61,14 @@ function meyar_num($str): ?float {
  * ['fetched_at'=>int, 'stale'=>bool, 'current'=>['sekee'=>['p'=>..,'dp'=>..,'dt'=>..,'t'=>..], ...]]
  */
 function meyar_get_market(): array {
+    if (meyar_request_cache_has('market')) return meyar_request_cache_get('market');
     $settings = meyar_load_settings();
     $ttl = max(20, (int)$settings['cache_ttl']);
 
-    $cache = null;
-    if (is_file(MEYAR_CACHE_FILE)) {
-        $cache = json_decode(@file_get_contents(MEYAR_CACHE_FILE) ?: '', true);
-    }
+    $cache = meyar_read_json_file(MEYAR_CACHE_FILE, null);
     if (is_array($cache) && isset($cache['fetched_at']) && (time() - $cache['fetched_at'] < $ttl)) {
         $cache['stale'] = false;
-        return $cache;
+        return meyar_request_cache_set('market', $cache);
     }
 
     $current = meyar_fetch_tgju_raw();
@@ -95,17 +93,17 @@ function meyar_get_market(): array {
             }
         }
         $data = ['fetched_at' => time(), 'stale' => false, 'current' => $slim];
-        @file_put_contents(MEYAR_CACHE_FILE, json_encode($data, JSON_UNESCAPED_UNICODE), LOCK_EX);
+        meyar_write_json_file(MEYAR_CACHE_FILE, $data);
         meyar_local_history_record($slim); // ذخیره روزانه برای نمودار (پشتیبان محلی)
-        return $data;
+        return meyar_request_cache_set('market', $data);
     }
 
     // شبکه در دسترس نیست → آخرین کش (حتی قدیمی)
     if (is_array($cache) && !empty($cache['current'])) {
         $cache['stale'] = true;
-        return $cache;
+        return meyar_request_cache_set('market', $cache);
     }
-    return ['fetched_at' => 0, 'stale' => true, 'current' => []];
+    return meyar_request_cache_set('market', ['fetched_at' => 0, 'stale' => true, 'current' => []]);
 }
 
 /**
@@ -115,6 +113,7 @@ function meyar_get_market(): array {
  * قیمت‌ها به تومان (انس به دلار).
  */
 function meyar_build_prices(): array {
+    if (meyar_request_cache_has('prices')) return meyar_request_cache_get('prices');
     $settings = meyar_load_settings();
     $market   = meyar_get_market();
     $cur      = $market['current'];
@@ -200,14 +199,14 @@ function meyar_build_prices(): array {
         $updatedDate = meyar_fa_num((string)$jd) . ' ' . $months[$jm] . ' ' . meyar_fa_num((string)$jy);
     }
 
-    return [
+    return meyar_request_cache_set('prices', [
         'ok'         => true,
         'stale'      => (bool)$market['stale'],
         'fetched_at' => (int)$market['fetched_at'],
         'updated'    => $market['fetched_at'] ? meyar_fa_num(date('H:i:s', $market['fetched_at'])) : '—',
         'updated_date' => $updatedDate,
         'items'      => $out,
-    ];
+    ]);
 }
 
 /* ═══════════ تاریخچه قیمت (برای نمودار شمسی) ═══════════ */
@@ -222,8 +221,8 @@ function meyar_http_get(string $url, int $timeout = 12): ?string {
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT        => $timeout,
             CURLOPT_ENCODING       => '',
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_USERAGENT      => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36',
             CURLOPT_HTTPHEADER     => ['Accept: application/json, text/plain, */*', 'Referer: https://www.tgju.org/', 'Origin: https://www.tgju.org'],
         ]);
@@ -233,7 +232,7 @@ function meyar_http_get(string $url, int $timeout = 12): ?string {
     }
     return @file_get_contents($url, false, stream_context_create([
         'http' => ['timeout' => $timeout, 'header' => "User-Agent: Mozilla/5.0\r\nAccept: application/json\r\nReferer: https://www.tgju.org/\r\n"],
-        'ssl'  => ['verify_peer' => false, 'verify_peer_name' => false],
+        'ssl'  => ['verify_peer' => true, 'verify_peer_name' => true, 'allow_self_signed' => false],
     ])) ?: null;
 }
 
@@ -248,12 +247,9 @@ function meyar_fetch_history(string $key, int $days = 365, bool $isUsd = false):
     $cacheFile = MEYAR_DATA . '/history_' . $safe . '.json';
 
     // کش ۶ ساعته — اگر کش به اندازه بازه درخواستی داده دارد، همان کافی است
-    $cached = null;
-    if (is_file($cacheFile)) {
-        $cached = json_decode(@file_get_contents($cacheFile) ?: '', true);
-        if (!is_array($cached) || !$cached) $cached = null;
-    }
-    $cacheFresh = $cached && (time() - filemtime($cacheFile) < 6 * 3600);
+    $cached = meyar_read_json_file($cacheFile, null);
+    if (!is_array($cached) || !$cached) $cached = null;
+    $cacheFresh = $cached && (time() - (int)@filemtime($cacheFile) < 6 * 3600);
     $cacheFull  = $cached && !empty($cached['full']);
     $cacheRows  = $cached ? (array)($cached['rows'] ?? []) : [];
     if ($cacheFresh && (count($cacheRows) >= $days || $cacheFull)) {
@@ -295,7 +291,7 @@ function meyar_fetch_history(string $key, int $days = 365, bool $isUsd = false):
                 $rows = array_values($byDate);
                 $isFull = $isFull || $cacheFull;
             }
-            @file_put_contents($cacheFile, json_encode(['full' => $isFull, 'rows' => $rows], JSON_UNESCAPED_UNICODE), LOCK_EX);
+            meyar_write_json_file($cacheFile, ['full' => $isFull, 'rows' => $rows]);
             return array_slice($rows, -$days);
         }
     }
@@ -316,7 +312,8 @@ function meyar_local_history_record(array $current): void {
     // بیشتر از یک‌بار در ساعت بازنویسی نکن (کاهش I/O روی هاست اشتراکی)
     if (is_file($file) && date('Y-m-d H', filemtime($file)) === date('Y-m-d H')) return;
     $today = date('Y-m-d');
-    $db = is_file($file) ? (json_decode(@file_get_contents($file) ?: '', true) ?: []) : [];
+    $db = meyar_read_json_file($file, []);
+    if (!is_array($db)) $db = [];
     $dirty = false;
     foreach ($current as $key => $row) {
         $v = meyar_num($row['p'] ?? null);
@@ -330,14 +327,13 @@ function meyar_local_history_record(array $current): void {
         // بیش از ~۳ سال نگه نمی‌داریم
         if (count($db[$k]) > 1200) { ksort($db[$k]); $db[$k] = array_slice($db[$k], -1200, null, true); }
     }
-    if ($dirty) @file_put_contents($file, json_encode($db, JSON_UNESCAPED_UNICODE), LOCK_EX);
+    if ($dirty) meyar_write_json_file($file, $db);
 }
 
 /** خواندن تاریخچه محلی یک کلید به فرمت ردیف‌های نمودار */
 function meyar_local_history_rows(string $key, bool $isUsd): ?array {
     $file = MEYAR_DATA . '/local_history.json';
-    if (!is_file($file)) return null;
-    $db = json_decode(@file_get_contents($file) ?: '', true);
+    $db = meyar_read_json_file($file, null);
     if (!is_array($db) || empty($db[$key])) return null;
     ksort($db[$key]);
     $rows = [];

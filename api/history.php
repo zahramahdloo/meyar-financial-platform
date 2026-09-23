@@ -1,48 +1,39 @@
 <?php
 /** MEYAR — تاریخچه قیمت یک آیتم برای نمودار (تاریخ شمسی) — همیشه JSON برمی‌گرداند */
-error_reporting(0);
-ini_set('display_errors', '0');
 @set_time_limit(25);
-
-header('Content-Type: application/json; charset=utf-8');
+require_once dirname(__DIR__) . '/inc/api.php';
+meyar_api_begin();
 header('Cache-Control: public, max-age=300');
 
-// اگر خطای مهلک رخ داد، باز هم JSON بده (نه صفحه HTML خطا)
-ob_start();
-register_shutdown_function(function () {
-    $err = error_get_last();
-    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
-        while (ob_get_level()) ob_end_clean();
-        echo json_encode(['ok' => false, 'error' => 'server_error']);
-    }
-});
-
 try {
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') meyar_api_error(405, 'method_not_allowed', 'این درخواست پشتیبانی نمی‌شود.');
     require_once dirname(__DIR__) . '/inc/fetcher.php';
 
-    $id   = preg_replace('/[^a-z0-9_]/i', '', (string)($_GET['id'] ?? ''));
-    $days = max(7, min(4000, (int)($_GET['days'] ?? 365)));
+    $id = (string)($_GET['id'] ?? '');
+    $daysRaw = (string)($_GET['days'] ?? '365');
+    if (!meyar_api_valid_id($id) || !preg_match('/^[0-9]{1,4}$/', $daysRaw)) {
+        meyar_api_error(400, 'bad_request', 'پارامترهای تاریخچه معتبر نیستند.');
+    }
+    $days = (int)$daysRaw;
+    if ($days < 7 || $days > 4000) meyar_api_error(400, 'bad_range', 'بازه تاریخچه معتبر نیست.');
 
     $item = $id ? meyar_item_by_id($id) : null;
     if (!$item) {
-        while (ob_get_level()) ob_end_clean();
-        echo json_encode(['ok' => false, 'error' => 'not_found']); exit;
+        meyar_api_error(404, 'not_found', 'آیتم موردنظر پیدا نشد.');
     }
 
     $hist = meyar_item_history($item, $days);
-    while (ob_get_level()) ob_end_clean();
-
     if (!$hist) {
-        echo json_encode(['ok' => false, 'error' => 'no_data']); exit;
+        meyar_api_error(503, 'no_data', 'تاریخچه این آیتم فعلاً در دسترس نیست.');
     }
 
-    echo json_encode([
+    meyar_api_response([
         'ok'     => true,
         'id'     => $item['id'],
         'title'  => $item['title'],
         'points' => $hist, // [{g,j,v}]
-    ], JSON_UNESCAPED_UNICODE);
+    ]);
 } catch (Throwable $e) {
-    while (ob_get_level()) ob_end_clean();
-    echo json_encode(['ok' => false, 'error' => 'server_error']);
+    error_log('Meyar history API error: ' . $e->getMessage());
+    meyar_api_error(500, 'server_error');
 }

@@ -7,6 +7,7 @@
 require_once __DIR__ . '/bootstrap.php';
 
 define('MEYAR_DB_FILE', MEYAR_DATA . '/meyar.sqlite');
+define('MEYAR_DB_SCHEMA_VERSION', 1);
 
 function meyar_db(): PDO {
     static $pdo = null;
@@ -20,7 +21,21 @@ function meyar_db(): PDO {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
     $pdo->exec('PRAGMA journal_mode=WAL; PRAGMA busy_timeout=4000;');
-    meyar_db_migrate($pdo, $isNew);
+    $schemaVersion = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
+    if ($schemaVersion < MEYAR_DB_SCHEMA_VERSION) {
+        $pdo->exec('BEGIN IMMEDIATE');
+        try {
+            $schemaVersion = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
+            if ($schemaVersion < MEYAR_DB_SCHEMA_VERSION) {
+                meyar_db_migrate($pdo, $isNew);
+                $pdo->exec('PRAGMA user_version = ' . MEYAR_DB_SCHEMA_VERSION);
+            }
+            $pdo->exec('COMMIT');
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) $pdo->exec('ROLLBACK');
+            throw $e;
+        }
+    }
     return $pdo;
 }
 
@@ -123,6 +138,7 @@ function meyar_db_migrate(PDO $pdo, bool $isNew): void {
 /* ---------- آیتم‌ها با اعمال دیتابیس ---------- */
 
 function meyar_items_full(): array {
+    if (meyar_request_cache_has('items_full')) return meyar_request_cache_get('items_full');
     $pdo = meyar_db();
     $meta = [];
     foreach ($pdo->query("SELECT * FROM items_meta") as $row) {
@@ -170,7 +186,7 @@ function meyar_items_full(): array {
         ];
     }
     usort($out, function ($a, $b) { return $a['sort'] <=> $b['sort']; });
-    return $out;
+    return meyar_request_cache_set('items_full', $out);
 }
 
 function meyar_item_by_id(string $id): ?array {
