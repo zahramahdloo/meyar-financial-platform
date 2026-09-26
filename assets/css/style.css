@@ -1085,6 +1085,8 @@ main#prices {
   display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(34px, 5vw, 72px);
   min-height: 570px; padding-top: 70px; padding-bottom: 74px;
 }
+.hero-static-content > .hero-text { order: 1; }
+.hero-static-content > .market-dashboard { order: 2; }
 .hero-static .hero-text { grid-column: 1; text-align: right; }
 .hero-badge {
   display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; padding: 7px 13px;
