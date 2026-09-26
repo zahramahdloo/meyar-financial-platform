@@ -58,7 +58,13 @@ meyar_theme_topbar($settings, $ticker);
     <section class="price-card<?= $hasExtraItems ? ' has-expand' : '' ?><?= $requestedMarket !== '' && !$isRequestedGroup ? ' is-filtered-out' : '' ?>" data-market-container data-market-group="<?= meyar_h($marketGroup) ?>">
       <header class="price-card-head">
         <div class="price-card-title">
-          <span class="price-card-icon" aria-hidden="true"><i class="hgi hgi-stroke hgi-rounded <?= $gid === 'currency' ? 'hgi-cash-02' : ($gid === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01') ?>"></i></span>
+          <span class="price-card-icon" aria-hidden="true">
+            <?php if ($gid === 'currency'): ?>
+              <i class="hgi hgi-stroke hgi-rounded hgi-cash-02"></i>
+            <?php else: ?>
+              <img class="market-icon-image" src="assets/img/<?= $gid === 'gold' ? 'gold-icon.png' : ($gid === 'silver' ? 'silver.png' : 'emami.png') ?>" alt="">
+            <?php endif; ?>
+          </span>
           <h2><?= meyar_h($marketTitles[$gid]) ?></h2>
         </div>
       </header>
@@ -69,11 +75,6 @@ meyar_theme_topbar($settings, $ticker);
         <?php foreach ($itemsInGroup as $index => $i): ?>
         <a class="market-asset<?= $index >= 5 ? ' is-extra' : '' ?>" href="price/<?= meyar_h($i['id']) ?>" data-id="<?= meyar_h($i['id']) ?>" role="listitem">
           <span class="market-asset-title">
-            <?php if ($i['group'] === 'currency'): ?>
-              <span class="mini-flag" aria-hidden="true"><?= meyar_h($i['icon']) ?></span>
-            <?php else: ?>
-              <i class="hgi hgi-stroke hgi-rounded <?= $i['group'] === 'gold' ? 'hgi-gold-ingots' : 'hgi-coins-01' ?>" aria-hidden="true"></i>
-            <?php endif; ?>
             <span><?= meyar_h($i['title']) ?></span>
           </span>
           <span class="market-asset-quote buy">

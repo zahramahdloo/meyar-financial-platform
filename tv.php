@@ -246,6 +246,18 @@ body {
   background-size: 42px 42px, 42px 42px, auto;
 }
 .tv-carousel { position: relative; display: flex; flex: 1; width: 100%; min-width: 0; min-height: 0; padding-inline: clamp(56px, 5vw, 96px); box-sizing: border-box; }
+.tv-home-link {
+  position: fixed; top: clamp(12px, 2vh, 22px); right: clamp(14px, 2vw, 30px); z-index: 10;
+  display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px;
+  border: 0; border-radius: 9px;
+  color: #f4d77c; background: rgba(7, 20, 38, .86);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .18);
+  font-size: clamp(10px, 1vw, 12px); font-weight: 700; text-decoration: none; white-space: nowrap;
+  transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.tv-home-link:hover { color: #071426; background: #f0cf7a; transform: translateY(-2px); text-decoration: none; }
+.tv-home-link:focus-visible { outline: 2px solid #f0cf7a; outline-offset: 3px; }
+.tv-home-link i { font-size: 15px; line-height: 1; }
 .tv-main { min-width: 0; padding: 1.7vh 0 0; }
 .tv-page, .tv-page * { cursor: default; }
 .tv-carousel button { cursor: pointer; }
@@ -488,6 +500,11 @@ body {
 </style>
 </head>
 <body>
+
+<a class="tv-home-link" href="./" aria-label="بازگشت به صفحه اصلی">
+  <i class="hgi-stroke hgi-arrow-right-01" aria-hidden="true"></i>
+  <span>بازگشت به صفحه اصلی</span>
+</a>
 
 <div class="tv-carousel" id="tvCarousel">
   <button class="tv-nav tv-nav--prev" id="tvPrev" type="button" aria-label="صفحه قبلی">

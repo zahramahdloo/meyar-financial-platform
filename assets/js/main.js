@@ -426,6 +426,7 @@
   var pricesRequestSeq = 0;
   var priceBaseline = Object.create(null);
   var priceBaselineReady = false;
+  var liveItemsById = Object.create(null);
 
   function normalizeNumeric(value) {
     if (typeof value === 'number') return Number.isFinite(value) ? value : NaN;
@@ -484,6 +485,7 @@
     var directions = {};
     data.items.forEach(function (i) {
       byId[i.id] = i;
+      liveItemsById[i.id] = i;
       directions[i.id] = {};
       ['live', 'buy', 'sell'].forEach(function (field) {
         var key = i.id + ':' + field;
@@ -571,7 +573,6 @@
         change.className = it.dir === 'low' ? 'down' : (it.dir === 'high' ? 'up' : 'flat');
       }
     });
-
     // باکس قیمت صفحه اختصاصی آیتم
     document.querySelectorAll('[data-item-price]').forEach(function (box) {
       var it = byId[box.getAttribute('data-item-price')];
@@ -650,17 +651,19 @@
   /* ---------- نمودار واقعی داشبورد بازار ---------- */
   var historyEl = document.getElementById('marketHistoryData');
   var marketChartEl = document.getElementById('marketChart');
-  if (historyEl && marketChartEl) {
+  var overviewModalChartEl = document.getElementById('marketOverviewModalChart');
+  if (historyEl && (marketChartEl || overviewModalChartEl)) {
     var marketHistory = {};
     try { marketHistory = JSON.parse(historyEl.textContent || '{}'); } catch (e) { marketHistory = {}; }
-    var chartTooltip = marketChartEl.querySelector('[data-chart-tooltip]');
-    var chartMessage = marketChartEl.querySelector('[data-chart-message]');
+    var chartTooltip = marketChartEl ? marketChartEl.querySelector('[data-chart-tooltip]') : null;
+    var chartMessage = marketChartEl ? marketChartEl.querySelector('[data-chart-message]') : null;
     var marketChartInstance = null;
     var goldSeries = null;
     var goldPriceLine = null;
     var goldChartData = [];
     var goldPollTimer = null;
     var goldPollInFlight = false;
+    var goldLegacyMode = false;
     var goldResizeObserver = null;
     var goldResizeHandler = null;
     var GOLD_POLL_MS = 30000;
@@ -789,6 +792,7 @@
       if (!document.hidden) goldPollTimer = setTimeout(startRealtimeGoldUpdates, GOLD_POLL_MS);
     }
     function startRealtimeGoldUpdates() {
+      if (goldLegacyMode) return;
       if (goldPollInFlight || document.hidden || !goldSeries) { scheduleGoldPoll(); return; }
       goldPollInFlight = true;
       requestPrices()
@@ -801,6 +805,29 @@
     }
     function initializeMarketChart() {
       destroyMarketChart();
+      var legacySvg = marketChartEl.querySelector('.market-legacy-chart');
+      if (legacySvg) {
+        goldLegacyMode = true;
+        var legacyLine = legacySvg.querySelector('.market-chart-line');
+        var legacyArea = legacySvg.querySelector('.market-chart-area');
+        var legacyValues = normalizeChartData(marketHistory.geram18).map(function (point) { return point.value; });
+        if (legacyValues.length && legacyLine && legacyArea) {
+          var legacyMin = Math.min.apply(null, legacyValues);
+          var legacyMax = Math.max.apply(null, legacyValues);
+          var legacySpread = legacyMax - legacyMin || Math.max(legacyMax * .01, 1);
+          var legacyPoints = legacyValues.map(function (value, index) {
+            var x = legacyValues.length === 1 ? 260 : 8 + (index / (legacyValues.length - 1)) * 504;
+            var y = 72 - ((value - legacyMin) / legacySpread) * 60;
+            return [x, y];
+          });
+          var legacyPath = legacyPoints.map(function (point, index) {
+            return (index ? 'L' : 'M') + point[0].toFixed(2) + ' ' + point[1].toFixed(2);
+          }).join(' ');
+          legacyLine.setAttribute('d', legacyPath);
+          legacyArea.setAttribute('d', legacyPath + ' L512 82 L8 82 Z');
+        }
+        return;
+      }
       if (!window.LightweightCharts || typeof window.LightweightCharts.createChart !== 'function') {
         console.error('Lightweight Charts is not available.');
         showChartMessage('نمودار در حال حاضر در دسترس نیست.');
@@ -834,14 +861,233 @@
       }
       startRealtimeGoldUpdates();
     }
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) {
-        if (goldPollTimer) { clearTimeout(goldPollTimer); goldPollTimer = null; }
-      } else {
-        startRealtimeGoldUpdates();
+    if (marketChartEl) {
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+          if (goldPollTimer) { clearTimeout(goldPollTimer); goldPollTimer = null; }
+        } else {
+          startRealtimeGoldUpdates();
+        }
+      });
+      initializeMarketChart();
+    }
+
+    /* ---------- جزئیات دارایی‌های نمای کلی بازار ---------- */
+    var overviewModal = document.getElementById('marketOverviewModal');
+    var overviewModalChartEl = document.getElementById('marketOverviewModalChart');
+    if (overviewModal && overviewModalChartEl) {
+      var overviewModalDialog = overviewModal.querySelector('.market-overview-modal-dialog');
+      var overviewModalClose = overviewModal.querySelector('.market-overview-modal-close');
+      var overviewModalMessage = overviewModal.querySelector('[data-overview-modal-message]');
+      var overviewModalTooltip = overviewModal.querySelector('[data-overview-modal-tooltip]');
+      var overviewModalChart = null;
+      var overviewModalTrigger = null;
+
+      function formatOverviewModalPrice(value, assetId) {
+        var numeric = Number(value);
+        if (!Number.isFinite(numeric)) return '—';
+        var decimals = assetId === 'usd' ? 2 : 0;
+        return faNum(numeric.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }));
       }
-    });
-    initializeMarketChart();
+
+      function getOverviewModalFocusable() {
+        return Array.prototype.slice.call(overviewModalDialog.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )).filter(function (el) { return !el.hidden && el.offsetParent !== null; });
+      }
+
+      function showOverviewModalMessage(message) {
+        if (!overviewModalMessage) return;
+        overviewModalMessage.textContent = message;
+        overviewModalMessage.hidden = false;
+      }
+
+      function hideOverviewModalMessage() {
+        if (overviewModalMessage) overviewModalMessage.hidden = true;
+      }
+
+      function destroyOverviewModalChart() {
+        if (overviewModalChart) {
+          overviewModalChart.remove();
+          overviewModalChart = null;
+        }
+        if (overviewModalTooltip) overviewModalTooltip.hidden = true;
+        hideOverviewModalMessage();
+      }
+
+      function createOverviewModalChart(assetId, assetName, unit) {
+        destroyOverviewModalChart();
+        if (!window.LightweightCharts || typeof window.LightweightCharts.createChart !== 'function') {
+          showOverviewModalMessage('نمودار در حال حاضر در دسترس نیست.');
+          return;
+        }
+
+        overviewModalChart = window.LightweightCharts.createChart(overviewModalChartEl, {
+          width: overviewModalChartEl.clientWidth,
+          height: overviewModalChartEl.clientHeight,
+          layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#94a3b8', fontFamily: 'IRANSansXFaNum', attributionLogo: false },
+          localization: {
+            priceFormatter: function (price) { return formatOverviewModalPrice(price, assetId); },
+            timeFormatter: function (time) { return formatChartAxisDate(normalizeUnixTimestamp(time)); },
+          },
+          grid: { vertLines: { color: 'rgba(148,163,184,.06)' }, horzLines: { color: 'rgba(148,163,184,.06)' } },
+          rightPriceScale: { borderColor: 'rgba(212,175,55,.15)', visible: true },
+          leftPriceScale: { visible: false },
+          timeScale: { borderColor: 'rgba(212,175,55,.15)', timeVisible: true, secondsVisible: false, rightOffset: 2 },
+          crosshair: { mode: 0, vertLine: { color: 'rgba(212,175,55,.65)', width: 1, style: 0 }, horzLine: { color: 'rgba(212,175,55,.35)', width: 1, style: 2 } },
+          handleScroll: { mouseWheel: false, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
+          handleScale: { mouseWheel: false, pinch: true, axisPressedMouseMove: false },
+        });
+
+        var series = overviewModalChart.addAreaSeries({
+          lineColor: '#d4af37', topColor: 'rgba(212,175,55,.26)', bottomColor: 'rgba(212,175,55,0)',
+          lineWidth: 2, priceScaleId: 'right', priceFormat: { type: 'price', precision: assetId === 'usd' ? 2 : 0, minMove: assetId === 'usd' ? 0.01 : 1 },
+        });
+        var chartData = normalizeChartData(marketHistory[assetId]);
+        if (!chartData.length) {
+          showOverviewModalMessage('تاریخچه قیمت ' + assetName + ' در دسترس نیست.');
+        } else {
+          series.setData(chartData);
+          series.createPriceLine({ price: chartData[chartData.length - 1].value, color: 'rgba(212,175,55,.7)', lineWidth: 1, lineStyle: 2, axisLabelVisible: false, title: '' });
+          overviewModalChart.timeScale().fitContent();
+          hideOverviewModalMessage();
+        }
+
+        overviewModalChart.subscribeCrosshairMove(function (param) {
+          if (!overviewModalTooltip || !param || !param.time || !param.point) {
+            if (overviewModalTooltip) overviewModalTooltip.hidden = true;
+            return;
+          }
+          var pointData = param.seriesData && param.seriesData.get(series);
+          if (!pointData || !Number.isFinite(Number(pointData.value))) {
+            overviewModalTooltip.hidden = true;
+            return;
+          }
+          overviewModalTooltip.textContent = 'قیمت: ' + formatOverviewModalPrice(pointData.value, assetId) + (unit ? ' ' + unit : '');
+          overviewModalTooltip.hidden = false;
+          var left = Math.max(8, Math.min(overviewModalChartEl.clientWidth - overviewModalTooltip.offsetWidth - 8, param.point.x + 10));
+          var top = Math.max(5, Math.min(overviewModalChartEl.clientHeight - overviewModalTooltip.offsetHeight - 5, param.point.y - overviewModalTooltip.offsetHeight - 8));
+          overviewModalTooltip.style.left = left + 'px';
+          overviewModalTooltip.style.top = top + 'px';
+        });
+
+        var resize = function () {
+          if (overviewModalChart) overviewModalChart.resize(overviewModalChartEl.clientWidth, overviewModalChartEl.clientHeight);
+        };
+        if ('ResizeObserver' in window) {
+          var observer = new ResizeObserver(resize);
+          observer.observe(overviewModalChartEl);
+          overviewModalChart._meyarResizeObserver = observer;
+        } else {
+          window.addEventListener('resize', resize);
+          overviewModalChart._meyarResizeHandler = resize;
+        }
+        var originalRemove = overviewModalChart.remove.bind(overviewModalChart);
+        overviewModalChart.remove = function () {
+          if (overviewModalChart._meyarResizeObserver) overviewModalChart._meyarResizeObserver.disconnect();
+          if (overviewModalChart._meyarResizeHandler) window.removeEventListener('resize', overviewModalChart._meyarResizeHandler);
+          originalRemove();
+        };
+      }
+
+      function renderOverviewModal(assetId, card) {
+        var item = liveItemsById[assetId] || {};
+        var assetName = card.getAttribute('data-overview-name') || 'دارایی بازار';
+        var unit = item.unit || card.getAttribute('data-overview-unit') || '';
+        var live = item.live_fmt || card.getAttribute('data-overview-live-fmt') || formatOverviewModalPrice(card.getAttribute('data-overview-live'), assetId);
+        var change = item.change_pct || card.getAttribute('data-overview-change') || '۰';
+        var dir = item.dir || card.getAttribute('data-overview-dir') || 'flat';
+        var trend = dir === 'high' ? 'up' : (dir === 'low' ? 'down' : 'flat');
+        var trendLabel = trend === 'up' ? 'صعودی' : (trend === 'down' ? 'نزولی' : 'خنثی');
+        var nameEl = overviewModal.querySelector('[data-overview-modal-name]');
+        var priceEl = overviewModal.querySelector('[data-overview-modal-price]');
+        var changeEl = overviewModal.querySelector('[data-overview-modal-change]');
+        var trendEl = overviewModal.querySelector('[data-overview-modal-trend]');
+        var iconEl = overviewModal.querySelector('[data-overview-modal-icon]');
+        var sourceIcon = card.querySelector('.market-overview-icon');
+        if (nameEl) nameEl.textContent = assetName;
+        if (priceEl) priceEl.textContent = live + (unit ? ' ' + unit : '');
+        if (changeEl) {
+          changeEl.textContent = (trend === 'up' ? '+' : (trend === 'down' ? '−' : '')) + change + '٪';
+          changeEl.className = trend;
+        }
+        if (trendEl) {
+          trendEl.textContent = trendLabel;
+          trendEl.className = trend;
+        }
+        if (iconEl && sourceIcon) iconEl.innerHTML = sourceIcon.innerHTML;
+        overviewModal.querySelector('[data-overview-modal-chart-label]').setAttribute('aria-label', 'روند ' + assetName);
+        overviewModalChartEl.setAttribute('aria-label', 'نمودار روند ' + assetName);
+        createOverviewModalChart(assetId, assetName, unit);
+      }
+
+      function closeOverviewModal() {
+        if (overviewModal.hidden) return;
+        overviewModal.hidden = true;
+        document.body.classList.remove('market-overview-modal-open');
+        destroyOverviewModalChart();
+        var trigger = overviewModalTrigger;
+        overviewModalTrigger = null;
+        if (trigger && document.contains(trigger)) trigger.focus();
+      }
+
+      function openOverviewModal(card) {
+        overviewModalTrigger = card;
+        overviewModal.hidden = false;
+        document.body.classList.add('market-overview-modal-open');
+        renderOverviewModal(card.getAttribute('data-overview-card'), card);
+        window.requestAnimationFrame(function () {
+          if (overviewModalClose) overviewModalClose.focus();
+          if (overviewModalChart) overviewModalChart.resize(overviewModalChartEl.clientWidth, overviewModalChartEl.clientHeight);
+        });
+      }
+
+      document.querySelectorAll('[data-overview-card]').forEach(function (card) {
+        card.addEventListener('click', function (event) {
+          if (event.target.closest('.market-overview-action')) {
+            event.preventDefault();
+            openOverviewModal(card);
+            return;
+          }
+          if (event.target.closest('button, a')) return;
+          openOverviewModal(card);
+        });
+        card.addEventListener('keydown', function (event) {
+          if (event.key !== 'Enter' && event.key !== ' ') return;
+          if (event.target !== card) return;
+          event.preventDefault();
+          openOverviewModal(card);
+        });
+      });
+      overviewModal.querySelectorAll('[data-overview-modal-close]').forEach(function (closeEl) {
+        closeEl.addEventListener('click', function (event) {
+          if (closeEl.classList.contains('market-overview-modal-backdrop') && event.target !== closeEl) return;
+          closeOverviewModal();
+        });
+      });
+      overviewModal.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeOverviewModal();
+          return;
+        }
+        if (event.key !== 'Tab' || overviewModal.hidden) return;
+        var focusables = getOverviewModalFocusable();
+        if (!focusables.length) {
+          event.preventDefault();
+          overviewModalDialog.focus();
+          return;
+        }
+        var first = focusables[0], last = focusables[focusables.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      });
+    }
   }
 
   /* ---------- تحلیل هوشمند بازار ---------- */
@@ -859,13 +1105,9 @@
         var value = typeof entry === 'string' ? entry : entry && entry.title;
         if (!value) return;
         var li = document.createElement('li');
-        var link = document.createElement('a');
+        var link = document.createElement('span');
         link.className = 'market-insight-link';
-        link.href = '#ai-analysis';
-        link.setAttribute('data-ai-topic', value);
-        link.setAttribute('data-ai-trend', trend);
         link.textContent = value;
-        link.setAttribute('aria-label', 'توضیحات کامل: ' + value);
         li.appendChild(link);
         insightList.appendChild(li);
       });

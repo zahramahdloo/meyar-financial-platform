@@ -80,5 +80,5 @@ function meyar_api_valid_id(string $id): bool {
 
 function meyar_api_valid_topic(string $topic): bool {
     return $topic !== '' && mb_strlen($topic) <= 180
-        && (bool)preg_match('/^[\p{L}\p{N}\p{M}\s،؛؟.,:()«»\-+٪%_\/]+$/u', $topic);
+        && (bool)preg_match('/^[\p{L}\p{N}\p{M}\s\x{200C}\x{200D}،؛؟.,:()«»\-+٪%_\/]+$/u', $topic);
 }

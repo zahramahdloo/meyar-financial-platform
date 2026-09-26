@@ -119,7 +119,6 @@ function meyar_theme_footer(array $settings): void {
       <div class="footer-glow" aria-hidden="true"></div>
       <div class="container footer-grid">
         <div class="footer-brand reveal" data-reveal="up">
-          <img src="<?= $base ?>assets/img/meyar-logo/Meyar-logo.png" alt="سکه و جواهر معیار" class="footer-logo">
           <div class="footer-brand-fa">سکه و جواهر معیار</div>
           <p class="footer-brand-description">مرجع خرید و فروش حضوری سکه و طلا با اطلاعات دقیق بازار</p>
           <div class="footer-contact">
