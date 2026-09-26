@@ -5,6 +5,7 @@ meyar_api_begin();
 
 try {
     require_once dirname(__DIR__) . '/inc/db.php';
+    require_once dirname(__DIR__) . '/inc/chat-mail.php';
     $action = (string)($_POST['action'] ?? $_GET['action'] ?? '');
     if (!in_array($action, ['send', 'poll'], true)) meyar_api_error(400, 'bad_action', 'عملیات درخواست معتبر نیست.');
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -55,6 +56,9 @@ if ($action === 'send') {
         ->execute([$thread['id'], $body, time()]);
     $pdo->prepare("UPDATE threads SET last_at=?, admin_unread=admin_unread+1, status='open' WHERE id=?")
         ->execute([time(), $thread['id']]);
+
+    // اعلان ایمیلی اختیاری است؛ اختلال سرویس ایمیل نباید ارسال پیام چت را متوقف کند.
+    meyar_chat_notify_admin($thread, $body);
 
     meyar_api_response(['ok' => true, 'token' => $token, 'id' => (int)$pdo->lastInsertId()]);
     exit;

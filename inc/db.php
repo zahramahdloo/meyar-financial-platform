@@ -7,7 +7,7 @@
 require_once __DIR__ . '/bootstrap.php';
 
 define('MEYAR_DB_FILE', MEYAR_DATA . '/meyar.sqlite');
-define('MEYAR_DB_SCHEMA_VERSION', 1);
+define('MEYAR_DB_SCHEMA_VERSION', 2);
 
 function meyar_db(): PDO {
     static $pdo = null;
@@ -88,6 +88,12 @@ function meyar_db_migrate(PDO $pdo, bool $isNew): void {
         created_at INTEGER NOT NULL
     )");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_msg_thread ON messages(thread_id, id)");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS mail_imports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        mailbox_uid TEXT NOT NULL UNIQUE,
+        message_id TEXT DEFAULT '',
+        imported_at INTEGER NOT NULL
+    )");
     $pdo->exec("CREATE TABLE IF NOT EXISTS visits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         d TEXT NOT NULL,          -- Y-m-d
