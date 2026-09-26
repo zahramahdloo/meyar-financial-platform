@@ -5,4 +5,4 @@ Disallow: /data/
 Disallow: /inc/
 Allow: /
 
-Sitemap: /sitemap.xml
+Sitemap: /sitemap.php

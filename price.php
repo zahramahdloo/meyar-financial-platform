@@ -19,9 +19,7 @@ $groups   = meyar_groups();
 $cur      = null;
 foreach ($data['items'] as $i) { if ($i['id'] === $id) { $cur = $i; break; } }
 
-$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$canonical = $scheme . '://' . $host . '/price/' . $id;
+$canonical = meyar_public_url_for('price/' . rawurlencode($id));
 
 $title = $item['seo_title'] !== '' ? $item['seo_title']
        : 'قیمت لحظه‌ای ' . $item['title'] . ' امروز | سکه و جواهر معیار';
@@ -51,12 +49,13 @@ if ($item['schema_json'] !== '') {
     }
     $schema = json_encode($schemaArr, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
+$categoryUrl = meyar_public_url_for('prices.php');
 $breadcrumb = json_encode([
     '@context' => 'https://schema.org',
     '@type' => 'BreadcrumbList',
     'itemListElement' => [
-        ['@type'=>'ListItem','position'=>1,'name'=>'صفحه اصلی','item'=>$scheme.'://'.$host.'/'],
-        ['@type'=>'ListItem','position'=>2,'name'=>$groups[$item['group']] ?? 'قیمت‌ها','item'=>$scheme.'://'.$host.'/#prices'],
+        ['@type'=>'ListItem','position'=>1,'name'=>'صفحه اصلی','item'=>meyar_public_url_for('')],
+        ['@type'=>'ListItem','position'=>2,'name'=>$groups[$item['group']] ?? 'قیمت‌ها','item'=>$categoryUrl],
         ['@type'=>'ListItem','position'=>3,'name'=>$item['title'],'item'=>$canonical],
     ],
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

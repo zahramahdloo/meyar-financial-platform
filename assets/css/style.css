@@ -1739,7 +1739,7 @@ main#prices {
 .ai-analysis-head { display: flex; align-items: center; gap: 13px; padding-bottom: 20px; border-bottom: 1px solid rgba(148,163,184,.16); }
 .ai-analysis-icon { display: grid; width: 46px; height: 46px; flex: 0 0 46px; place-items: center; border: 1px solid rgba(212,175,55,.5); border-radius: 14px; color: #f0cf7a; background: rgba(212,175,55,.12); font-size: 22px; }
 .ai-analysis-label { color: #d4af37; font-size: 10px; }
-.ai-analysis-card h1 { margin-top: 4px; color: #fff; font-size: clamp(18px, 3vw, 27px); line-height: 1.6; }
+.ai-analysis-card h2 { margin-top: 4px; color: #fff; font-size: clamp(18px, 3vw, 27px); line-height: 1.6; }
 .ai-analysis-topic { margin-top: 20px; padding: 11px 14px; border-right: 3px solid #d4af37; border-radius: 9px; color: #94a3b8; background: rgba(2,6,23,.3); font-size: 11px; }
 .ai-analysis-topic b { color: #f1d27d; font-weight: 700; }
 .ai-analysis-loading { display: grid; justify-items: center; gap: 12px; padding: 58px 12px 38px; color: #94a3b8; font-size: 12px; text-align: center; }

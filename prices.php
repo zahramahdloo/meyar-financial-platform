@@ -29,7 +29,15 @@ usort($byGroup['currency'], function ($a, $b) use ($currencyOrder) {
 $tickerIds = ['sekee','sekeb','nim','rob','gerami','geram18','silver999','usd','eur','ons'];
 $ticker = array_values(array_filter($items, function ($i) use ($tickerIds) { return in_array($i['id'], $tickerIds, true); }));
 
-meyar_theme_head('همه قیمت‌های بازار | سکه معیار', 'قیمت کامل طلا، سکه، ارز و نقره در بازار سکه معیار.');
+$marketMeta = [
+    ''         => ['همه قیمت‌های بازار | سکه معیار', 'قیمت کامل و لحظه‌ای طلا، سکه، ارز و نقره در بازار سکه معیار.', 'prices.php'],
+    'gold'     => ['قیمت طلا امروز | قیمت لحظه‌ای طلا | معیار', 'قیمت لحظه‌ای طلای آب‌شده و انواع طلا با اطلاعات خرید، فروش و تغییرات بازار.', 'prices.php?market=gold'],
+    'coins'    => ['قیمت سکه امروز | سکه امامی، بهار آزادی، نیم و ربع سکه | معیار', 'قیمت لحظه‌ای سکه امامی، بهار آزادی، نیم‌سکه، ربع‌سکه و سکه‌های پارسیان.', 'prices.php?market=coins'],
+    'currency' => ['قیمت ارز امروز | قیمت دلار و ارزهای بازار | معیار', 'قیمت لحظه‌ای دلار، یورو و ارزهای بازار همراه با قیمت خرید، فروش و تغییرات.', 'prices.php?market=currency'],
+    'silver'   => ['قیمت نقره امروز | قیمت لحظه‌ای نقره | معیار', 'قیمت لحظه‌ای نقره ۹۹۹.۹ و اطلاعات تغییرات بازار نقره در سکه معیار.', 'prices.php?market=silver'],
+];
+$meta = $marketMeta[$requestedMarket] ?? $marketMeta[''];
+meyar_theme_head($meta[0], $meta[1], meyar_public_url_for($meta[2]));
 meyar_theme_topbar($settings, $ticker);
 ?>
 <main class="container prices-page" id="prices">

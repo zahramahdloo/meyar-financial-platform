@@ -14,8 +14,12 @@ function meyar_theme_head(string $title, string $desc = '', string $canonical = 
 <?php if ($canonical): ?><link rel="canonical" href="<?= meyar_h($canonical) ?>"><?php endif; ?>
 <meta property="og:title" content="<?= meyar_h($title) ?>">
 <?php if ($desc): ?><meta property="og:description" content="<?= meyar_h($desc) ?>"><?php endif; ?>
+<?php if ($canonical): ?><meta property="og:url" content="<?= meyar_h($canonical) ?>"><?php endif; ?>
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fa_IR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="<?= meyar_h($title) ?>">
+<?php if ($desc): ?><meta name="twitter:description" content="<?= meyar_h($desc) ?>"><?php endif; ?>
 <link rel="icon" type="image/png" href="<?= meyar_base() ?>assets/img/meyar-logo/Meyar-logo.png">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
@@ -180,7 +184,7 @@ function meyar_theme_footer(array $settings): void {
         <div class="ai-analysis-icon"><i class="hgi hgi-stroke hgi-rounded hgi-magic-wand-01" aria-hidden="true"></i></div>
         <div>
           <span class="ai-analysis-label">تحلیل هوشمند معیار</span>
-          <h1 id="aiModalTitle" data-ai-title aria-live="polite">تحلیل بازار</h1>
+          <h2 id="aiModalTitle" data-ai-title aria-live="polite">تحلیل بازار</h2>
         </div>
       </div>
       <div class="ai-analysis-topic"><span>موضوع تحلیل:</span> <b data-ai-topic-label>بازار امروز</b></div>

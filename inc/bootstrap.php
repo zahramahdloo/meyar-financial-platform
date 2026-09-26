@@ -97,6 +97,36 @@ function meyar_env(string $key): string {
     return trim((string)($fileValues[$key] ?? ''));
 }
 
+/** Trusted public origin for SEO URLs; production must configure MEYAR_PUBLIC_URL. */
+function meyar_public_url(): string {
+    static $publicUrl = null;
+    if ($publicUrl !== null) return $publicUrl;
+    $configured = trim(meyar_env('MEYAR_PUBLIC_URL'));
+    if ($configured !== '') {
+        $parts = parse_url($configured);
+        $scheme = strtolower((string)($parts['scheme'] ?? ''));
+        $host = (string)($parts['host'] ?? '');
+        if (in_array($scheme, ['http', 'https'], true) && $host !== '' && filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+            $origin = $scheme . '://' . $host;
+            if (!empty($parts['port'])) $origin .= ':' . (int)$parts['port'];
+            if (!empty($parts['path']) && $parts['path'] !== '/') $origin .= '/' . trim($parts['path'], '/');
+            return $publicUrl = rtrim($origin, '/');
+        }
+    }
+    $host = (string)($_SERVER['HTTP_HOST'] ?? '');
+    if (preg_match('/^(localhost|127\.0\.0\.1|\[::1\])(?::[0-9]{1,5})?$/i', $host)) {
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        return $publicUrl = $scheme . '://' . $host;
+    }
+    return $publicUrl = '';
+}
+
+function meyar_public_url_for(string $path = ''): string {
+    $base = meyar_public_url();
+    if ($base === '') return '';
+    return $path === '' ? $base . '/' : $base . '/' . ltrim($path, '/');
+}
+
 /* ---------- settings ---------- */
 
 function meyar_default_settings(): array {

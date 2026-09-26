@@ -20,13 +20,12 @@ $heroImg  = is_file(__DIR__ . '/assets/img/hero.png') ? 'assets/img/hero.png' : 
 $aboutImg = is_file(__DIR__ . '/assets/img/about.png') ? 'assets/img/about.png' : '';
 $aboutBanner = is_file(__DIR__ . '/assets/img/about-meyar-banner.png') ? 'assets/img/about-meyar-banner.png' : '';
 
-$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$homeUrl = meyar_public_url_for('');
 $orgSchema = json_encode([
   '@context' => 'https://schema.org',
   '@type'    => 'JewelryStore',
   'name'     => 'سکه و جواهر معیار',
-  'url'      => $scheme . '://' . $host . '/',
+  'url'      => $homeUrl,
   'telephone' => $settings['site_phone'],
   'email'    => $settings['site_email'],
   'address'  => ['@type' => 'PostalAddress', 'addressLocality' => 'تهران', 'streetAddress' => 'بازار بزرگ تهران، سبزه میدان، پاساژ خادم، طبقه همکف، پلاک ۴'],
@@ -35,7 +34,7 @@ $orgSchema = json_encode([
 meyar_theme_head(
   'سکه و جواهر معیار | قیمت لحظه‌ای سکه، طلا و ارز',
   'بورس سکه معیار — قیمت لحظه‌ای سکه امامی، بهار آزادی، نیم سکه، ربع سکه، طلای ۱۸ عیار و ارز با نمودار تاریخچه شمسی. خرید و فروش سکه در بازار بزرگ تهران.',
-  $scheme . '://' . $host . '/',
+  $homeUrl,
   '<script type="application/ld+json">' . $orgSchema . '</script>'
 );
 meyar_theme_topbar($settings, $ticker);
