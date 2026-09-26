@@ -20,11 +20,20 @@ $cur      = null;
 foreach ($data['items'] as $i) { if ($i['id'] === $id) { $cur = $i; break; } }
 
 $canonical = meyar_public_url_for('price/' . rawurlencode($id));
+$hasChart = in_array($item['source'][0], ['tgju', 'tgju_usd', 'parsian'], true);
 
 $title = $item['seo_title'] !== '' ? $item['seo_title']
-       : 'قیمت لحظه‌ای ' . $item['title'] . ' امروز | سکه و جواهر معیار';
-$desc  = $item['seo_desc'] !== '' ? $item['seo_desc']
-       : 'قیمت زنده ' . $item['title'] . ' به همراه نمودار تاریخچه قیمت با تاریخ شمسی، تغییرات روزانه و تحلیل بازار در بورس سکه معیار.';
+       : ($item['group'] === 'currency'
+           ? 'قیمت ' . $item['title'] . ' امروز | سکه و جواهر معیار'
+           : 'قیمت لحظه‌ای ' . $item['title'] . ' امروز | سکه و جواهر معیار');
+if ($item['seo_desc'] !== '') {
+    $desc = $item['seo_desc'];
+} else {
+    $desc = 'اطلاعات قیمت ' . $item['title'];
+    if ($cur) $desc .= ' به همراه قیمت خرید، قیمت فروش و تغییرات بازار';
+    if ($hasChart) $desc .= ($cur ? ' و ' : ' به همراه ') . 'نمودار تاریخچه قیمت با تاریخ شمسی';
+    $desc .= ' در سکه و جواهر معیار.';
+}
 
 // ---- اسکیمای گوگل ----
 if ($item['schema_json'] !== '') {
@@ -39,10 +48,11 @@ if ($item['schema_json'] !== '') {
         'brand'       => ['@type' => 'Organization', 'name' => 'سکه و جواهر معیار'],
     ];
     if ($cur) {
+        $isUsdSchemaPrice = $cur['unit'] === 'دلار';
         $schemaArr['offers'] = [
             '@type'         => 'Offer',
-            'price'         => round($cur['sell']),
-            'priceCurrency' => $cur['unit'] === 'دلار' ? 'USD' : 'IRR',
+            'price'         => round($cur['sell'] * ($isUsdSchemaPrice ? 1 : 10)),
+            'priceCurrency' => $isUsdSchemaPrice ? 'USD' : 'IRR',
             'availability'  => 'https://schema.org/InStock',
             'url'           => $canonical,
         ];
@@ -59,8 +69,6 @@ $breadcrumb = json_encode([
         ['@type'=>'ListItem','position'=>3,'name'=>$item['title'],'item'=>$canonical],
     ],
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
-$hasChart = in_array($item['source'][0], ['tgju', 'tgju_usd', 'parsian'], true);
 
 $extraHead = '<script type="application/ld+json">' . $schema . '</script>'
            . '<script type="application/ld+json">' . $breadcrumb . '</script>';
@@ -84,7 +92,7 @@ $related = array_slice($related, 0, 8);
 <main class="container item-page">
   <nav class="breadcrumbs reveal" data-reveal="up" aria-label="breadcrumb">
     <a href="<?= meyar_base() ?>">صفحه اصلی</a> <span>›</span>
-    <a href="<?= meyar_base() ?>#prices"><?= meyar_h($groups[$item['group']] ?? 'قیمت‌ها') ?></a> <span>›</span>
+    <a href="<?= meyar_base() ?>prices.php"><?= meyar_h($groups[$item['group']] ?? 'قیمت‌ها') ?></a> <span>›</span>
     <b><?= meyar_h($item['title']) ?></b>
   </nav>
 
