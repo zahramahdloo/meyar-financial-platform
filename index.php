@@ -28,7 +28,7 @@ $orgSchema = json_encode([
   'url'      => $homeUrl,
   'telephone' => $settings['site_phone'],
   'email'    => $settings['site_email'],
-  'address'  => ['@type' => 'PostalAddress', 'addressLocality' => 'تهران', 'streetAddress' => 'بازار بزرگ تهران، سبزه میدان، پاساژ خادم، طبقه همکف، پلاک ۴'],
+  'address'  => ['@type' => 'PostalAddress', 'streetAddress' => 'تهران، بازار بزرگ، پاساژ طلا و جواهر خادم، طبقه همکف، واحد ۴'],
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
 meyar_theme_head(

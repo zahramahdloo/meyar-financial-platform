@@ -144,8 +144,8 @@ function meyar_default_settings(): array {
             ['group' => 'gold',     'width' => 'half'],
         ],
         'online_badge'         => 1,         // چراغ «آنلاین هستیم»
-        'site_phone'           => '021-66098624',
-        'site_email'           => 'info@sekemeyar.com',
+        'site_phone'           => '021-33986164',
+        'site_email'           => 'meyargroup2000@gmail.com',
         'site_instagram'       => '',
     ];
 }
