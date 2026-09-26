@@ -245,7 +245,8 @@
       return null;
     }
     function marketHref(market) {
-      return (window.MEYAR_BASE || './') + 'prices.php?market=' + encodeURIComponent(market);
+      var paths = window.MEYAR_MARKET_PATHS || {};
+      return (window.MEYAR_BASE || './') + (paths[market] || paths[''] || 'prices/');
     }
     function assetHref(itemId) {
       return (window.MEYAR_BASE || './') + 'price/' + encodeURIComponent(itemId);
@@ -338,7 +339,7 @@
       else if (query.indexOf('نقره') !== -1) fallbackMarket = 'silver';
       else if (query.indexOf('طلا') !== -1 || query.indexOf('اونس') !== -1 || query.indexOf('مثقال') !== -1) fallbackMarket = 'gold';
       else if (query.indexOf('ارز') !== -1 || /دلار|یورو|درهم|پوند|لیر/.test(query)) fallbackMarket = 'currency';
-      window.location.href = fallbackMarket ? marketHref(fallbackMarket) : (window.MEYAR_BASE || './') + 'prices.php';
+      window.location.href = fallbackMarket ? marketHref(fallbackMarket) : (window.MEYAR_BASE || './') + ((window.MEYAR_MARKET_PATHS || {})[''] || 'prices/');
     });
     document.addEventListener('click', function (e) {
       if (!e.target.closest('#headerSearchForm')) closeSearchResults();

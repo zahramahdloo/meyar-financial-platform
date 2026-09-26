@@ -163,7 +163,7 @@ foreach ($overviewIds as $overviewId) {
         <h2 id="marketOverviewTitle">وضعیت بازار امروز</h2>
         <p>آخرین قیمت‌ها، تغییرات و روند بازار</p>
       </div>
-      <a class="market-overview-all" href="<?= meyar_base() ?>prices.php">مشاهده کامل بازار <i class="hgi-stroke hgi-arrow-left-01" aria-hidden="true"></i></a>
+      <a class="market-overview-all" href="<?= meyar_base() . meyar_market_public_path() ?>">مشاهده کامل بازار <i class="hgi-stroke hgi-arrow-left-01" aria-hidden="true"></i></a>
     </header>
     <div class="market-overview-grid">
       <?php foreach ($overviewItems as $overview):

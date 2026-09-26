@@ -127,6 +127,21 @@ function meyar_public_url_for(string $path = ''): string {
     return $path === '' ? $base . '/' : $base . '/' . ltrim($path, '/');
 }
 
+function meyar_market_public_paths(): array {
+    return [
+        ''         => 'prices/',
+        'gold'     => 'prices/gold/',
+        'coins'    => 'prices/coin/',
+        'currency' => 'prices/currency/',
+        'silver'   => 'prices/silver/',
+    ];
+}
+
+function meyar_market_public_path(string $market = ''): string {
+    $paths = meyar_market_public_paths();
+    return $paths[$market] ?? $paths[''];
+}
+
 /* ---------- settings ---------- */
 
 function meyar_default_settings(): array {

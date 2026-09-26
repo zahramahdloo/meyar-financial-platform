@@ -31,17 +31,23 @@ function meyar_theme_head(string $title, string $desc = '', string $canonical = 
 <?php
 }
 
-/** مسیر پایه نسبی (صفحه‌ها در ریشه هستند؛ /price/x بازنویسی می‌شود) */
+/** مسیر پایه نسبی (صفحه‌های clean با rewrite روی فایل‌های ریشه اجرا می‌شوند) */
 function meyar_base(): string {
-    $uri = $_SERVER['REQUEST_URI'] ?? '/';
-    return (strpos($uri, '/price/') !== false) ? '../' : './';
+    $uri = (string)($_SERVER['REQUEST_URI'] ?? '/');
+    $path = (string)(parse_url($uri, PHP_URL_PATH) ?? $uri);
+    if (preg_match('#/price/[^/]+/?$#', $path)) return '../';
+    if (preg_match('#/prices/(?:gold|coin|currency|silver)/?$#', $path)) return '../../';
+    if (preg_match('#/prices/?$#', $path)) return '../';
+    return './';
 }
 
 function meyar_theme_topbar(array $settings, array $ticker): void {
     $base = meyar_base();
     $requestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
     $requestPath = (string)(parse_url($requestUri, PHP_URL_PATH) ?? $requestUri);
-    $isPricePage = strpos($requestPath, '/price/') !== false || basename($requestPath) === 'prices.php';
+    $isPricePage = strpos($requestPath, '/price/') !== false
+        || strpos($requestPath, '/prices/') !== false
+        || basename($requestPath) === 'prices.php';
     $isTvPage = strpos($requestPath, '/tv') !== false;
 ?>
 <!-- ═══ نوار بازار و تیکر قیمت ═══ -->
@@ -80,12 +86,12 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
       <div class="nav-dropdown">
         <button type="button" class="nav-dropdown-toggle <?= $isPricePage ? 'active' : '' ?>" aria-expanded="false">قیمت‌ها <i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i></button>
         <div class="nav-dropdown-menu">
-          <a href="<?= $base ?>prices.php">همه قیمت‌ها</a>
-          <a href="<?= $base ?>prices.php?market=currency">قیمت ارز</a>
-          <a href="<?= $base ?>prices.php?market=gold">قیمت طلا</a>
-          <a href="<?= $base ?>prices.php?market=coins">قیمت سکه</a>
+          <a href="<?= $base . meyar_market_public_path() ?>">همه قیمت‌ها</a>
+          <a href="<?= $base . meyar_market_public_path('currency') ?>">قیمت ارز</a>
+          <a href="<?= $base . meyar_market_public_path('gold') ?>">قیمت طلا</a>
+          <a href="<?= $base . meyar_market_public_path('coins') ?>">قیمت سکه</a>
           <a href="<?= $base ?>price/geram18">طلای ۱۸ عیار</a>
-          <a href="<?= $base ?>prices.php?market=silver">نقره</a>
+          <a href="<?= $base . meyar_market_public_path('silver') ?>">نقره</a>
         </div>
       </div>
       <a href="<?= $base ?>tv.php">نمایشگر فروشگاه (TV)</a>
@@ -137,7 +143,7 @@ function meyar_theme_footer(array $settings): void {
 
         <nav class="footer-col reveal" data-reveal="up" aria-label="دسترسی سریع">
           <h4>دسترسی سریع</h4>
-          <a href="<?= $base ?>prices.php">قیمت‌ها</a>
+          <a href="<?= $base . meyar_market_public_path() ?>">قیمت‌ها</a>
           <a href="<?= $base ?>#prices">وضعیت بازار</a>
           <a href="<?= $base ?>#about">درباره ما</a>
           <a href="<?= $base ?>#contact">تماس با ما</a>
@@ -245,7 +251,7 @@ function meyar_theme_footer(array $settings): void {
   </div>
 </div>
 
-<script>window.MEYAR_BASE = '<?= $base ?>';</script>
+<script>window.MEYAR_BASE = '<?= $base ?>'; window.MEYAR_MARKET_PATHS = <?= json_encode(meyar_market_public_paths(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="<?= $base ?>assets/js/main.js?v=13"></script>
 <script src="<?= $base ?>assets/js/chat.js?v=5"></script>
 <script src="<?= $base ?>assets/js/ai.js?v=5"></script>

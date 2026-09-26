@@ -59,7 +59,9 @@ if ($item['schema_json'] !== '') {
     }
     $schema = json_encode($schemaArr, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
-$categoryUrl = meyar_public_url_for('prices.php');
+$categoryMarket = $item['id'] === 'silver999' ? 'silver' : ($item['group'] === 'parsian' ? 'coins' : $item['group']);
+$categoryPath = meyar_market_public_path($categoryMarket);
+$categoryUrl = meyar_public_url_for($categoryPath);
 $breadcrumb = json_encode([
     '@context' => 'https://schema.org',
     '@type' => 'BreadcrumbList',
@@ -92,7 +94,7 @@ $related = array_slice($related, 0, 8);
 <main class="container item-page">
   <nav class="breadcrumbs reveal" data-reveal="up" aria-label="breadcrumb">
     <a href="<?= meyar_base() ?>">صفحه اصلی</a> <span>›</span>
-    <a href="<?= meyar_base() ?>prices.php"><?= meyar_h($groups[$item['group']] ?? 'قیمت‌ها') ?></a> <span>›</span>
+    <a href="<?= meyar_base() . meyar_h($categoryPath) ?>"><?= meyar_h($groups[$item['group']] ?? 'قیمت‌ها') ?></a> <span>›</span>
     <b><?= meyar_h($item['title']) ?></b>
   </nav>
 
