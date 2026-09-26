@@ -83,7 +83,7 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
           <a href="<?= $base ?>prices.php?market=currency">قیمت ارز</a>
           <a href="<?= $base ?>prices.php?market=gold">قیمت طلا</a>
           <a href="<?= $base ?>prices.php?market=coins">قیمت سکه</a>
-          <a href="<?= $base ?>prices.php?market=gold">طلای ۱۸ عیار</a>
+          <a href="<?= $base ?>price/geram18">طلای ۱۸ عیار</a>
           <a href="<?= $base ?>prices.php?market=silver">نقره</a>
         </div>
       </div>

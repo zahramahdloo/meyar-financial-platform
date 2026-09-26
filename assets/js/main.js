@@ -247,6 +247,16 @@
     function marketHref(market) {
       return (window.MEYAR_BASE || './') + 'prices.php?market=' + encodeURIComponent(market);
     }
+    function assetHref(itemId) {
+      return (window.MEYAR_BASE || './') + 'price/' + encodeURIComponent(itemId);
+    }
+    function isSpecificAssetQuery(query, itemId, text) {
+      var normalizedQuery = normalizeSearch(query).replace(/طلای/g, 'طلا');
+      var value = normalizeSearch(text).replace(/طلای/g, 'طلا');
+      var genericCategories = ['طلا', 'سکه', 'ارز', 'نقره'];
+      if (!itemId || !value || genericCategories.indexOf(normalizedQuery) !== -1) return false;
+      return value === normalizedQuery || value.indexOf(normalizedQuery) !== -1;
+    }
     function closeSearchResults() {
       if (!searchResults) return;
       searchResults.hidden = true;
@@ -257,6 +267,20 @@
       searchResults.innerHTML = '';
       if (!query) { closeSearchResults(); return; }
       var entries = [];
+      var assetEntries = [];
+      document.querySelectorAll('[data-id], [data-overview-card], [data-tid]').forEach(function (item) {
+        var title = item.querySelector('.market-asset-title, .cell-title, .market-card-title, .market-overview-title, .ticker-name, .related-name');
+        var text = (title || item).textContent.trim();
+        var searchableText = normalizeSearch(item.textContent.trim()).replace(/طلای/g, 'طلا');
+        var normalizedQuery = normalizeSearch(query).replace(/طلای/g, 'طلا');
+        if (!text || searchableText.indexOf(normalizedQuery) === -1) return;
+        var itemId = item.getAttribute('data-id') || item.getAttribute('data-overview-card') || item.getAttribute('data-tid');
+        if (!isSpecificAssetQuery(query, itemId, text)) return;
+        var href = assetHref(itemId);
+        if (assetEntries.some(function (entry) { return entry.href === href; })) return;
+        assetEntries.push({ text: text, href: href, meta: 'مشاهده قیمت و جزئیات' });
+      });
+      entries = entries.concat(assetEntries);
       var categories = [
         { keys: ['طلا', 'اونس', 'مثقال', 'عیار'], label: 'بازار طلا', market: 'gold' },
         { keys: ['سکه', 'پارسیان'], label: 'بازار سکه', market: 'coins' },
