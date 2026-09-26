@@ -22,6 +22,7 @@ function meyar_theme_head(string $title, string $desc = '', string $canonical = 
 <?php if ($desc): ?><meta name="twitter:description" content="<?= meyar_h($desc) ?>"><?php endif; ?>
 <link rel="icon" type="image/png" href="<?= meyar_base() ?>assets/img/meyar-logo/Meyar-logo.png">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://use.hugeicons.com" crossorigin>
 <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
 <link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=26">
 <?= $extraHead ?>
