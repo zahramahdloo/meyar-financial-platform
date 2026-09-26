@@ -123,7 +123,7 @@ foreach ($overviewIds as $overviewId) {
         <div class="market-insight-heading">
           <span class="market-insight-icon"><i class="hgi hgi-stroke hgi-rounded hgi-magic-wand-01" aria-hidden="true"></i></span>
           <div>
-            <div class="market-insight-title-row"><h2>تحلیل هوشمند بازار</h2><span class="market-insight-ai">AI</span></div>
+            <div class="market-insight-title-row"><h2>تحلیل هوشمند بازار</h2><span class="market-insight-ai">AI</span><span class="market-insight-trend flat" data-insight-trend>خنثی</span></div>
           </div>
         </div>
         <span class="market-insight-date"><i class="hgi hgi-stroke hgi-rounded hgi-calendar-03" aria-hidden="true"></i><span><b><?= meyar_h($data['updated_date'] ?? 'امروز') ?></b><small>آخرین به‌روزرسانی</small></span></span>
@@ -132,10 +132,7 @@ foreach ($overviewIds as $overviewId) {
         <section class="market-insight-list" aria-labelledby="marketInsightPoints">
           <h3 id="marketInsightPoints"><i class="hgi hgi-stroke hgi-rounded hgi-note-01" aria-hidden="true"></i> نکات مهم امروز</h3>
           <ul data-market-insights>
-            <li><span class="market-insight-link">افزایش تقاضای جهانی طلا</span></li>
-            <li><span class="market-insight-link">تاثیر نوسانات نرخ ارز</span></li>
-            <li><span class="market-insight-link">روند مثبت اونس جهانی</span></li>
-            <li><span class="market-insight-link">حفظ حمایت کلیدی در بازار داخلی</span></li>
+            <li><span class="market-insight-link">در حال دریافت وضعیت لحظه‌ای بازار…</span></li>
           </ul>
         </section>
         <div class="market-insight-teaser-actions">

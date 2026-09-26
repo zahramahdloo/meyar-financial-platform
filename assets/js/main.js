@@ -1096,7 +1096,54 @@
   var insightRequest = null;
   var insightHasValidResponse = false;
   if (insightList && insightTrend) {
+    function insightDirectionLabel(dir) {
+      return dir === 'high' ? 'صعودی' : (dir === 'low' ? 'نزولی' : 'خنثی');
+    }
+    function insightDirectionText(dir) {
+      return dir === 'high' ? 'افزایش' : (dir === 'low' ? 'کاهش' : 'ثبات');
+    }
+    function renderLiveMarketInsights() {
+      var items = Object.keys(liveItemsById).map(function (id) { return liveItemsById[id]; })
+        .filter(function (item) { return item && !item.hidden && item.title; })
+        .sort(function (a, b) {
+          return Math.abs(normalizeNumeric(b.change_pct)) - Math.abs(normalizeNumeric(a.change_pct));
+        })
+        .slice(0, 4);
+      if (!items.length) return false;
+
+      var strongest = items[0];
+      var strongestTrend = strongest.dir === 'high' ? 'up' : (strongest.dir === 'low' ? 'down' : 'flat');
+      insightTrend.textContent = insightDirectionLabel(strongest.dir);
+      insightTrend.className = strongestTrend;
+      insightList.textContent = '';
+      items.forEach(function (item) {
+        var trend = item.dir === 'high' ? 'up' : (item.dir === 'low' ? 'down' : 'flat');
+        var topic = 'وضعیت روز ' + item.title + '؛ ' + insightDirectionText(item.dir) + ' ' + (item.change_pct || '۰') + ' درصدی قیمت';
+        var li = document.createElement('li');
+        var link = document.createElement('a');
+        link.className = 'market-insight-link';
+        link.href = '#ai-analysis';
+        link.setAttribute('data-ai-topic', topic);
+        link.setAttribute('data-ai-trend', trend);
+        link.setAttribute('aria-label', 'تحلیل امروز ' + item.title);
+        link.textContent = item.title + ': ' + insightDirectionText(item.dir) + ' ' + (item.change_pct || '۰') + '٪';
+        li.appendChild(link);
+        insightList.appendChild(li);
+      });
+      insightList.setAttribute('aria-busy', 'false');
+
+      var summaryLink = document.querySelector('.market-insight-teaser-more');
+      if (summaryLink) {
+        var summaryTopic = items.map(function (item) {
+          return item.title + ' با روند ' + insightDirectionLabel(item.dir) + ' و تغییر ' + (item.change_pct || '۰') + '٪';
+        }).join('، ');
+        summaryLink.setAttribute('data-ai-topic', ('جمع‌بندی بازار امروز بر اساس داده‌های لحظه‌ای: ' + summaryTopic).slice(0, 175));
+        summaryLink.setAttribute('data-ai-trend', strongestTrend);
+      }
+      return true;
+    }
     function renderMarketInsights(insight) {
+      if (renderLiveMarketInsights()) return;
       var trend = insight.trend === 'up' ? 'up' : (insight.trend === 'down' ? 'down' : 'flat');
       insightTrend.textContent = insight.trend_label || (trend === 'flat' ? 'نامشخص' : trend === 'up' ? 'صعودی' : 'نزولی');
       insightTrend.className = trend;
@@ -1105,8 +1152,11 @@
         var value = typeof entry === 'string' ? entry : entry && entry.title;
         if (!value) return;
         var li = document.createElement('li');
-        var link = document.createElement('span');
+        var link = document.createElement('a');
         link.className = 'market-insight-link';
+        link.href = '#ai-analysis';
+        link.setAttribute('data-ai-topic', value);
+        link.setAttribute('data-ai-trend', trend);
         link.textContent = value;
         li.appendChild(link);
         insightList.appendChild(li);
@@ -1130,7 +1180,10 @@
           if (!insightHasValidResponse) renderMarketInsightFallback();
           console.warn('Market insights unavailable:', error);
         })
-        .then(function () { insightRequest = null; });
+        .then(function () {
+          insightRequest = null;
+          renderLiveMarketInsights();
+        });
       return insightRequest;
     }
     refreshMarketInsights();

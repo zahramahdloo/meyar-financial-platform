@@ -1147,6 +1147,10 @@ main#prices {
 .market-insight-title-row { display: flex; align-items: center; gap: 7px; }
 .market-insight-title-row h2 { color: #fff; font-size: 16px; font-weight: 800; }
 .market-insight-ai { padding: 1px 6px; border: 1px solid rgba(212,175,55,.4); border-radius: 5px; color: #f0cf7a; background: rgba(212,175,55,.12); font-size: 9px; font-weight: 800; letter-spacing: .4px; }
+.market-insight-trend { padding: 2px 7px; border-radius: 5px; font-size: 9px; font-weight: 750; }
+.market-insight-trend.up { color: #86efac; background: rgba(22,163,74,.15); }
+.market-insight-trend.down { color: #fca5a5; background: rgba(220,38,38,.15); }
+.market-insight-trend.flat { color: #cbd5e1; background: rgba(148,163,184,.14); }
 .market-insight-head > div:first-child p { margin-top: 3px; color: #94a3b8; font-size: 10px; line-height: 1.7; }
 .market-insight-date { display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; padding: 5px 8px; border: 1px solid rgba(148,163,184,.16); border-radius: 8px; color: #cbd5e1; background: rgba(15,23,42,.42); font-size: 9px; white-space: nowrap; }
 .market-insight-date i { color: #d4af37; font-size: 13px; }

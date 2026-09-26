@@ -102,7 +102,7 @@
       loadCard(modalCard, trigger.getAttribute('data-ai-topic') || trigger.textContent.trim(), trigger.getAttribute('data-ai-trend') || 'flat');
     }
     document.addEventListener('click', function (event) {
-      var link = event.target.closest('.market-insight-link.market-insight-teaser-more');
+      var link = event.target.closest('.market-insight-link[data-ai-topic]');
       if (!link) return;
       event.preventDefault();
       openModal(link);
@@ -110,7 +110,7 @@
     modal.querySelectorAll('[data-ai-close]').forEach(function (button) { button.addEventListener('click', closeModal); });
     document.addEventListener('keydown', function (event) {
       if (event.key === ' ' && modal.hidden) {
-        var trigger = event.target.closest('.market-insight-link.market-insight-teaser-more');
+        var trigger = event.target.closest('.market-insight-link[data-ai-topic]');
         if (trigger) {
           event.preventDefault();
           openModal(trigger);
