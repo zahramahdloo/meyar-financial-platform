@@ -512,6 +512,7 @@ body {
     flex: 1 1 auto;
     height: auto;
     min-height: 0;
+    padding-top: 64px;
   }
   .tv-main {
     flex: 1 1 auto;
@@ -538,38 +539,22 @@ body {
   }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head,
   .tv-page.active .tv-panel.mobile-visible .tv-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 5px;
+    grid-template-columns: minmax(0, 1.45fr) repeat(3, minmax(0, 1fr));
+    grid-template-areas: none;
+    gap: 4px;
   }
-  .tv-page.active .tv-panel.mobile-visible .tv-panel-head {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-areas: 'title title title' 'change sell buy';
-    row-gap: 6px;
-  }
-  .tv-page.active .tv-panel.mobile-visible .tv-panel-head h2 { grid-area: title !important; }
-  .tv-page.active .tv-panel.mobile-visible .tv-panel-head > .tv-col-label:nth-child(2) { grid-area: change !important; }
-  .tv-page.active .tv-panel.mobile-visible .tv-panel-head > .tv-col-label:nth-child(3) { grid-area: sell !important; }
-  .tv-page.active .tv-panel.mobile-visible .tv-panel-head > .tv-col-label:nth-child(4) { grid-area: buy !important; }
-  .tv-page.active .tv-panel.mobile-visible .tv-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas: 'name change' 'sell buy';
-    gap: 5px 10px;
-  }
-  .tv-page.active .tv-panel.mobile-visible .tv-row > .tv-name { grid-area: name !important; }
-  .tv-page.active .tv-panel.mobile-visible .tv-row > .tv-chg { grid-area: change !important; justify-self: end; }
-  .tv-page.active .tv-panel.mobile-visible .tv-row > .tv-sell { grid-area: sell !important; }
-  .tv-page.active .tv-panel.mobile-visible .tv-row > .tv-buy { grid-area: buy !important; }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head > *,
   .tv-page.active .tv-panel.mobile-visible .tv-row > * {
     min-width: 0;
+    grid-area: auto !important;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head {
     min-height: 64px;
     padding: 10px;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-row {
-    min-height: 52px;
-    padding: 8px 10px;
+    min-height: 48px;
+    padding: 7px 9px;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head h2 {
     font-size: clamp(14px, 3.8vw, 17px);
@@ -578,16 +563,18 @@ body {
     font-size: clamp(10px, 2.8vw, 12px);
   }
   .tv-page.active .tv-panel.mobile-visible .tv-name {
-    font-size: clamp(12px, 3.5vw, 15px);
+    font-size: clamp(11px, 3vw, 14px);
   }
   .tv-page.active .tv-panel.mobile-visible .tv-buy,
   .tv-page.active .tv-panel.mobile-visible .tv-sell {
-    font-size: clamp(12px, 3.4vw, 15px);
-    padding-top: 5px;
-    border-top: 1px solid rgba(148, 163, 184, .12);
+    font-size: clamp(10px, 2.8vw, 13px);
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-chg {
-    font-size: clamp(10px, 2.8vw, 12px);
+    font-size: clamp(9px, 2.4vw, 11px);
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-rows {
     min-height: 0;
