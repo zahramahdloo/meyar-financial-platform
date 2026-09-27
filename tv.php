@@ -538,16 +538,31 @@ body {
   }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head,
   .tv-page.active .tv-panel.mobile-visible .tv-row {
-    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
-    grid-template-areas: none;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 5px;
   }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas: 'title title title' 'change sell buy';
+    row-gap: 6px;
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head h2 { grid-area: title !important; }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head > .tv-col-label:nth-child(2) { grid-area: change !important; }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head > .tv-col-label:nth-child(3) { grid-area: sell !important; }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head > .tv-col-label:nth-child(4) { grid-area: buy !important; }
+  .tv-page.active .tv-panel.mobile-visible .tv-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: 'name change' 'sell buy';
+    gap: 5px 10px;
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-row > .tv-name { grid-area: name !important; }
+  .tv-page.active .tv-panel.mobile-visible .tv-row > .tv-chg { grid-area: change !important; justify-self: end; }
+  .tv-page.active .tv-panel.mobile-visible .tv-row > .tv-sell { grid-area: sell !important; }
+  .tv-page.active .tv-panel.mobile-visible .tv-row > .tv-buy { grid-area: buy !important; }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head > *,
   .tv-page.active .tv-panel.mobile-visible .tv-row > * {
     min-width: 0;
-    grid-area: auto !important;
   }
-  .tv-page.active .tv-panel.mobile-visible .tv-row > .tv-chg { justify-self: auto; }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head {
     min-height: 64px;
     padding: 10px;
@@ -568,6 +583,8 @@ body {
   .tv-page.active .tv-panel.mobile-visible .tv-buy,
   .tv-page.active .tv-panel.mobile-visible .tv-sell {
     font-size: clamp(12px, 3.4vw, 15px);
+    padding-top: 5px;
+    border-top: 1px solid rgba(148, 163, 184, .12);
   }
   .tv-page.active .tv-panel.mobile-visible .tv-chg {
     font-size: clamp(10px, 2.8vw, 12px);
