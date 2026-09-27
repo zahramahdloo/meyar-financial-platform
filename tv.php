@@ -526,13 +526,51 @@ body {
     width: calc(100% - 12px);
     height: 100%;
     min-height: 0;
-    align-content: start;
+    align-content: center;
+    justify-items: center;
   }
   .tv-page.active .tv-panel:not(.mobile-visible) { display: none; }
   .tv-page.active .tv-panel.mobile-visible {
     display: flex;
+    width: 100%;
     min-height: 0;
     max-height: 100%;
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head,
+  .tv-page.active .tv-panel.mobile-visible .tv-row {
+    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+    grid-template-areas: none;
+    gap: 5px;
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head > *,
+  .tv-page.active .tv-panel.mobile-visible .tv-row > * {
+    min-width: 0;
+    grid-area: auto !important;
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-row > .tv-chg { justify-self: auto; }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head {
+    min-height: 64px;
+    padding: 10px;
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-row {
+    min-height: 52px;
+    padding: 8px 10px;
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head h2 {
+    font-size: clamp(14px, 3.8vw, 17px);
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-col-label {
+    font-size: clamp(10px, 2.8vw, 12px);
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-name {
+    font-size: clamp(12px, 3.5vw, 15px);
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-buy,
+  .tv-page.active .tv-panel.mobile-visible .tv-sell {
+    font-size: clamp(12px, 3.4vw, 15px);
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-chg {
+    font-size: clamp(10px, 2.8vw, 12px);
   }
   .tv-page.active .tv-panel.mobile-visible .tv-rows {
     min-height: 0;
