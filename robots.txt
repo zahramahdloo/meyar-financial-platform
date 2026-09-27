@@ -5,4 +5,4 @@ Disallow: /data/
 Disallow: /inc/
 Allow: /
 
-Sitemap: /sitemap.php
+Sitemap: https://sekemeyar.com/sitemap.xml

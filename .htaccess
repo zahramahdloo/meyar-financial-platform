@@ -31,8 +31,8 @@ DirectoryIndex index.php
     # --------------------------------------
 
     RewriteCond %{HTTPS} !=on [OR]
-    RewriteCond %{HTTP_HOST} !^www\.sekemeyar\.com$ [NC]
-    RewriteRule ^ https://www.sekemeyar.com%{REQUEST_URI} [R=301,L,NE]
+    RewriteCond %{HTTP_HOST} !^sekemeyar\.com$ [NC]
+    RewriteRule ^ https://sekemeyar.com%{REQUEST_URI} [R=301,L,NE]
 
     # --------------------------------------
     # 3. Market pages
@@ -109,5 +109,5 @@ DirectoryIndex index.php
 # ==========================================
 
 <IfModule mod_env.c>
-    SetEnv MEYAR_PUBLIC_URL "https://www.sekemeyar.com"
+    SetEnv MEYAR_PUBLIC_URL "https://sekemeyar.com"
 </IfModule>

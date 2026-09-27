@@ -6,7 +6,7 @@ $id = preg_replace('/[^a-z0-9_]/i', '', (string)($_GET['id'] ?? ''));
 $item = $id ? meyar_item_by_id($id) : null;
 if (!$item) {
     http_response_code(404);
-    meyar_theme_head('یافت نشد — سکه معیار');
+    meyar_theme_head('یافت نشد — سکه معیار', 'صفحهٔ موردنظر در سکه و جواهر معیار پیدا نشد.', '', '<meta name="robots" content="noindex, nofollow">');
     echo '<div class="container" style="padding:80px 20px;text-align:center"><h1>۴۰۴</h1><p>این صفحه پیدا نشد.</p><a class="btn btn-gold" href="' . meyar_base() . '">بازگشت به صفحه اصلی</a></div></body></html>';
     exit;
 }
@@ -59,8 +59,8 @@ if ($item['schema_json'] !== '') {
     }
     $schema = json_encode($schemaArr, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
-$categoryMarket = $item['id'] === 'silver999' ? 'silver' : ($item['group'] === 'parsian' ? 'coins' : $item['group']);
-$categoryPath = meyar_market_public_path($categoryMarket);
+$categoryMarket = in_array($item['id'], ['silver999', 'silver_ons'], true) ? 'silver' : ($item['group'] === 'parsian' ? 'coins' : $item['group']);
+$categoryPath = meyar_market_canonical_path($categoryMarket);
 $categoryUrl = meyar_public_url_for($categoryPath);
 $breadcrumb = json_encode([
     '@context' => 'https://schema.org',

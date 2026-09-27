@@ -143,6 +143,18 @@ function meyar_market_public_path(string $market = ''): string {
     return $paths[$market] ?? $paths[''];
 }
 
+/** مسیر canonical بازارها؛ مستقل از مسیرهای مستقیم PHP برای اجرای local */
+function meyar_market_canonical_path(string $market = ''): string {
+    $paths = [
+        ''         => 'prices',
+        'gold'     => 'prices/gold',
+        'coins'    => 'prices/coins',
+        'currency' => 'prices/currency',
+        'silver'   => 'prices/silver',
+    ];
+    return $paths[$market] ?? $paths[''];
+}
+
 /* ---------- settings ---------- */
 
 function meyar_default_settings(): array {

@@ -36,7 +36,7 @@ $marketMeta = [
     'silver'   => ['قیمت نقره امروز | قیمت لحظه‌ای نقره | معیار', 'قیمت لحظه‌ای نقره ۹۹۹.۹ و انس نقره جهانی با اطلاعات تغییرات بازار نقره در سکه معیار.'],
 ];
 $meta = $marketMeta[$requestedMarket] ?? $marketMeta[''];
-meyar_theme_head($meta[0], $meta[1], meyar_public_url_for(meyar_market_public_path($requestedMarket)));
+meyar_theme_head($meta[0], $meta[1], meyar_public_url_for(meyar_market_canonical_path($requestedMarket)));
 meyar_theme_topbar($settings, $ticker);
 ?>
 <main class="container prices-page" id="prices">

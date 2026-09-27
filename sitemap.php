@@ -18,7 +18,9 @@ function meyar_sitemap_loc(string $url): string {
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 echo '  <url><loc>' . meyar_sitemap_loc($base . '/') . "</loc></url>\n";
-echo '  <url><loc>' . meyar_sitemap_loc($base . '/prices.php') . "</loc></url>\n";
+foreach (['', 'gold', 'coins', 'currency', 'silver'] as $market) {
+    echo '  <url><loc>' . meyar_sitemap_loc(meyar_public_url_for(meyar_market_canonical_path($market))) . "</loc></url>\n";
+}
 
 $settings = meyar_load_settings();
 $adj = (array)($settings['adjustments'] ?? []);
