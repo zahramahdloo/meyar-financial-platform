@@ -503,18 +503,18 @@ body {
 @media (max-width: 680px) {
   html,
   body {
-    height: auto;
-    min-height: 100%;
+    height: 100%;
+    min-height: 0;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: hidden;
   }
   .tv-carousel {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
     height: auto;
     min-height: 0;
   }
   .tv-main {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
     height: auto;
     min-height: 0;
     overflow: visible;
@@ -524,21 +524,38 @@ body {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     width: calc(100% - 12px);
-    height: auto;
+    height: 100%;
+    min-height: 0;
     align-content: start;
   }
   .tv-page.active .tv-panel:not(.mobile-visible) { display: none; }
   .tv-page.active .tv-panel.mobile-visible {
     display: flex;
     min-height: 0;
-    max-height: none;
-    overflow: visible;
+    max-height: 100%;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-rows {
     min-height: 0;
-    overflow: visible;
+    overflow-y: auto;
     justify-content: flex-start;
-    flex: 0 0 auto;
+    flex: 1 1 auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 164, 55, .8) rgba(7, 20, 38, .65);
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-rows::-webkit-scrollbar {
+    width: 8px;
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-rows::-webkit-scrollbar-track {
+    background: rgba(7, 20, 38, .65);
+    border-radius: 8px;
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-rows::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #f0cf7a, #a87c1f);
+    border: 2px solid #101f36;
+    border-radius: 8px;
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-rows::-webkit-scrollbar-thumb:hover {
+    background: #f4d77c;
   }
 }
 </style>
