@@ -172,7 +172,7 @@ foreach ($overviewIds as $overviewId) {
         $diffText = $diff == 0 ? '—' : (($diff > 0 ? '+' : '−') . meyar_fmt(abs($diff), $decimals));
         $gradientId = 'overviewGradient_' . $overview['id'];
       ?>
-        <article class="market-overview-card" data-overview-card="<?= meyar_h($overview['id']) ?>" data-overview-name="<?= meyar_h($overview['name']) ?>" data-overview-unit="<?= meyar_h($i['unit']) ?>" data-overview-live="<?= meyar_h($i['live']) ?>" data-overview-live-fmt="<?= meyar_h($i['live_fmt']) ?>" data-overview-change="<?= meyar_h($i['change_pct']) ?>" data-overview-dir="<?= meyar_h($i['dir']) ?>" tabindex="0" role="button" aria-haspopup="dialog" aria-label="نمایش جزئیات <?= meyar_h($overview['name']) ?>">
+        <article class="market-overview-card" data-overview-card="<?= meyar_h($overview['id']) ?>" data-overview-name="<?= meyar_h($overview['name']) ?>" data-overview-unit="<?= meyar_h($i['unit']) ?>" data-overview-live="<?= meyar_h($i['live']) ?>" data-overview-live-fmt="<?= meyar_h($i['live_fmt']) ?>" data-overview-change="<?= meyar_h($i['change_pct']) ?>" data-overview-dir="<?= meyar_h($i['dir']) ?>">
           <header class="market-overview-card-head">
             <span class="market-overview-icon" aria-hidden="true">
               <?php if ($i['group'] === 'currency'): ?>
@@ -184,7 +184,7 @@ foreach ($overviewIds as $overviewId) {
             <div class="market-overview-title">
               <h3><?= meyar_h($overview['name']) ?></h3>
             </div>
-            <span class="market-overview-action" aria-hidden="true">مشاهده نمودار <i class="hgi-stroke hgi-arrow-left-01"></i></span>
+            <span class="market-overview-action">مشاهده نمودار <i class="hgi-stroke hgi-arrow-left-01" aria-hidden="true"></i></span>
           </header>
           <div class="market-overview-price" aria-label="قیمت خرید و فروش">
             <div class="market-overview-quote buy">

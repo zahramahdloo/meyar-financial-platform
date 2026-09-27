@@ -1096,16 +1096,7 @@
           if (event.target.closest('.market-overview-action')) {
             event.preventDefault();
             openOverviewModal(card);
-            return;
           }
-          if (event.target.closest('button, a')) return;
-          openOverviewModal(card);
-        });
-        card.addEventListener('keydown', function (event) {
-          if (event.key !== 'Enter' && event.key !== ' ') return;
-          if (event.target !== card) return;
-          event.preventDefault();
-          openOverviewModal(card);
         });
       });
       overviewModal.querySelectorAll('[data-overview-modal-close]').forEach(function (closeEl) {
