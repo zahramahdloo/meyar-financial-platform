@@ -1,5 +1,4 @@
 <?php
-require __DIR__ . '/cz-guard.php';
 require_once __DIR__ . '/inc/theme.php';
 
 $settings = meyar_load_settings();
@@ -70,7 +69,7 @@ meyar_theme_topbar($settings, $ticker);
             <?php if ($gid === 'currency'): ?>
               <i class="hgi hgi-stroke hgi-rounded hgi-cash-02"></i>
             <?php else: ?>
-              <img class="market-icon-image" src="assets/img/<?= $gid === 'gold' ? 'gold-icon.png' : ($gid === 'silver' ? 'silver.png' : 'emami.png') ?>" alt="">
+              <img class="market-icon-image" src="/assets/img/<?= $gid === 'gold' ? 'gold-icon.png' : ($gid === 'silver' ? 'silver.png' : 'emami.png') ?>" alt="">
             <?php endif; ?>
           </span>
           <h2><?= meyar_h($marketTitles[$gid]) ?></h2>
@@ -81,7 +80,7 @@ meyar_theme_topbar($settings, $ticker);
       </div>
       <div class="market-list" data-collapsible-table role="list">
         <?php foreach ($itemsInGroup as $index => $i): ?>
-        <a class="market-asset<?= $index >= 5 ? ' is-extra' : '' ?>" href="price/<?= meyar_h($i['id']) ?>" data-id="<?= meyar_h($i['id']) ?>" role="listitem">
+        <a class="market-asset<?= $index >= 5 ? ' is-extra' : '' ?>" href="/price/<?= rawurlencode((string)$i['id']) ?>" data-id="<?= meyar_h($i['id']) ?>" role="listitem">
           <span class="market-asset-title">
             <span><?= meyar_h($i['title']) ?></span>
           </span>
