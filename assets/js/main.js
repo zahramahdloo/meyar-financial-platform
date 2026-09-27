@@ -138,7 +138,7 @@
       }, 700);
     }
     marketFilters.forEach(function (filter) {
-      filter.addEventListener('click', function () {
+      filter.addEventListener('click', function (event) {
         var selected = filter.getAttribute('data-market-filter');
         var visibleCards = [];
         marketFilters.forEach(function (item) {
@@ -156,6 +156,11 @@
         });
         masonry();
         animateMarketCards(visibleCards);
+        if (event.isTrusted) {
+          window.setTimeout(function () {
+            mGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 40);
+        }
       });
     });
     var requestedMarket = new URLSearchParams(window.location.search).get('market');
