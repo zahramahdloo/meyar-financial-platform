@@ -1849,7 +1849,13 @@ main#prices.prices-page .market-asset { min-height: 56px; }
   main#prices.prices-page { padding-top: 38px; padding-bottom: 54px; }
   main#prices.prices-page .prices-page-head { margin-bottom: 24px; padding-top: 38px; }
   main#prices.prices-page .prices-back { top: 0; right: 0; }
-  main#prices.prices-page .prices-page-updated { top: 0; left: 0; align-items: flex-end; text-align: right; }
+  main#prices.prices-page .prices-page-updated {
+    position: static;
+    width: max-content;
+    margin: 0 auto 14px;
+    align-items: center;
+    text-align: center;
+  }
   main#prices.prices-page .prices-filter-tabs { width: 100%; justify-content: stretch; gap: 0; margin-bottom: 24px; }
   main#prices.prices-page .prices-filter-tab { min-width: 0; flex: 1; padding: 8px 5px 10px; font-size: 13px; }
 }
