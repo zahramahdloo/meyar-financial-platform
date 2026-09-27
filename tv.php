@@ -523,7 +523,7 @@ body {
   .tv-page.active {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    width: 100%;
+    width: calc(100% - 12px);
     height: auto;
     align-content: start;
   }
