@@ -595,6 +595,15 @@ body {
   .tv-page.active .tv-panel.mobile-visible .tv-rows::-webkit-scrollbar-thumb:hover {
     background: #f4d77c;
   }
+  .tv-nav {
+    width: 30px;
+    height: 30px;
+  }
+  .tv-nav i {
+    font-size: 14px;
+  }
+  .tv-nav--prev { inset-inline-start: 2px; }
+  .tv-nav--next { inset-inline-end: 2px; }
 }
 </style>
 </head>
