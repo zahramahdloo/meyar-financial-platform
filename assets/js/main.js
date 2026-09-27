@@ -123,9 +123,24 @@
       var button = card.querySelector('.table-expand-toggle');
       if (button && button.getAttribute('aria-expanded') !== 'true') button.click();
     }
+    function animateMarketCards(cards) {
+      cards.forEach(function (card, index) {
+        card.classList.remove('market-filter-enter');
+        card.style.animationDelay = (index * 60) + 'ms';
+        void card.offsetWidth;
+        card.classList.add('market-filter-enter');
+      });
+      window.setTimeout(function () {
+        cards.forEach(function (card) {
+          card.classList.remove('market-filter-enter');
+          card.style.animationDelay = '';
+        });
+      }, 700);
+    }
     marketFilters.forEach(function (filter) {
       filter.addEventListener('click', function () {
         var selected = filter.getAttribute('data-market-filter');
+        var visibleCards = [];
         marketFilters.forEach(function (item) {
           var active = item === filter;
           item.classList.toggle('is-active', active);
@@ -134,9 +149,13 @@
         marketCards.forEach(function (card) {
           var visible = selected === 'all' || card.getAttribute('data-market-group') === selected;
           card.classList.toggle('is-filtered-out', !visible);
-          if (visible && selected !== 'all') expandMarketCard(card);
+          if (visible) {
+            visibleCards.push(card);
+            if (selected !== 'all') expandMarketCard(card);
+          }
         });
         masonry();
+        animateMarketCards(visibleCards);
       });
     });
     var requestedMarket = new URLSearchParams(window.location.search).get('market');
