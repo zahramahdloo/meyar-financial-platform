@@ -501,6 +501,24 @@ body {
 
 /* آخرین قانون موبایل: فقط صفحه فعال باید در جریان layout باشد. */
 @media (max-width: 680px) {
+  html,
+  body {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .tv-carousel {
+    flex: 0 0 auto;
+    height: auto;
+    min-height: 0;
+  }
+  .tv-main {
+    flex: 0 0 auto;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
   .tv-page:not(.active) { display: none; }
   .tv-page.active {
     display: grid;
@@ -513,13 +531,14 @@ body {
   .tv-page.active .tv-panel.mobile-visible {
     display: flex;
     min-height: 0;
-    max-height: calc(100vh - 150px);
+    max-height: none;
+    overflow: visible;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-rows {
     min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
+    overflow: visible;
     justify-content: flex-start;
+    flex: 0 0 auto;
   }
 }
 </style>
