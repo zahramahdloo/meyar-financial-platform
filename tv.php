@@ -498,6 +498,12 @@ body {
   height: 1.15em;
   flex-basis: 1.7em;
 }
+
+/* آخرین قانون موبایل: فقط صفحه فعال باید در جریان layout باشد. */
+@media (max-width: 680px) {
+  .tv-page:not(.active) { display: none; }
+  .tv-page.active { display: grid; height: auto; }
+}
 </style>
 </head>
 <body>
