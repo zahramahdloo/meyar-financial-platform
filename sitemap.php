@@ -1,6 +1,6 @@
 <?php
 /** MEYAR — نقشه سایت XML برای گوگل */
-require_once __DIR__ . '/inc/fetcher.php';
+require_once __DIR__ . '/inc/db.php';
 
 header('Content-Type: application/xml; charset=utf-8');
 
@@ -15,16 +15,18 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 echo '  <url><loc>' . meyar_sitemap_loc($base . '/') . "</loc></url>\n";
 try {
-    $data = meyar_build_prices();
+    $settings = meyar_load_settings();
+    $adjustments = (array)($settings['adjustments'] ?? []);
+    $publicItems = array_values(array_filter(meyar_items_full(), function (array $item) use ($adjustments): bool {
+        $itemAdjustments = (array)($adjustments[$item['id']] ?? []);
+        return empty($itemAdjustments['hidden']);
+    }));
 } catch (Throwable $e) {
     error_log('Meyar sitemap error: ' . $e->getMessage());
     http_response_code(503);
     echo '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"/>';
     exit;
 }
-$publicItems = array_values(array_filter($data['items'], function (array $item): bool {
-    return empty($item['hidden']);
-}));
 $availableGroups = [];
 foreach ($publicItems as $item) {
     $availableGroups[$item['group']] = true;
