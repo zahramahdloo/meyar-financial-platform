@@ -90,7 +90,7 @@ function tv_row(array $i): void { ?>
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 button, input, select, textarea { font-family: inherit; }
-html, body { height: 100%; overflow: hidden; }
+html, body { height: 100%; overflow-x: hidden; overflow-y: hidden; }
 body {
   font-family: 'IRANSansXFaNum', sans-serif;
   background:
@@ -102,14 +102,8 @@ body {
 }
 .num, .tv-buy, .tv-sell, .tv-chg { font-variant-numeric: tabular-nums; }
 
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(61, 220, 132, .5); }
-  70% { box-shadow: 0 0 0 1.2vh rgba(61, 220, 132, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(61, 220, 132, 0); }
-}
-
 /* ═══ صفحات ═══ */
-.tv-main { flex: 1; position: relative; overflow: hidden; }
+.tv-main { flex: 1; position: relative; min-width: 0; min-height: 0; overflow: hidden; }
 .tv-page {
   position: absolute; inset: 0; padding: 2vh 2.2vw;
   display: none; gap: 2vw;
@@ -148,12 +142,6 @@ body {
 .tv-row:first-child { border-top: none; }
 .tv-row:nth-child(even) { background: rgba(255, 255, 255, .022); }
 .tv-name { display: flex; align-items: center; gap: .8vw; font-weight: 700; white-space: nowrap; overflow: hidden; }
-.tv-coin {
-  width: 3vh; height: 3vh; border-radius: 50%; flex-shrink: 0;
-  background: radial-gradient(circle at 35% 30%, #ffe9a8, #d4a437 55%, #8a6516);
-  box-shadow: inset 0 0 0 .35vh rgba(138, 101, 22, .5);
-}
-.tv-coin.gold { border-radius: .8vh; }
 .tv-flag { flex-shrink: 0; }
 .tv-buy, .tv-sell { font-weight: 800; text-align: center; white-space: nowrap; }
 .tv-buy { color: #dfe3ee; }
@@ -318,6 +306,8 @@ body {
 .tv-row > .tv-buy {
   border-inline-start: 1px solid rgba(148, 163, 184, .18);
 }
+.tv-panel-head > *,
+.tv-row > * { min-width: 0; }
 .tv-rows { padding: .7vh 0; }
 .tv-row {
   grid-template-columns: minmax(0, 1fr) 16% 23% 23%;
@@ -337,14 +327,14 @@ body {
   .tv-panel-head, .tv-row { grid-template-columns: minmax(0, 1fr) 17% 24% 24%; }
 }
 @media (max-width: 680px) {
-  html, body { overflow: auto; }
+  html, body { overflow-x: hidden; overflow-y: auto; }
   body { min-height: 100vh; }
-  .tv-carousel { padding-inline: 50px; }
-  .tv-main { padding: 1.5vh 0 0; overflow: visible; }
+  .tv-carousel { flex-direction: column; width: 100%; padding-inline: 38px; overflow-x: hidden; }
+  .tv-main { width: 100%; padding: 1.5vh 0 0; overflow: visible; }
   .tv-nav { width: 40px; height: 40px; }
   .tv-nav--prev { inset-inline-start: 5px; }
   .tv-nav--next { inset-inline-end: 5px; }
-  .tv-page, .tv-page.active { display: grid; grid-template-columns: 1fr; width: 100%; height: auto; gap: 1.4vh; align-content: start; }
+  .tv-page, .tv-page.active { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; height: auto; gap: 1.4vh; align-content: start; }
   .tv-page.single-panel { width: 100%; height: auto; align-content: start; }
   .tv-page.single-panel .tv-panel { min-height: 0; }
   .tv-panel-head, .tv-row { grid-template-columns: minmax(0, 1fr) 18% 25% 25%; gap: 1.2vw; }
@@ -488,6 +478,72 @@ body {
   .tv-row > .tv-buy { padding-top: 5px; border-top: 1px solid rgba(148, 163, 184, .12); }
 }
 
+@media (max-width: 680px) {
+  .tv-page.active .tv-panel:not(.mobile-visible) { display: none; }
+  .tv-page.active .tv-panel.mobile-visible { display: flex; }
+  .tv-panel,
+  .tv-panel-head,
+  .tv-rows,
+  .tv-row { width: 100%; max-width: 100%; }
+  .tv-panel-head > *,
+  .tv-row > * { min-width: 0; max-width: 100%; }
+  .tv-row > .tv-chg,
+  .tv-row > .tv-sell,
+  .tv-row > .tv-buy {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tv-row > .tv-sell,
+  .tv-row > .tv-buy { font-size: clamp(12px, 3.6vw, 16px); }
+
+  /* در موبایل هم ساختار جدول مثل لپ‌تاپ چهارستونه و افقی می‌ماند. */
+  .tv-panel-head {
+    grid-template-columns: minmax(0, 1fr) 18% 25% 25%;
+    grid-template-areas: none;
+    row-gap: 0;
+  }
+  .tv-panel-head h2,
+  .tv-panel-head > .tv-col-label,
+  .tv-panel-head > .tv-col-label:nth-child(2),
+  .tv-panel-head > .tv-col-label:nth-child(3),
+  .tv-panel-head > .tv-col-label:nth-child(4),
+  .tv-row > .tv-name,
+  .tv-row > .tv-chg,
+  .tv-row > .tv-sell,
+  .tv-row > .tv-buy { grid-area: auto !important; }
+  .tv-row {
+    grid-template-columns: minmax(0, 1fr) 18% 25% 25%;
+    grid-template-areas: none;
+    gap: .7vw;
+    padding-block: 10px;
+  }
+  .tv-row > .tv-chg { justify-self: auto; }
+  .tv-row > .tv-chg,
+  .tv-row > .tv-sell,
+  .tv-row > .tv-buy {
+    padding-top: 0;
+    border-top: 0;
+    border-inline-start: 1px solid rgba(148, 163, 184, .18);
+  }
+}
+
+/* در عرض‌های موبایل و تبلت کوچک، هر پنل یک اسلاید مستقل است. */
+@media (max-width: 900px) {
+  .tv-carousel { width: 100%; min-width: 0; }
+  .tv-main { width: 100%; min-width: 0; overflow: visible; }
+  .tv-page,
+  .tv-page.active,
+  .tv-page.single-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    height: auto;
+    align-content: start;
+  }
+  .tv-page.active .tv-panel:not(.mobile-visible) { display: none; }
+  .tv-page.active .tv-panel.mobile-visible { display: flex; }
+}
+
 /* آیکون نقره افقی است؛ ارتفاع آن با عنوان و عرض آن با نسبت تصویر تنظیم می‌شود */
 .tv-page .tv-panel-head h2.tv-panel-title--parsian {
   font-size: .82em;
@@ -554,23 +610,44 @@ body {
 (function () {
   'use strict';
 
-  /* جابه‌جایی دستی صفحات */
+  /* جابه‌جایی دستی صفحات؛ در موبایل هر پنل یک اسلاید مستقل است. */
   var pages = document.querySelectorAll('.tv-page');
+  var panels = document.querySelectorAll('.tv-panel');
   var prevButton = document.getElementById('tvPrev');
   var nextButton = document.getElementById('tvNext');
   var idx = 0;
+  var mobileQuery = window.matchMedia('(max-width: 900px)');
   function renderPage(nextIndex) {
-    if (pages.length < 2) return;
-    idx = (nextIndex + pages.length) % pages.length;
-    pages.forEach(function (page, pageIndex) { page.classList.toggle('active', pageIndex === idx); });
+    var mobile = mobileQuery.matches;
+    var total = mobile ? panels.length : pages.length;
+    if (!total) return;
+    idx = (nextIndex + total) % total;
+
+    if (mobile) {
+      panels.forEach(function (panel, panelIndex) {
+        panel.classList.toggle('mobile-visible', panelIndex === idx);
+      });
+      pages.forEach(function (page) {
+        page.classList.toggle('active', page.contains(panels[idx]));
+      });
+    } else {
+      pages.forEach(function (page, pageIndex) { page.classList.toggle('active', pageIndex === idx); });
+      panels.forEach(function (panel) { panel.classList.remove('mobile-visible'); });
+    }
   }
-  if (pages.length > 1) {
-    if (prevButton) prevButton.addEventListener('click', function () { renderPage(idx - 1); });
-    if (nextButton) nextButton.addEventListener('click', function () { renderPage(idx + 1); });
-  } else {
-    if (prevButton) prevButton.disabled = true;
-    if (nextButton) nextButton.disabled = true;
+  if (prevButton) prevButton.addEventListener('click', function () { renderPage(idx - 1); });
+  if (nextButton) nextButton.addEventListener('click', function () { renderPage(idx + 1); });
+  function updateNavigationMode() {
+    idx = 0;
+    renderPage(0);
+    var total = mobileQuery.matches ? panels.length : pages.length;
+    var disabled = total < 2;
+    if (prevButton) prevButton.disabled = disabled;
+    if (nextButton) nextButton.disabled = disabled;
   }
+  updateNavigationMode();
+  if (mobileQuery.addEventListener) mobileQuery.addEventListener('change', updateNavigationMode);
+  else if (mobileQuery.addListener) mobileQuery.addListener(updateNavigationMode);
 
   /* بروزرسانی زنده قیمت‌ها */
   function updateCell(cell, val) {

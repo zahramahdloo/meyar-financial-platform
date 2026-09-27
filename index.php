@@ -16,8 +16,6 @@ $ticker = array_values(array_filter($items, function ($i) use ($tickerIds) {
   return in_array($i['id'], $tickerIds, true);
 }));
 
-$heroImg  = is_file(__DIR__ . '/assets/img/hero.png') ? 'assets/img/hero.png' : '';
-$aboutImg = is_file(__DIR__ . '/assets/img/about.png') ? 'assets/img/about.png' : '';
 $aboutBanner = is_file(__DIR__ . '/assets/img/about-meyar-banner.png') ? 'assets/img/about-meyar-banner.png' : '';
 
 $homeUrl = meyar_public_url_for('');
