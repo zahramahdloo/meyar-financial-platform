@@ -42,12 +42,12 @@ meyar_theme_topbar($settings, $ticker);
 <main class="container prices-page" id="prices">
   <header class="prices-page-head">
     <a class="prices-back" href="./">بازگشت به صفحه اصلی <i class="hgi-stroke hgi-arrow-right-01" aria-hidden="true"></i></a>
+    <h1>قیمت‌های لحظه‌ای بازار</h1>
+    <p>مرجع کامل قیمت طلا، سکه، ارز و نقره با به‌روزرسانی آنلاین</p>
     <div class="prices-page-updated" aria-label="آخرین به‌روزرسانی">
       <span>آخرین به‌روزرسانی</span>
       <strong><?= meyar_h($data['updated_date'] ?? '—') ?> <b aria-hidden="true">—</b> <?= meyar_h($data['updated'] ?? '—') ?></strong>
     </div>
-    <h1>قیمت‌های لحظه‌ای بازار</h1>
-    <p>مرجع کامل قیمت طلا، سکه، ارز و نقره با به‌روزرسانی آنلاین</p>
   </header>
   <nav class="prices-filter-tabs" aria-label="فیلتر بازار" role="tablist">
     <button type="button" class="prices-filter-tab<?= $requestedMarket === '' ? ' is-active' : '' ?>" data-market-filter="all" role="tab" aria-selected="<?= $requestedMarket === '' ? 'true' : 'false' ?>">همه</button>
