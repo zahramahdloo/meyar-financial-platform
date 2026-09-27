@@ -129,11 +129,12 @@ function meyar_public_url_for(string $path = ''): string {
 
 function meyar_market_public_paths(): array {
     return [
-        ''         => 'prices/',
-        'gold'     => 'prices/gold/',
-        'coins'    => 'prices/coin/',
-        'currency' => 'prices/currency/',
-        'silver'   => 'prices/silver/',
+        // مسیر مستقیم برای اجرای PHP built-in و هاست‌هایی که rewrite ندارند.
+        ''         => 'prices.php',
+        'gold'     => 'prices.php?market=gold',
+        'coins'    => 'prices.php?market=coins',
+        'currency' => 'prices.php?market=currency',
+        'silver'   => 'prices.php?market=silver',
     ];
 }
 
