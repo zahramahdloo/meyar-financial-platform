@@ -12,7 +12,7 @@ $data     = meyar_build_prices();
 $items    = array_values(array_filter($data['items'], function ($i) { return empty($i['hidden']); }));
 $byGroup  = ['coins'=>[], 'parsian'=>[], 'gold'=>[], 'silver'=>[], 'currency'=>[]];
 foreach ($items as $i) {
-    if ($i['id'] === 'silver999') {
+    if (in_array($i['id'], ['silver999', 'silver_ons'], true)) {
         $byGroup['silver'][] = $i;
     } elseif (isset($byGroup[$i['group']])) {
         $byGroup[$i['group']][] = $i;
@@ -51,7 +51,7 @@ if ($byGroup['silver']) {
     ];
 }
 
-$tickerIds = ['sekee','sekeb','nim','rob','gerami','geram18','silver999','usd','eur','ons'];
+$tickerIds = ['sekee','sekeb','nim','rob','gerami','geram18','silver999','silver_ons','usd','eur','ons'];
 $ticker = array_values(array_filter($items, function ($i) use ($tickerIds) { return in_array($i['id'], $tickerIds, true); }));
 
 function tv_row(array $i): void { ?>
