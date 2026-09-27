@@ -502,7 +502,15 @@ body {
 /* آخرین قانون موبایل: فقط صفحه فعال باید در جریان layout باشد. */
 @media (max-width: 680px) {
   .tv-page:not(.active) { display: none; }
-  .tv-page.active { display: grid; height: auto; }
+  .tv-page.active {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    height: auto;
+    align-content: start;
+  }
+  .tv-page.active .tv-panel:not(.mobile-visible) { display: none; }
+  .tv-page.active .tv-panel.mobile-visible { display: flex; }
 }
 </style>
 </head>
@@ -563,21 +571,41 @@ body {
 
   /* جابه‌جایی دستی صفحات */
   var pages = document.querySelectorAll('.tv-page');
+  var panels = document.querySelectorAll('.tv-panel');
   var prevButton = document.getElementById('tvPrev');
   var nextButton = document.getElementById('tvNext');
   var idx = 0;
+  var mobileQuery = window.matchMedia('(max-width: 680px)');
   function renderPage(nextIndex) {
-    if (pages.length < 2) return;
-    idx = (nextIndex + pages.length) % pages.length;
-    pages.forEach(function (page, pageIndex) { page.classList.toggle('active', pageIndex === idx); });
+    var mobile = mobileQuery.matches;
+    var total = mobile ? panels.length : pages.length;
+    if (!total) return;
+    idx = (nextIndex + total) % total;
+    if (mobile) {
+      panels.forEach(function (panel, panelIndex) {
+        panel.classList.toggle('mobile-visible', panelIndex === idx);
+      });
+      pages.forEach(function (page) {
+        page.classList.toggle('active', page.contains(panels[idx]));
+      });
+    } else {
+      pages.forEach(function (page, pageIndex) { page.classList.toggle('active', pageIndex === idx); });
+      panels.forEach(function (panel) { panel.classList.remove('mobile-visible'); });
+    }
   }
-  if (pages.length > 1) {
-    if (prevButton) prevButton.addEventListener('click', function () { renderPage(idx - 1); });
-    if (nextButton) nextButton.addEventListener('click', function () { renderPage(idx + 1); });
-  } else {
-    if (prevButton) prevButton.disabled = true;
-    if (nextButton) nextButton.disabled = true;
+  if (prevButton) prevButton.addEventListener('click', function () { renderPage(idx - 1); });
+  if (nextButton) nextButton.addEventListener('click', function () { renderPage(idx + 1); });
+  function updateNavigationMode() {
+    idx = 0;
+    renderPage(0);
+    var total = mobileQuery.matches ? panels.length : pages.length;
+    var disabled = total < 2;
+    if (prevButton) prevButton.disabled = disabled;
+    if (nextButton) nextButton.disabled = disabled;
   }
+  updateNavigationMode();
+  if (mobileQuery.addEventListener) mobileQuery.addEventListener('change', updateNavigationMode);
+  else if (mobileQuery.addListener) mobileQuery.addListener(updateNavigationMode);
 
   /* بروزرسانی زنده قیمت‌ها */
   function updateCell(cell, val) {
