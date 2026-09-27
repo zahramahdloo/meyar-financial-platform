@@ -510,7 +510,17 @@ body {
     align-content: start;
   }
   .tv-page.active .tv-panel:not(.mobile-visible) { display: none; }
-  .tv-page.active .tv-panel.mobile-visible { display: flex; }
+  .tv-page.active .tv-panel.mobile-visible {
+    display: flex;
+    min-height: 0;
+    max-height: calc(100vh - 150px);
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-rows {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    justify-content: flex-start;
+  }
 }
 </style>
 </head>
