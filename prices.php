@@ -36,7 +36,25 @@ $marketMeta = [
     'silver'   => ['قیمت نقره امروز | قیمت لحظه‌ای نقره | معیار', 'قیمت لحظه‌ای نقره ۹۹۹.۹ و انس نقره جهانی با اطلاعات تغییرات بازار نقره در سکه معیار.'],
 ];
 $meta = $marketMeta[$requestedMarket] ?? $marketMeta[''];
-meyar_theme_head($meta[0], $meta[1], meyar_public_url_for(meyar_market_canonical_path($requestedMarket)));
+$canonical = meyar_public_url_for(meyar_market_canonical_path($requestedMarket));
+$collectionSchema = [
+    '@context' => 'https://schema.org',
+    '@type' => 'CollectionPage',
+    'name' => $meta[0],
+    'description' => $meta[1],
+    'url' => $canonical,
+    'inLanguage' => 'fa-IR',
+];
+$breadcrumbItems = [
+    ['@type' => 'ListItem', 'position' => 1, 'name' => 'صفحه اصلی', 'item' => meyar_public_url_for('')],
+    ['@type' => 'ListItem', 'position' => 2, 'name' => $meta[0], 'item' => $canonical],
+];
+$breadcrumbSchema = [
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => $breadcrumbItems,
+];
+meyar_theme_head($meta[0], $meta[1], $canonical, meyar_jsonld($collectionSchema) . meyar_jsonld($breadcrumbSchema));
 meyar_theme_topbar($settings, $ticker);
 ?>
 <main class="container prices-page" id="prices">

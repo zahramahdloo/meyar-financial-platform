@@ -3,6 +3,11 @@
 
 require_once __DIR__ . '/fetcher.php';
 
+function meyar_jsonld(array $schema): string {
+    $json = json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    return $json === false ? '' : '<script type="application/ld+json">' . $json . '</script>';
+}
+
 function meyar_theme_head(string $title, string $desc = '', string $canonical = '', string $extraHead = ''): void {
 ?><!DOCTYPE html>
 <html lang="fa" dir="rtl">

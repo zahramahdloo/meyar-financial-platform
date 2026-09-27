@@ -20,21 +20,31 @@ $aboutImg = is_file(__DIR__ . '/assets/img/about.png') ? 'assets/img/about.png' 
 $aboutBanner = is_file(__DIR__ . '/assets/img/about-meyar-banner.png') ? 'assets/img/about-meyar-banner.png' : '';
 
 $homeUrl = meyar_public_url_for('');
-$orgSchema = json_encode([
+$orgSchema = [
   '@context' => 'https://schema.org',
+  '@id'      => $homeUrl . '#business',
   '@type'    => 'JewelryStore',
   'name'     => 'سکه و جواهر معیار',
   'url'      => $homeUrl,
-  'telephone' => $settings['site_phone'],
+  'telephone' => '+989123456608',
   'email'    => $settings['site_email'],
   'address'  => ['@type' => 'PostalAddress', 'streetAddress' => 'تهران، بازار بزرگ، پاساژ طلا و جواهر خادم، طبقه همکف، واحد ۴'],
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+];
+$websiteSchema = [
+  '@context' => 'https://schema.org',
+  '@type'    => 'WebSite',
+  '@id'      => $homeUrl . '#website',
+  'url'      => $homeUrl,
+  'name'     => 'سکه و جواهر معیار',
+  'inLanguage' => 'fa-IR',
+  'publisher' => ['@id' => $homeUrl . '#business'],
+];
 
 meyar_theme_head(
   'سکه و جواهر معیار | قیمت لحظه‌ای سکه، طلا، نقره و ارز',
   'بورس سکه معیار — قیمت لحظه‌ای سکه امامی، بهار آزادی، نیم سکه، ربع سکه، طلای ۱۸ عیار، نقره و ارز با نمودار تاریخچه شمسی. خرید و فروش سکه در بازار بزرگ تهران.',
   $homeUrl,
-  '<script type="application/ld+json">' . $orgSchema . '</script>'
+  meyar_jsonld($orgSchema) . meyar_jsonld($websiteSchema)
 );
 meyar_theme_topbar($settings, $ticker);
 ?>

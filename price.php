@@ -35,34 +35,19 @@ if ($item['seo_desc'] !== '') {
     $desc .= ' در سکه و جواهر معیار.';
 }
 
-// ---- اسکیمای گوگل ----
-if ($item['schema_json'] !== '') {
-    $schema = $item['schema_json']; // اسکیمای سفارشی ادمین
-} else {
-    $schemaArr = [
-        '@context'    => 'https://schema.org',
-        '@type'       => 'Product',
-        'name'        => $item['title'],
-        'description' => $desc,
-        'url'         => $canonical,
-        'brand'       => ['@type' => 'Organization', 'name' => 'سکه و جواهر معیار'],
-    ];
-    if ($cur) {
-        $isUsdSchemaPrice = $cur['unit'] === 'دلار';
-        $schemaArr['offers'] = [
-            '@type'         => 'Offer',
-            'price'         => round($cur['sell'] * ($isUsdSchemaPrice ? 1 : 10)),
-            'priceCurrency' => $isUsdSchemaPrice ? 'USD' : 'IRR',
-            'availability'  => 'https://schema.org/InStock',
-            'url'           => $canonical,
-        ];
-    }
-    $schema = json_encode($schemaArr, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-}
+// ---- اسکیمای صفحهٔ اطلاعات قیمت (بدون Product/Offer برای قیمت بازار) ----
+$pageSchema = [
+    '@context' => 'https://schema.org',
+    '@type' => 'WebPage',
+    'name' => $title,
+    'description' => $desc,
+    'url' => $canonical,
+    'inLanguage' => 'fa-IR',
+];
 $categoryMarket = in_array($item['id'], ['silver999', 'silver_ons'], true) ? 'silver' : ($item['group'] === 'parsian' ? 'coins' : $item['group']);
 $categoryPath = meyar_market_canonical_path($categoryMarket);
 $categoryUrl = meyar_public_url_for($categoryPath);
-$breadcrumb = json_encode([
+$breadcrumbSchema = [
     '@context' => 'https://schema.org',
     '@type' => 'BreadcrumbList',
     'itemListElement' => [
@@ -70,10 +55,10 @@ $breadcrumb = json_encode([
         ['@type'=>'ListItem','position'=>2,'name'=>$groups[$item['group']] ?? 'قیمت‌ها','item'=>$categoryUrl],
         ['@type'=>'ListItem','position'=>3,'name'=>$item['title'],'item'=>$canonical],
     ],
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+];
 
-$extraHead = '<script type="application/ld+json">' . $schema . '</script>'
-           . '<script type="application/ld+json">' . $breadcrumb . '</script>';
+$extraHead = meyar_jsonld($pageSchema)
+           . meyar_jsonld($breadcrumbSchema);
 
 meyar_theme_head($title, $desc, $canonical, $extraHead);
 
