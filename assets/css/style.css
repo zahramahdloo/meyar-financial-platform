@@ -1155,8 +1155,6 @@ main#prices {
 .market-insight-trend.down { color: #fca5a5; background: rgba(220,38,38,.15); }
 .market-insight-trend.flat { color: #cbd5e1; background: rgba(148,163,184,.14); }
 .market-insight-head > div:first-child p { margin-top: 3px; color: #94a3b8; font-size: 10px; line-height: 1.7; }
-.market-insight-date { display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; padding: 5px 8px; border: 1px solid rgba(148,163,184,.16); border-radius: 8px; color: #cbd5e1; background: rgba(15,23,42,.42); font-size: 9px; white-space: nowrap; }
-.market-insight-date i { color: #d4af37; font-size: 13px; }
 .market-insight-body { display: flex; flex-direction: column; gap: 8px; direction: ltr; padding: 8px 0 6px; }
 .market-asset-summary { width: 100%; min-width: 0; direction: rtl; }
 .market-insight-chart-wide { width: 100%; min-width: 0; direction: ltr; }
@@ -1215,11 +1213,6 @@ main#prices {
 .hero-static .market-insight-heading { align-items: center; gap: 12px; }
 .hero-static .market-insight-title-row h2 { font-size: clamp(19px, 2.2vw, 19px); line-height: 1.4; }
 .hero-static .market-insight-ai { padding: 4px 8px; font-size: 12px; }
-.hero-static .market-insight-date { gap: 8px; padding: 7px 10px; }
-.hero-static .market-insight-date > span { display: flex; flex-direction: column; gap: 2px; }
-.hero-static .market-insight-date b { color: #cbd5e1; font-size: 12px; line-height: 1.3; }
-.hero-static .market-insight-date small { color: #8491a7; font-size: 9px; line-height: 1.3; }
-.hero-static .market-insight-date i { font-size: 18px; }
 .hero-static .market-insight-teaser-body { display: flex; flex-direction: column; gap: 18px; direction: rtl; padding: 22px 0 4px; }
 .hero-static .market-insight-teaser-body .market-insight-list { width: 100%; min-width: 0; padding: 0 4px; }
 .hero-static .market-insight-teaser-body .market-insight-list h3 { margin: 0 0 10px; }
@@ -1235,7 +1228,6 @@ main#prices {
   .hero-static .market-insight-heading { min-width: 0; flex: 1 1 220px; }
   .hero-static .market-insight-title-row { min-width: 0; }
   .hero-static .market-insight-title-row h2 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .hero-static .market-insight-date { margin-inline-start: auto; }
   .hero-static .market-insight-teaser-body .market-insight-list ul { grid-template-columns: 1fr; }
   .hero-static .market-insight-teaser-actions { align-items: stretch; flex-direction: column; gap: 10px; }
   .hero-static .market-insight-teaser-more { align-self: center; }
@@ -1301,7 +1293,6 @@ main#prices {
   .market-insight-chart, .marketChart { height: 240px; min-height: 240px; }
   .market-insight-list { padding: 0 2px 4px; }
   .market-insight-list ul { grid-template-columns: 1fr; }
-  .market-insight-date { font-size: 8px; }
   .market-insight-asset-title-row { gap: 6px; }
   .market-insight-asset strong { font-size: 11px; }
 }

@@ -124,7 +124,6 @@ foreach ($overviewIds as $overviewId) {
             <div class="market-insight-title-row"><h2>تحلیل هوشمند بازار</h2><span class="market-insight-ai">AI</span><span class="market-insight-trend flat" data-insight-trend>خنثی</span></div>
           </div>
         </div>
-        <span class="market-insight-date"><i class="hgi hgi-stroke hgi-rounded hgi-calendar-03" aria-hidden="true"></i><span><b><?= meyar_h($data['updated_date'] ?? 'امروز') ?></b><small>آخرین به‌روزرسانی</small></span></span>
       </header>
       <div class="market-insight-body market-insight-teaser-body">
         <section class="market-insight-list" aria-labelledby="marketInsightPoints">
