@@ -536,10 +536,11 @@ body {
     width: 100%;
     min-height: 0;
     max-height: 100%;
+    transform: translateY(-10px);
   }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head,
   .tv-page.active .tv-panel.mobile-visible .tv-row {
-    grid-template-columns: minmax(0, 1.45fr) repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, .8fr) repeat(3, minmax(0, 1fr));
     grid-template-areas: none;
     gap: 4px;
   }
@@ -557,24 +558,30 @@ body {
     padding: 7px 9px;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head h2 {
-    font-size: clamp(14px, 3.8vw, 17px);
+    font-size: clamp(12px, 3.2vw, 15px);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-col-label {
     font-size: clamp(10px, 2.8vw, 12px);
   }
   .tv-page.active .tv-panel.mobile-visible .tv-name {
-    font-size: clamp(11px, 3vw, 14px);
+    font-size: clamp(10px, 2.7vw, 13px);
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-buy,
-  .tv-page.active .tv-panel.mobile-visible .tv-sell {
-    font-size: clamp(10px, 2.8vw, 13px);
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .tv-page.active .tv-panel.mobile-visible .tv-sell,
+  .tv-page.active .tv-panel.mobile-visible .tv-chg {
+    font-size: clamp(8px, 2.25vw, 11px);
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-chg {
-    font-size: clamp(9px, 2.4vw, 11px);
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: clamp(8px, 2.1vw, 10px);
   }
   .tv-page.active .tv-panel.mobile-visible .tv-rows {
     min-height: 0;
