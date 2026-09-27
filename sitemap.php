@@ -11,9 +11,6 @@ function meyar_sitemap_loc(string $url): string {
     return htmlspecialchars($url, ENT_XML1 | ENT_QUOTES, 'UTF-8');
 }
 
-echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-echo '  <url><loc>' . meyar_sitemap_loc($base . '/') . "</loc></url>\n";
 try {
     $settings = meyar_load_settings();
     $adjustments = (array)($settings['adjustments'] ?? []);
@@ -27,6 +24,10 @@ try {
     echo '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"/>';
     exit;
 }
+
+echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+echo '  <url><loc>' . meyar_sitemap_loc($base . '/') . "</loc></url>\n";
 $availableGroups = [];
 foreach ($publicItems as $item) {
     $availableGroups[$item['group']] = true;
