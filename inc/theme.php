@@ -252,7 +252,7 @@ function meyar_theme_footer(array $settings): void {
 </div>
 
 <script>window.MEYAR_BASE = '<?= $base ?>'; window.MEYAR_MARKET_PATHS = <?= json_encode(meyar_market_public_paths(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;</script>
-<script src="<?= $base ?>assets/js/main.js?v=13"></script>
+<script src="<?= $base ?>assets/js/main.js?v=14"></script>
 <script src="<?= $base ?>assets/js/chat.js?v=5"></script>
 <script src="<?= $base ?>assets/js/ai.js?v=5"></script>
 </body>

@@ -1091,12 +1091,11 @@
         });
       }
 
-      document.querySelectorAll('[data-overview-card]').forEach(function (card) {
-        card.addEventListener('click', function (event) {
-          if (event.target.closest('.market-overview-action')) {
-            event.preventDefault();
-            openOverviewModal(card);
-          }
+      document.querySelectorAll('[data-overview-card] .market-overview-action').forEach(function (action) {
+        action.addEventListener('click', function (event) {
+          event.preventDefault();
+          var card = action.closest('[data-overview-card]');
+          if (card) openOverviewModal(card);
         });
       });
       overviewModal.querySelectorAll('[data-overview-modal-close]').forEach(function (closeEl) {
