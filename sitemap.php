@@ -6,11 +6,6 @@ header('Content-Type: application/xml; charset=utf-8');
 
 $base = meyar_public_url();
 if ($base === '') $base = 'https://sekemeyar.com';
-if ($base === '') {
-    http_response_code(503);
-    echo '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"/>';
-    exit;
-}
 
 function meyar_sitemap_loc(string $url): string {
     return htmlspecialchars($url, ENT_XML1 | ENT_QUOTES, 'UTF-8');
@@ -19,7 +14,14 @@ function meyar_sitemap_loc(string $url): string {
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 echo '  <url><loc>' . meyar_sitemap_loc($base . '/') . "</loc></url>\n";
-$data = meyar_build_prices();
+try {
+    $data = meyar_build_prices();
+} catch (Throwable $e) {
+    error_log('Meyar sitemap error: ' . $e->getMessage());
+    http_response_code(503);
+    echo '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"/>';
+    exit;
+}
 $publicItems = array_values(array_filter($data['items'], function (array $item): bool {
     return empty($item['hidden']);
 }));
