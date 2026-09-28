@@ -54,6 +54,7 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
         || strpos($requestPath, '/prices/') !== false
         || basename($requestPath) === 'prices.php';
     $isTvPage = strpos($requestPath, '/tv') !== false;
+    $isGalleryPage = basename(rtrim($requestPath, '/')) === 'gallery.php' || preg_match('#/gallery/?$#', $requestPath);
 ?>
 <!-- ═══ نوار بازار و تیکر قیمت ═══ -->
 <div class="ticker-bar" id="tickerBar">
@@ -87,7 +88,7 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
     </a>
     <button class="nav-toggle" id="navToggle" type="button" aria-label="باز کردن منو" aria-controls="mainNav" aria-expanded="false"><i class="hgi-stroke hgi-menu-01" aria-hidden="true"></i></button>
     <nav class="main-nav" id="mainNav" aria-label="منوی اصلی">
-      <a href="<?= $base ?>" class="<?= !$isPricePage && !$isTvPage ? 'active' : '' ?>">صفحه اصلی</a>
+      <a href="<?= $base ?>" class="<?= !$isPricePage && !$isTvPage && !$isGalleryPage ? 'active' : '' ?>">صفحه اصلی</a>
       <div class="nav-dropdown">
         <button type="button" class="nav-dropdown-toggle <?= $isPricePage ? 'active' : '' ?>" aria-expanded="false">قیمت‌ها <i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i></button>
         <div class="nav-dropdown-menu">
@@ -100,6 +101,7 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
         </div>
       </div>
       <a href="<?= $base ?>tv.php">نمایشگر فروشگاه (TV)</a>
+      <a href="<?= $base ?>gallery.php" class="<?= $isGalleryPage ? 'active' : '' ?>">گالری</a>
       <!--
       <div class="nav-dropdown">
         <button type="button" class="nav-dropdown-toggle" aria-expanded="false">خدمات <i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i></button>

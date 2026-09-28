@@ -1142,30 +1142,39 @@
       return dir === 'high' ? 'افزایش' : (dir === 'low' ? 'کاهش' : 'ثبات');
     }
     function renderLiveMarketInsights() {
-      var items = Object.keys(liveItemsById).map(function (id) { return liveItemsById[id]; })
-        .filter(function (item) { return item && !item.hidden && item.title; })
-        .sort(function (a, b) {
-          return Math.abs(normalizeNumeric(b.change_pct)) - Math.abs(normalizeNumeric(a.change_pct));
-        })
-        .slice(0, 4);
+      var importantMarkets = [
+        { id: 'usd', label: 'دلار' },
+        { id: 'geram18', label: 'طلا' },
+        { id: 'sekee', label: 'سکه' },
+        { id: 'silver999', label: 'نقره' }
+      ];
+      var items = importantMarkets.map(function (market) {
+        var item = liveItemsById[market.id];
+        return item ? { item: item, label: market.label } : null;
+      }).filter(function (entry) {
+        return entry && entry.item && !entry.item.hidden && entry.item.title;
+      });
       if (!items.length) return false;
 
-      var strongest = items[0];
-      var strongestTrend = strongest.dir === 'high' ? 'up' : (strongest.dir === 'low' ? 'down' : 'flat');
-      insightTrend.textContent = insightDirectionLabel(strongest.dir);
+      var upCount = items.filter(function (entry) { return entry.item.dir === 'high'; }).length;
+      var downCount = items.filter(function (entry) { return entry.item.dir === 'low'; }).length;
+      var strongestTrend = upCount > downCount ? 'up' : (downCount > upCount ? 'down' : 'flat');
+      insightTrend.textContent = strongestTrend === 'up' ? 'صعودی' : (strongestTrend === 'down' ? 'نزولی' : 'خنثی');
       insightTrend.className = strongestTrend;
       insightList.textContent = '';
-      items.forEach(function (item) {
+      items.forEach(function (entry) {
+        var item = entry.item;
         var trend = item.dir === 'high' ? 'up' : (item.dir === 'low' ? 'down' : 'flat');
-        var topic = 'وضعیت روز ' + item.title + '؛ ' + insightDirectionText(item.dir) + ' ' + (item.change_pct || '۰') + ' درصدی قیمت';
+        var status = item.dir === 'high' ? 'افزایش' : (item.dir === 'low' ? 'کاهش' : 'بدون تغییر');
+        var topic = 'وضعیت روز ' + entry.label + '؛ ' + status + ' ' + (item.change_pct || '۰') + ' درصدی قیمت';
         var li = document.createElement('li');
         var link = document.createElement('a');
         link.className = 'market-insight-link';
         link.href = '#ai-analysis';
         link.setAttribute('data-ai-topic', topic);
         link.setAttribute('data-ai-trend', trend);
-        link.setAttribute('aria-label', 'تحلیل امروز ' + item.title);
-        link.textContent = item.title + ': ' + insightDirectionText(item.dir) + ' ' + (item.change_pct || '۰') + '٪';
+        link.setAttribute('aria-label', 'تحلیل امروز ' + entry.label);
+        link.textContent = entry.label + ': ' + status + (item.change_pct ? ' ' + item.change_pct + '٪' : '');
         li.appendChild(link);
         insightList.appendChild(li);
       });
@@ -1174,7 +1183,7 @@
       var summaryLink = document.querySelector('.market-insight-teaser-more');
       if (summaryLink) {
         var summaryTopic = items.map(function (item) {
-          return item.title + ' با روند ' + insightDirectionLabel(item.dir) + ' و تغییر ' + (item.change_pct || '۰') + '٪';
+          return item.label + ' با روند ' + insightDirectionLabel(item.item.dir) + ' و تغییر ' + (item.item.change_pct || '۰') + '٪';
         }).join('، ');
         summaryLink.setAttribute('data-ai-topic', ('جمع‌بندی بازار امروز بر اساس داده‌های لحظه‌ای: ' + summaryTopic).slice(0, 175));
         summaryLink.setAttribute('data-ai-trend', strongestTrend);

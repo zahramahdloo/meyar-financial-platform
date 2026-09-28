@@ -8,6 +8,11 @@ Financial market platform for tracking gold, currency and market data.
 - Market history API
 - Admin dashboard
 - AI chat assistant
+- Rule-based market analysis from the site's current dollar, gold, coin and silver data
+
+## تحلیل هوشمند بازار
+
+تحلیل بازار بدون سرویس خارجی و بدون کلید API تولید می‌شود. مرورگر فقط endpoint داخلی `api/market-insight-detail.php` را فراخوانی می‌کند؛ endpoint قیمت و تاریخچه‌ی موجود چهار بازار دلار، طلای ۱۸ عیار، سکه امامی و نقره ۹۹۹.۹ را با قواعد شفاف بررسی می‌کند، داده‌ی stale یا ناقص را اعلام می‌کند و پاسخ را تا ۵ دقیقه cache می‌کند. متن خروجی فقط plain text است و در frontend با `textContent` نمایش داده می‌شود.
 
 ## اتصال ایمیلی چت
 

@@ -3,6 +3,7 @@ data/*.sqlite
 
 # Cache
 data/cache.json
+data/market_rule_detail_*.json
 data/.api-rate/
 
 # History files
