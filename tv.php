@@ -155,10 +155,10 @@ body {
 }
 .tv-coin.gold { border-radius: .8vh; }
 .tv-flag { flex-shrink: 0; }
-.tv-buy, .tv-sell { font-weight: 800; text-align: center; white-space: nowrap; }
+.tv-buy, .tv-sell { min-width: 0; overflow: hidden; font-weight: 800; text-align: center; white-space: nowrap; }
 .tv-buy { color: #dfe3ee; }
 .tv-sell { color: var(--gold-light); }
-.tv-chg { font-weight: 700; text-align: center; white-space: nowrap; }
+.tv-chg { min-width: 0; overflow: hidden; font-weight: 700; text-align: center; white-space: nowrap; }
 .tv-chg.up { color: var(--green); }
 .tv-chg.down { color: var(--red); }
 .tv-chg.flat { color: var(--soft); }
@@ -439,16 +439,43 @@ body {
   .tv-tk-chg { font-size: clamp(11px, .6vw, 14px); }
 }
 
-@media (min-width: 681px) and (max-width: 900px) {
-  .tv-page .tv-panel-head h2 { font-size: clamp(17px, 2.2vw, 21px); }
+@media (min-width: 681px) and (max-width: 911px) {
+  .tv-panel-head, .tv-row { grid-template-columns: minmax(0, 1fr) 11% 32% 32%; gap: .3vw; }
+  .tv-panel-head { padding-inline: 1.5vw; }
+  .tv-row { padding-inline: 1.5vw; }
+  .tv-page .tv-panel-head h2 { font-size: clamp(14px, 1.7vw, 17px); }
   .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(23px, 3.1vw, 28px); height: clamp(23px, 3.1vw, 28px); flex-basis: clamp(23px, 3.1vw, 28px); }
-  .tv-page .tv-col-label { font-size: clamp(12px, 1.7vw, 15px); }
-  .tv-page .tv-name { font-size: clamp(15px, 2vw, 19px); }
-  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(16px, 2.1vw, 21px); }
-  .tv-page .tv-chg { font-size: clamp(12px, 1.7vw, 16px); }
+  .tv-page .tv-col-label { font-size: clamp(10px, 1.2vw, 12px); }
+  .tv-page .tv-name { font-size: clamp(12px, 1.45vw, 15px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { min-width: 0; font-size: clamp(10px, 1.1vw, 12px); letter-spacing: -.15px; }
+  .tv-page .tv-chg { min-width: 0; font-size: clamp(9px, 1vw, 11px); }
   .tv-nav i { font-size: clamp(18px, 2.8vw, 23px); }
   .tv-tk-item { font-size: clamp(12px, 1.7vw, 15px); }
   .tv-tk-chg { font-size: clamp(10px, 1.4vw, 13px); }
+}
+
+@media (min-width: 912px) and (max-width: 1170px) {
+  .tv-panel-head, .tv-row { grid-template-columns: minmax(0, 1fr) 12% 30% 30%; gap: .4vw; }
+  .tv-panel-head { padding-inline: 1.5vw; }
+  .tv-row { padding-inline: 1.5vw; }
+  .tv-page .tv-panel-head h2 { font-size: clamp(16px, 1.55vw, 19px); }
+  .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(25px, 2.4vw, 30px); height: clamp(25px, 2.4vw, 30px); flex-basis: clamp(25px, 2.4vw, 30px); }
+  .tv-page .tv-col-label { font-size: clamp(11px, 1.15vw, 14px); }
+  .tv-page .tv-name { font-size: clamp(14px, 1.35vw, 17px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { min-width: 0; font-size: clamp(12px, 1.15vw, 15px); letter-spacing: -.1px; }
+  .tv-page .tv-chg { min-width: 0; font-size: clamp(10px, 1vw, 13px); }
+}
+
+@media (min-width: 1171px) and (max-width: 1199px) {
+  .tv-panel-head, .tv-row { grid-template-columns: minmax(0, 1fr) 12% 30% 30%; gap: .45vw; }
+  .tv-panel-head { padding-inline: 1.5vw; }
+  .tv-row { padding-inline: 1.5vw; }
+  .tv-page .tv-panel-head h2 { font-size: clamp(17px, 1.5vw, 20px); }
+  .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(26px, 2.2vw, 30px); height: clamp(26px, 2.2vw, 30px); flex-basis: clamp(26px, 2.2vw, 30px); }
+  .tv-page .tv-col-label { font-size: clamp(12px, 1.1vw, 14px); }
+  .tv-page .tv-name { font-size: clamp(15px, 1.3vw, 17px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { min-width: 0; font-size: clamp(14px, 1.1vw, 16px); letter-spacing: -.1px; }
+  .tv-page .tv-chg { min-width: 0; font-size: clamp(11px, .95vw, 13px); }
 }
 
 @media (max-width: 680px) {
