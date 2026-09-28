@@ -1316,8 +1316,8 @@ main#prices {
 .about-visual-caption { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 4px; align-self: flex-start; margin-top: auto; padding-top: 210px; }
 .about-visual-caption strong { color: #fff; font-size: 14px; }.about-visual-caption span { color: #a7b4c7; font-size: 11px; }
 .about-visual-line { position: absolute; right: -20px; bottom: -20px; left: 20px; height: 90px; border: 1px solid rgba(201,162,39,.34); border-radius: 50%; transform: rotate(-8deg); }
-.about-banner-frame { position: relative; z-index: 2; height: 360px; overflow: hidden; border: 1px solid rgba(201,162,39,.28); border-radius: 24px; background: #0b1220; box-shadow: 0 22px 55px rgba(11,18,32,.18); }
-.about-banner-frame::after { position: absolute; inset: 0; border: 1px solid rgba(255,255,255,.08); border-radius: inherit; content: ''; pointer-events: none; }
+.about-banner-frame { position: relative; z-index: 2; height: 360px; overflow: hidden; border: 0; border-radius: 24px; background: #0b1220;box-shadow: 0 22px 55px rgb(11 18 32 / 75%), 0 0 0 1px rgb(11 18 32 / 0%);}
+.about-banner-frame::after { display: none; }
 .about-banner-frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .about-feature-row { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 58px; border-top: 1px solid #e1e7ef; border-bottom: 1px solid #e1e7ef; }
 .about-feature { display: flex; align-items: center; justify-content: center; gap: 11px; min-height: 82px; padding: 12px 18px; border-left: 1px solid #e1e7ef; }
@@ -1356,6 +1356,7 @@ main#prices {
 .why-luxury-image { position: relative; height: 145px; overflow: hidden; background: #0b1426; }
 .why-luxury-image::after { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 48%, rgba(11,20,38,.42)); content: ''; pointer-events: none; }
 .why-luxury-image img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
+.why-luxury-card:first-child .why-luxury-image img { object-position: center 60%; }
 .why-luxury-card:hover .why-luxury-image img { transform: scale(1.045); }
 .why-luxury-body { position: relative; min-height: 132px; padding: 31px 18px 17px; text-align: right; }
 .why-luxury-icon { position: absolute; top: -25px; right: 20px; display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; border: 4px solid #f8f6f0; border-radius: 50%; color: #c9a227; background: #0b1426; box-shadow: 0 8px 18px rgba(11,20,38,.22); }
@@ -1413,6 +1414,7 @@ main#prices {
 .footer-trust i { color: #d8ad3c; font-size: 17px; }
 .footer-bottom { position: relative; border-top: 0; padding: 19px 0; color: #8996a8; background: rgba(3,10,19,.34); font-size: 10px; }
 .footer-bottom .container { gap: 14px 28px; }
+.footer-copyright { flex-basis: 100%; text-align: center; overflow-wrap: anywhere; }
 .footer-credit a { color: #d8ad3c; }
 .footer-credit a:hover { color: #f7e1a0; }
 @media (max-width: 1024px) {

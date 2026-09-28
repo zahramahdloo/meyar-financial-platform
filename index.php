@@ -17,7 +17,9 @@ $ticker = array_values(array_filter($items, function ($i) use ($tickerIds) {
 
 $heroImg  = is_file(__DIR__ . '/assets/img/hero.png') ? 'assets/img/hero.png' : '';
 $aboutImg = is_file(__DIR__ . '/assets/img/about.png') ? 'assets/img/about.png' : '';
-$aboutBanner = is_file(__DIR__ . '/assets/img/about-meyar-banner.png') ? 'assets/img/about-meyar-banner.png' : '';
+$aboutBanner = is_file(__DIR__ . '/assets/img/about-meyar-banner.webp')
+  ? 'assets/img/about-meyar-banner.webp'
+  : (is_file(__DIR__ . '/assets/img/about-meyar-banner.png') ? 'assets/img/about-meyar-banner.png' : '');
 
 $homeUrl = meyar_public_url_for('');
 $orgSchema = [
@@ -326,7 +328,7 @@ foreach ($overviewIds as $overviewId) {
     </header>
     <div class="why-luxury-grid">
       <article class="why-luxury-card reveal" data-reveal="up">
-        <div class="why-luxury-image"><img src="assets/img/why-banners/transaction.png" alt="فضای حرفه‌ای معاملات حضوری معیار" loading="lazy"></div>
+        <div class="why-luxury-image"><img src="assets/img/why-banners/deal.webp" alt="فضای حرفه‌ای معاملات حضوری معیار" loading="lazy"></div>
         <div class="why-luxury-body">
           <span class="why-luxury-icon"><i class="hgi-stroke hgi-store-01" aria-hidden="true"></i></span>
           <h3>معاملات حضوری</h3>

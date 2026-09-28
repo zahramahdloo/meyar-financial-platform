@@ -140,8 +140,8 @@ function meyar_theme_footer(array $settings): void {
           <div class="footer-contact">
             <a href="tel:+989123456608"><i class="hgi-stroke hgi-call-02" aria-hidden="true"></i><span>۰۹۱۲۳۴۵۶۶۰۸</span></a>
             <a href="mailto:meyargroup2000@gmail.com"><i class="hgi-stroke hgi-mail-01" aria-hidden="true"></i><span>meyargroup2000@gmail.com</span></a>
-            <a href="https://www.instagram.com/seke.meyar/" target="_blank" rel="noopener noreferrer"><i class="hgi-stroke hgi-instagram" aria-hidden="true"></i><span>seke.meyar</span></a>
-            <a href="https://wa.me/989123456608?text=سلام، از سایت معیار پیام می‌دهم." target="_blank" rel="noopener noreferrer"><i class="hgi-stroke hgi-whatsapp" aria-hidden="true"></i><span>WhatsApp</span></a>
+            <a href="https://www.instagram.com/seke.meyar/" target="_blank" rel="noopener noreferrer"><i class="hgi-stroke hgi-instagram" aria-hidden="true"></i><span>اینستاگرام</span></a>
+            <a href="https://wa.me/989123456608?text=سلام، از سایت معیار پیام می‌دهم." target="_blank" rel="noopener noreferrer"><i class="hgi-stroke hgi-whatsapp" aria-hidden="true"></i><span>واتساپ</span></a>
             <span><i class="hgi-stroke hgi-location-01" aria-hidden="true"></i><span>تهران، بازار بزرگ، پاساژ طلا و جواهر خادم، طبقه همکف، واحد ۴</span></span>
           </div>
         </div>
@@ -181,7 +181,7 @@ function meyar_theme_footer(array $settings): void {
 
       <div class="footer-bottom">
         <div class="container">
-          <div>تمامی حقوق مادی و معنوی متعلق به سکه معیار می‌باشد.</div>
+          <div class="footer-copyright" dir="ltr">© 1405 Meyar | Designed and developed by Zahra Mahdloo</div>
         </div>
       </div>
 </footer>
