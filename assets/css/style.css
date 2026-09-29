@@ -79,6 +79,7 @@ img { max-width: 100%; }
   background: #0b1220; border-left: 1px solid rgba(255,255,255,.08);
 }
 .market-live { display: inline-flex; align-items: center; gap: 7px; color: #5ee49a; font-weight: 800; white-space: nowrap; }
+.market-live.market-closed { color: #f4cf63; }
 .ticker-viewport {
   position: relative;
   width: 100%;
@@ -102,10 +103,20 @@ img { max-width: 100%; }
   width: 9px; height: 9px; border-radius: 50%; background: #3ddc84; flex-shrink: 0;
   box-shadow: 0 0 0 rgba(61, 220, 132, .6); animation: pulse-green 2s ease-out infinite;
 }
+.market-live.market-closed .online-dot {
+  background: #f4cf63;
+  box-shadow: 0 0 0 rgba(244, 207, 99, .6);
+  animation-name: pulse-yellow;
+}
 @keyframes pulse-green {
   0% { box-shadow: 0 0 0 0 rgba(61, 220, 132, .5); }
   70% { box-shadow: 0 0 0 9px rgba(61, 220, 132, 0); }
   100% { box-shadow: 0 0 0 0 rgba(61, 220, 132, 0); }
+}
+@keyframes pulse-yellow {
+  0% { box-shadow: 0 0 0 0 rgba(244, 207, 99, .5); }
+  70% { box-shadow: 0 0 0 9px rgba(244, 207, 99, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(244, 207, 99, 0); }
 }
 
 /* ═══ تیکر مارکیو ═══ */
@@ -355,7 +366,7 @@ img { max-width: 100%; }
 .price-card[data-market-container] .market-list {
   max-height: 0;
   overflow: hidden;
-  transition: max-height .95s cubic-bezier(.22, .8, .35, 1);
+  transition: max-height 1.2s cubic-bezier(.22, .8, .35, 1);
   will-change: max-height;
 }
 .price-card[data-market-container]:not(.has-expand) .market-list { max-height: none; overflow: visible; transition: none; }
@@ -2019,23 +2030,231 @@ main#prices.prices-page .tables-grid .price-card[data-market-container] .market-
 }
 @media (max-width: 600px) {
   main#prices.prices-page .tables-grid .price-card[data-market-container] {
-    --market-columns: minmax(0, 1fr) 68px 68px 48px;
+    --market-columns: repeat(3, minmax(0, 1fr));
   }
   main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head {
-    column-gap: 6px;
-    padding-inline: 14px;
+    grid-template-columns: var(--market-columns);
+    column-gap: 5px;
+    padding-inline: 8px;
     font-size: 8px;
   }
-  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span { padding-right: 4px; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-spacer { display: none; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span {
+    padding-right: 0;
+    text-align: center;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(2) { grid-column: 1; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(3) { grid-column: 2; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(4) { grid-column: 3; }
   main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset {
     grid-template-columns: var(--market-columns);
-    column-gap: 6px;
-    row-gap: 0;
+    column-gap: 5px;
+    row-gap: 5px;
+    padding: 7px 6px;
   }
-  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-title { grid-column: 1; }
-  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-change { grid-column: 2; }
-  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.buy { grid-column: 4; grid-row: 1; }
-  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.sell { grid-column: 3; grid-row: 1; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-title {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-width: 0;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-title > span:last-child {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-change {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+    width: 100%;
+    justify-content: center;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote strong {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+    font-size: 11px;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.buy {
+    grid-column: 3;
+    grid-row: 2;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.sell {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+@media (max-width: 380px) {
+  main#prices.prices-page .tables-grid .price-card[data-market-container] {
+    --market-columns: repeat(2, minmax(0, 1fr));
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(4) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-change {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.buy {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.sell {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+/* تغییر زیر نام دارایی قرار می‌گیرد؛ سرستون تغییر عمداً نمایش داده نمی‌شود. */
+@media (min-width: 601px) {
+  main#prices.prices-page .tables-grid .price-card[data-market-container] {
+    --market-columns: minmax(0, 1fr) 100px 100px;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head {
+    grid-template-columns: var(--market-columns);
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-spacer {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(2) {
+    grid-column: 2;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(3) {
+    grid-column: 3;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset {
+    grid-template-columns: var(--market-columns);
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-title {
+    grid-column: 1;
+    grid-row: 1;
+    justify-content: center;
+    text-align: center;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-change {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: center;
+    min-width: 0;
+    width: 100%;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote {
+    grid-row: 1 / span 2;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.sell { grid-column: 2; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.buy { grid-column: 3; }
+}
+
+@media (max-width: 600px) {
+  main#prices.prices-page .tables-grid .price-card[data-market-container] {
+    --market-columns: repeat(3, minmax(0, 1fr));
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head {
+    display: grid;
+    grid-template-columns: var(--market-columns);
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-spacer {
+    display: block;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(2) { grid-column: 2; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(3) { grid-column: 3; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset {
+    grid-template-columns: var(--market-columns);
+    row-gap: 5px;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-title {
+    grid-column: 1;
+    grid-row: 1;
+    justify-content: center;
+    text-align: center;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-change {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: center;
+    width: 100%;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote {
+    grid-row: 1 / span 2;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.sell { grid-column: 2; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.buy { grid-column: 3; }
+}
+
+@media (max-width: 380px) {
+  main#prices.prices-page .tables-grid .price-card[data-market-container] {
+    --market-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head {
+    grid-template-columns: var(--market-columns);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-spacer {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-title { grid-column: 1; grid-row: 1; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-change { grid-column: 1; grid-row: 2; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote { grid-row: auto; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.sell { grid-column: 2; grid-row: 1; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.buy { grid-column: 2; grid-row: 2; }
+}
+
+/* در اندازه‌های بزرگ، چیدمان اصلی جدول بدون تغییر باقی می‌ماند. */
+@media (min-width: 601px) {
+  main#prices.prices-page .tables-grid .price-card[data-market-container] {
+    --market-columns: minmax(0, 1fr) 100px 100px 70px;
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head {
+    grid-template-columns: var(--market-columns);
+  }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-spacer { grid-column: 1; grid-row: 1; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(2) { grid-column: 2; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(3) { grid-column: 3; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(4) { grid-column: 4; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset { grid-template-columns: var(--market-columns); }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-title { grid-column: 1; grid-row: 1; justify-content: initial; text-align: initial; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-change { grid-column: 2; grid-row: 1; justify-content: flex-end; width: 100%; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote { grid-row: 1; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.sell { grid-column: 3; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.buy { grid-column: 4; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote strong { overflow: hidden; text-overflow: ellipsis; }
+}
+
+/* این تغییر فقط برای موبایل است: تغییر زیر نام دارایی قرار می‌گیرد. */
+@media (max-width: 600px) {
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(2) { display: none; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(3) { grid-column: 2; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(4) { grid-column: 3; }
+}
+@media (max-width: 380px) {
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(3) { grid-column: 2; grid-row: 1; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(4) { grid-column: 2; grid-row: 2; }
 }
 
 /* ═══ رابط چت مطابق طرح مرجع ═══ */

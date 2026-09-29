@@ -2,6 +2,25 @@
 (function () {
   'use strict';
 
+  /* ---------- وضعیت بازار بر اساس ساعت ایران ---------- */
+  var marketStatus = document.querySelector('[data-market-status]');
+  if (marketStatus) {
+    var marketStatusText = marketStatus.querySelector('[data-market-status-text]');
+    function updateMarketStatus() {
+      var iranTime = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Tehran',
+        hour: 'numeric',
+        hour12: false
+      }).formatToParts(new Date());
+      var iranHour = parseInt(iranTime.filter(function (part) { return part.type === 'hour'; })[0].value, 10);
+      var isOpen = iranHour >= 11 && iranHour < 22;
+      marketStatus.classList.toggle('market-closed', !isOpen);
+      if (marketStatusText) marketStatusText.textContent = isOpen ? 'بازار فعال' : 'بازار فعال نیست';
+    }
+    updateMarketStatus();
+    window.setInterval(updateMarketStatus, 60000);
+  }
+
   /* ---------- reveal on scroll ---------- */
   var revealEls = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {
@@ -403,13 +422,28 @@
     if (!wrap) return;
     wrap.style.maxHeight = wrap.scrollHeight + 'px';
   }
+  function scrollToPriceCard(button) {
+    var priceCard = button && button.closest('.price-card');
+    if (!priceCard) return;
+    var stickyOffset = 0;
+    document.querySelectorAll('.ticker-bar, .site-header').forEach(function (element) {
+      var position = window.getComputedStyle(element).position;
+      if (position === 'sticky' || position === 'fixed') stickyOffset += element.getBoundingClientRect().height;
+    });
+    var targetTop = Math.max(0, Math.round(priceCard.getBoundingClientRect().top + window.pageYOffset - stickyOffset));
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: targetTop, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
   function toggleMarketTable(container, expanded) {
     var wrap = container.querySelector('[data-collapsible-table]');
     var button = container.querySelector('.table-expand-toggle');
     if (!wrap || !button) return;
+    if (wrap._finishCollapse) {
+      wrap.removeEventListener('transitionend', wrap._finishCollapse);
+      wrap._finishCollapse = null;
+    }
 
-    // بسته‌شدن کمی آهسته‌تر از بازشدن انجام شود تا جمع‌شدن container نرم‌تر دیده شود.
-    var animationDuration = expanded ? 950 : 1350;
+    var animationDuration = 1200;
     wrap.style.transitionDuration = animationDuration + 'ms';
 
     var currentHeight = wrap.getBoundingClientRect().height;
@@ -418,12 +452,30 @@
 
     if (expanded) {
       wrap.classList.add('is-expanded');
+      wrap.classList.remove('is-collapsing');
     } else {
+      // ارتفاع حالت بسته را قبل از نمایش موقت آیتم‌های اضافی اندازه می‌گیریم.
       wrap.classList.remove('is-expanded');
+      wrap.classList.remove('is-collapsing');
+      var collapsedHeight = wrap.scrollHeight;
+      wrap.classList.add('is-collapsing');
+      wrap.style.maxHeight = currentHeight + 'px';
+      void wrap.offsetHeight;
+
+      var finishCollapse = function (event) {
+        if (event.propertyName !== 'max-height') return;
+        wrap.removeEventListener('transitionend', finishCollapse);
+        wrap._finishCollapse = null;
+        wrap.classList.remove('is-collapsing');
+        wrap.style.maxHeight = collapsedHeight + 'px';
+        masonry();
+      };
+      wrap._finishCollapse = finishCollapse;
+      wrap.addEventListener('transitionend', finishCollapse);
     }
 
     requestAnimationFrame(function () {
-      wrap.style.maxHeight = wrap.scrollHeight + 'px';
+      wrap.style.maxHeight = (expanded ? wrap.scrollHeight : collapsedHeight) + 'px';
       masonry();
     });
 
@@ -454,6 +506,7 @@
     button.addEventListener('click', function () {
       var expanded = wrap.classList.contains('is-expanded');
       var label = button.querySelector('.table-expand-label');
+      if (expanded) scrollToPriceCard(button);
       toggleMarketTable(container, !expanded);
       button.setAttribute('aria-expanded', expanded ? 'false' : 'true');
       button.setAttribute('aria-label', expanded ? 'نمایش موارد بیشتر' : 'بستن موارد اضافی');

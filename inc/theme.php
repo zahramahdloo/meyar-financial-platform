@@ -29,7 +29,7 @@ function meyar_theme_head(string $title, string $desc = '', string $canonical = 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://use.hugeicons.com" crossorigin>
 <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
-<link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=26">
+<link rel="stylesheet" href="<?= meyar_base() ?>assets/css/style.css?v=27">
 <?= $extraHead ?>
 </head>
 <body>
@@ -48,6 +48,8 @@ function meyar_base(): string {
 
 function meyar_theme_topbar(array $settings, array $ticker): void {
     $base = meyar_base();
+    $iranHour = (int)date('G');
+    $marketIsOpen = $iranHour >= 11 && $iranHour < 22;
     $requestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
     $requestPath = (string)(parse_url($requestUri, PHP_URL_PATH) ?? $requestUri);
     $isPricePage = strpos($requestPath, '/price/') !== false
@@ -61,7 +63,10 @@ function meyar_theme_topbar(array $settings, array $ticker): void {
   <div class="container market-bar-inner">
     <div class="market-bar-status">
       <?php if (!empty($settings['online_badge'])): ?>
-      <span class="market-live"><span class="online-dot"></span> بازار فعال</span>
+      <span class="market-live<?= $marketIsOpen ? '' : ' market-closed' ?>" data-market-status>
+        <span class="online-dot"></span>
+        <span data-market-status-text><?= $marketIsOpen ? 'بازار فعال' : 'بازار فعال نیست' ?></span>
+      </span>
       <?php endif; ?>
     </div>
     <div class="ticker-viewport" aria-label="قیمت‌های لحظه‌ای بازار">
@@ -259,7 +264,7 @@ function meyar_theme_footer(array $settings): void {
 </div>
 
 <script>window.MEYAR_BASE = '<?= $base ?>'; window.MEYAR_MARKET_PATHS = <?= json_encode(meyar_market_public_paths(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;</script>
-<script src="<?= $base ?>assets/js/main.js?v=14"></script>
+<script src="<?= $base ?>assets/js/main.js?v=15"></script>
 <script src="<?= $base ?>assets/js/chat.js?v=5"></script>
 <script src="<?= $base ?>assets/js/ai.js?v=5"></script>
 </body>

@@ -310,6 +310,13 @@ body {
 }
 .tv-panel-head h2::before { display: none; }
 .tv-market-icon { object-fit: contain; }
+.tv-market-icon-font {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.05em;
+}
 .tv-panel-head h2 > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .tv-col-label { color: #91a4bf; }
 .tv-panel-head > .tv-col-label,
@@ -407,7 +414,7 @@ body {
   .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(32px, 1.8vw, 38px); height: clamp(32px, 1.8vw, 38px); flex-basis: clamp(32px, 1.8vw, 38px); }
   .tv-page .tv-col-label { font-size: clamp(15px, .95vw, 22px); }
   .tv-page .tv-name { font-size: clamp(22px, 1.25vw, 29px); }
-  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(24px, 1.35vw, 32px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(26px, 1.45vw, 34px); }
   .tv-page .tv-chg { font-size: clamp(17px, 1vw, 25px); }
   .tv-nav i { font-size: clamp(24px, 1.4vw, 32px); }
   .tv-tk-item { font-size: clamp(16px, .9vw, 22px); }
@@ -419,7 +426,7 @@ body {
   .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(28px, 1.65vw, 34px); height: clamp(28px, 1.65vw, 34px); flex-basis: clamp(28px, 1.65vw, 34px); }
   .tv-page .tv-col-label { font-size: clamp(14px, .9vw, 19px); }
   .tv-page .tv-name { font-size: clamp(18px, 1.1vw, 25px); }
-  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(20px, 1.2vw, 29px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(22px, 1.3vw, 31px); }
   .tv-page .tv-chg { font-size: clamp(15px, .9vw, 22px); }
   .tv-nav i { font-size: clamp(22px, 1.25vw, 28px); }
   .tv-tk-item { font-size: clamp(14px, .8vw, 20px); }
@@ -432,7 +439,7 @@ body {
   .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(25px, 1.5vw, 30px); height: clamp(25px, 1.5vw, 30px); flex-basis: clamp(25px, 1.5vw, 30px); }
   .tv-page .tv-col-label { font-size: clamp(13px, .8vw, 17px); }
   .tv-page .tv-name { font-size: clamp(17px, 1vw, 22px); }
-  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(18px, 1.1vw, 25px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(20px, 1.2vw, 27px); }
   .tv-page .tv-chg { font-size: clamp(14px, .8vw, 19px); }
   .tv-nav i { font-size: clamp(20px, 1.1vw, 25px); }
   .tv-tk-item { font-size: clamp(13px, .7vw, 17px); }
@@ -447,7 +454,7 @@ body {
   .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(23px, 3.1vw, 28px); height: clamp(23px, 3.1vw, 28px); flex-basis: clamp(23px, 3.1vw, 28px); }
   .tv-page .tv-col-label { font-size: clamp(10px, 1.2vw, 12px); }
   .tv-page .tv-name { font-size: clamp(12px, 1.45vw, 15px); }
-  .tv-page .tv-buy, .tv-page .tv-sell { min-width: 0; font-size: clamp(10px, 1.1vw, 12px); letter-spacing: -.15px; }
+  .tv-page .tv-buy, .tv-page .tv-sell { min-width: 0; font-size: clamp(12px, 1.2vw, 14px); letter-spacing: -.15px; }
   .tv-page .tv-chg { min-width: 0; font-size: clamp(9px, 1vw, 11px); }
   .tv-nav i { font-size: clamp(18px, 2.8vw, 23px); }
   .tv-tk-item { font-size: clamp(12px, 1.7vw, 15px); }
@@ -462,7 +469,7 @@ body {
   .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(25px, 2.4vw, 30px); height: clamp(25px, 2.4vw, 30px); flex-basis: clamp(25px, 2.4vw, 30px); }
   .tv-page .tv-col-label { font-size: clamp(11px, 1.15vw, 14px); }
   .tv-page .tv-name { font-size: clamp(14px, 1.35vw, 17px); }
-  .tv-page .tv-buy, .tv-page .tv-sell { min-width: 0; font-size: clamp(12px, 1.15vw, 15px); letter-spacing: -.1px; }
+  .tv-page .tv-buy, .tv-page .tv-sell { min-width: 0; font-size: clamp(14px, 1.25vw, 17px); letter-spacing: -.1px; }
   .tv-page .tv-chg { min-width: 0; font-size: clamp(10px, 1vw, 13px); }
 }
 
@@ -474,7 +481,7 @@ body {
   .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(26px, 2.2vw, 30px); height: clamp(26px, 2.2vw, 30px); flex-basis: clamp(26px, 2.2vw, 30px); }
   .tv-page .tv-col-label { font-size: clamp(12px, 1.1vw, 14px); }
   .tv-page .tv-name { font-size: clamp(15px, 1.3vw, 17px); }
-  .tv-page .tv-buy, .tv-page .tv-sell { min-width: 0; font-size: clamp(14px, 1.1vw, 16px); letter-spacing: -.1px; }
+  .tv-page .tv-buy, .tv-page .tv-sell { min-width: 0; font-size: clamp(16px, 1.2vw, 18px); letter-spacing: -.1px; }
   .tv-page .tv-chg { min-width: 0; font-size: clamp(11px, .95vw, 13px); }
 }
 
@@ -483,7 +490,7 @@ body {
   .tv-page .tv-panel-head h2 > .tv-market-icon { width: clamp(22px, 6vw, 26px); height: clamp(22px, 6vw, 26px); flex-basis: clamp(22px, 6vw, 26px); }
   .tv-page .tv-col-label { font-size: clamp(10px, 2.7vw, 12px); }
   .tv-page .tv-name { font-size: clamp(14px, 3.7vw, 17px); }
-  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(15px, 3.9vw, 18px); }
+  .tv-page .tv-buy, .tv-page .tv-sell { font-size: clamp(17px, 4.1vw, 20px); }
   .tv-page .tv-chg { font-size: clamp(11px, 3vw, 14px); }
   .tv-nav i { font-size: clamp(18px, 5vw, 22px); }
   .tv-tk-item { font-size: clamp(11px, 3.4vw, 14px); }
@@ -587,29 +594,56 @@ body {
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head h2 {
     font-size: clamp(12px, 3.2vw, 15px);
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    flex-wrap: wrap;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head > .tv-col-label:nth-child(2) { grid-column: 2; grid-row: 1; }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head > .tv-col-label:nth-child(3) { grid-column: 3; grid-row: 1; }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head > .tv-col-label:nth-child(4) { grid-column: 4; grid-row: 1; }
+  .tv-page.active .tv-panel.mobile-visible .tv-panel-head h2 > span {
+    min-width: 0;
+    max-width: 100%;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-col-label {
     font-size: clamp(10px, 2.8vw, 12px);
   }
   .tv-page.active .tv-panel.mobile-visible .tv-name {
     font-size: clamp(10px, 2.7vw, 13px);
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.6;
+    grid-column: 1;
+    grid-row: 1;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-buy,
   .tv-page.active .tv-panel.mobile-visible .tv-sell,
   .tv-page.active .tv-panel.mobile-visible .tv-chg {
-    font-size: clamp(8px, 2.25vw, 11px);
+    font-size: clamp(12px, 3.1vw, 16px);
     overflow: visible;
     text-overflow: clip;
     white-space: nowrap;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-chg {
     font-size: clamp(8px, 2.1vw, 10px);
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: stretch;
+    text-align: center;
   }
+  .tv-page.active .tv-panel.mobile-visible .tv-sell { grid-column: 3; grid-row: 1; }
+  .tv-page.active .tv-panel.mobile-visible .tv-buy { grid-column: 4; grid-row: 1; }
   .tv-page.active .tv-panel.mobile-visible .tv-rows {
     min-height: 0;
     overflow-y: auto;
@@ -643,6 +677,17 @@ body {
   .tv-nav--prev { inset-inline-start: 2px; }
   .tv-nav--next { inset-inline-end: 2px; }
 }
+
+/* نام پنل و دارایی در همه اندازه‌ها کامل نمایش داده شوند. */
+.tv-panel-head h2.tv-panel-title,
+.tv-panel-head h2.tv-panel-title > span,
+.tv-name {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.tv-panel-head h2.tv-panel-title { flex-wrap: wrap; line-height: 1.35; }
 </style>
 </head>
 <body>
@@ -662,7 +707,14 @@ body {
     <?php foreach ($page as $panel): if (empty($panel['items'])) continue; ?>
     <section class="tv-panel<?= $panel['group'] === 'silver' ? ' tv-panel--silver' : '' ?>">
       <div class="tv-panel-head">
-        <h2 class="tv-panel-title<?= $panel['group'] === 'parsian' ? ' tv-panel-title--parsian' : '' ?>"><img class="tv-market-icon<?= $panel['group'] === 'silver' ? ' tv-market-icon--silver' : '' ?>" src="assets/img/<?= $panel['group'] === 'coins' ? 'emami.png' : ($panel['group'] === 'silver' ? 'silver.png' : 'gold-icon.png') ?>" alt="" aria-hidden="true"><span><?= meyar_h($panel['title']) ?></span></h2>
+        <h2 class="tv-panel-title<?= $panel['group'] === 'parsian' ? ' tv-panel-title--parsian' : '' ?>">
+          <?php if ($panel['group'] === 'currency'): ?>
+            <i class="tv-market-icon tv-market-icon-font hgi hgi-stroke hgi-rounded hgi-cash-02" aria-hidden="true"></i>
+          <?php else: ?>
+            <img class="tv-market-icon<?= $panel['group'] === 'silver' ? ' tv-market-icon--silver' : '' ?>" src="assets/img/<?= in_array($panel['group'], ['coins', 'parsian'], true) ? 'emami.png' : ($panel['group'] === 'silver' ? 'silver.png' : 'gold-icon.png') ?>" alt="" aria-hidden="true">
+          <?php endif; ?>
+          <span><?= meyar_h($panel['title']) ?></span>
+        </h2>
         <span class="tv-col-label">تغییر</span>
         <span class="tv-col-label">فروش</span>
         <span class="tv-col-label">خرید</span>
