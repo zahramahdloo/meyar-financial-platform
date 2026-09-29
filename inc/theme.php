@@ -145,11 +145,13 @@ function meyar_theme_footer(array $settings): void {
           <div class="footer-brand-fa">سکه و جواهر معیار</div>
           <p class="footer-brand-description">مرجع خرید و فروش حضوری سکه و طلا با اطلاعات دقیق بازار</p>
           <div class="footer-contact">
-            <a href="tel:+989123456608"><i class="hgi-stroke hgi-call-02" aria-hidden="true"></i><span>۰۹۱۲۳۴۵۶۶۰۸</span></a>
+            <span class="footer-mobile-phones"><i class="hgi-stroke hgi-call-02" aria-hidden="true"></i><a href="tel:+989123456608"><span>۰۹۱۲۳۴۵۶۶۰۸</span></a><span aria-hidden="true">-</span><a href="tel:+989124340037"><span>۰۹۱۲۴۳۴۰۰۳۷</span></a></span>
+            <a href="tel:+982133986164"><i class="hgi hgi-stroke hgi-rounded hgi-telephone" aria-hidden="true"></i><span>۰۲۱۳۳۹۸۶۱۶۴</span></a>
             <a href="mailto:meyargroup2000@gmail.com"><i class="hgi-stroke hgi-mail-01" aria-hidden="true"></i><span>meyargroup2000@gmail.com</span></a>
             <a href="https://www.instagram.com/seke.meyar/" target="_blank" rel="noopener noreferrer"><i class="hgi-stroke hgi-instagram" aria-hidden="true"></i><span>اینستاگرام</span></a>
             <a href="https://wa.me/989123456608?text=سلام، از سایت معیار پیام می‌دهم." target="_blank" rel="noopener noreferrer"><i class="hgi-stroke hgi-whatsapp" aria-hidden="true"></i><span>واتساپ</span></a>
-            <span><i class="hgi-stroke hgi-location-01" aria-hidden="true"></i><span>تهران، بازار بزرگ، پاساژ طلا و جواهر خادم، طبقه همکف، واحد ۴</span></span>
+            <span><i class="hgi-stroke hgi-location-01" aria-hidden="true"></i><span>شعبه ۱: تهران، بازار بزرگ، پاساژ طلا و جواهر خادم، طبقه همکف، واحد ۴</span></span>
+            <span><i class="hgi-stroke hgi-location-01" aria-hidden="true"></i><span>شعبه ۲: تهران، بازار بزرگ، خیابان پانزده خرداد، پاساژ طلا و جواهر کوثر، طبقه منفی یک، واحد ۱۶</span></span>
           </div>
         </div>
 

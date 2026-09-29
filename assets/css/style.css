@@ -1461,6 +1461,9 @@ main#prices {
 .footer-brand-description { max-width: 245px; margin: 0 0 25px; color: #aab5c4; font-size: 12px; line-height: 2; }
 .footer-contact { display: grid; gap: 10px; font-size: 11px; line-height: 1.7; }
 .footer-contact a, .footer-contact > span { display: flex; align-items: center; gap: 9px; color: #cbd3df; transition: color .2s, transform .2s; }
+.footer-mobile-phones { gap: 6px !important; }
+.footer-mobile-phones > a { gap: 0; }
+.footer-mobile-phones > span[aria-hidden="true"] { color: #8491a7; }
 .footer-contact a:hover { color: #f1d27d; transform: translateX(-4px); }
 .footer-contact i { flex: 0 0 18px; color: #d8ad3c; font-size: 16px; text-align: center; }
 .footer-col h4 { margin: 4px 0 20px; padding: 0 0 12px; color: #fff; font-size: 14px; font-weight: 850; }
