@@ -155,10 +155,10 @@ body {
 }
 .tv-coin.gold { border-radius: .8vh; }
 .tv-flag { flex-shrink: 0; }
-.tv-buy, .tv-sell { min-width: 0; overflow: hidden; font-weight: 800; text-align: center; white-space: nowrap; }
+.tv-buy, .tv-sell { min-width: 0; overflow: visible; font-weight: 800; text-align: center; white-space: normal; overflow-wrap: anywhere; }
 .tv-buy { color: #dfe3ee; }
 .tv-sell { color: var(--gold-light); }
-.tv-chg { min-width: 0; overflow: hidden; font-weight: 700; text-align: center; white-space: nowrap; }
+.tv-chg { min-width: 0; overflow: visible; font-weight: 700; text-align: center; white-space: normal; overflow-wrap: anywhere; }
 .tv-chg.up { color: var(--green); }
 .tv-chg.down { color: var(--red); }
 .tv-chg.flat { color: var(--soft); }
@@ -359,6 +359,19 @@ body {
   .tv-panel-head { min-height: 7.5vh; padding-inline: 3vw; }
   .tv-row { min-height: 6.8vh; padding-inline: 3vw; }
   .tv-tk-item { padding-inline: 4vw; }
+}
+
+/* Numeric cells must remain complete at every TV layout size. Titles may be
+   compact, but prices and percentages are allowed to wrap instead of clip. */
+.tv-page .tv-buy,
+.tv-page .tv-sell,
+.tv-page .tv-chg {
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 @media (max-width: 768px) {
   .tv-ticker-track { --tv-ticker-duration: 30s; }
@@ -688,6 +701,20 @@ body {
   overflow-wrap: anywhere;
 }
 .tv-panel-head h2.tv-panel-title { flex-wrap: wrap; line-height: 1.35; }
+/* Final numeric-cell guard: responsive selectors above must not reintroduce clipping. */
+.tv-page .tv-buy,
+.tv-page .tv-sell,
+.tv-page .tv-chg,
+.tv-page.active .tv-panel.mobile-visible .tv-buy,
+.tv-page.active .tv-panel.mobile-visible .tv-sell,
+.tv-page.active .tv-panel.mobile-visible .tv-chg {
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
 </style>
 </head>
 <body>

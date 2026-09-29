@@ -432,11 +432,11 @@ img { max-width: 100%; }
 .market-asset .mini-flag { width: 25px; flex: 0 0 25px; font-size: 18px; }
 .market-asset-quote { display: flex; align-items: baseline; justify-content: flex-start; width: 100%; min-width: 0; direction: rtl; text-align: right; white-space: nowrap; }
 .market-asset-quote small { display: none; color: #94a3b8; font-size: 9px; line-height: 1; }
-.market-asset-quote strong { min-width: 0; overflow: hidden; color: #f8fafc; font-size: 12px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+.market-asset-quote strong { min-width: 0; overflow: visible; color: #f8fafc; font-size: 12px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1.25; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
 .market-asset-quote em { display: none; }
 .market-asset-quote.buy small { color: #5ee49a; }
 .market-asset-quote.sell small { color: #f4d77c; }
-.market-asset-price { display: flex; align-items: baseline; gap: 5px; color: #f8fafc; font-size: 13px; font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.market-asset-price { display: flex; align-items: baseline; gap: 5px; color: #f8fafc; font-size: 13px; font-weight: 750; font-variant-numeric: tabular-nums; white-space: normal; overflow-wrap: anywhere; }
 .market-asset-price small { color: #9ca3af; font-size: 9px; font-weight: 500; }
 .market-asset-change {
   display: inline-flex; align-items: center; gap: 4px;
@@ -523,7 +523,7 @@ main#prices {
 .market-overview-price { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
 .market-overview-quote { min-width: 0; padding: 7px 8px 6px; border: 1px solid #eef2f7; border-radius: 9px; background: #f8fafc; }
 .market-overview-quote > span { display: block; color: #64748b; font-size: 9px; line-height: 1.2; }
-.market-overview-quote strong { display: block; overflow: visible; margin-top: 4px; color: #071a33; font-size: clamp(12px, 1.35vw, 18px); font-weight: 850; font-variant-numeric: tabular-nums; letter-spacing: -.3px; text-overflow: clip; white-space: nowrap; }
+.market-overview-quote strong { display: block; overflow: visible; margin-top: 4px; color: #071a33; font-size: clamp(12px, 1.35vw, 18px); font-weight: 850; font-variant-numeric: tabular-nums; letter-spacing: -.3px; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
 .market-overview-quote small { display: block; margin-top: 2px; color: #94a3b8; font-size: 8px; }
 .market-overview-quote.buy { border-color: rgba(22,163,74,.16); }
 .market-overview-quote.sell { border-color: rgba(201,162,39,.22); }
@@ -591,7 +591,7 @@ main#prices {
 .price-table tbody tr { transition: background .2s; }
 .price-table tbody tr:hover { background: #fdf9ec; }
 .cell-title { display: flex; align-items: center; gap: 10px; font-weight: 600; white-space: nowrap; }
-.cell-num { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.cell-num { font-variant-numeric: tabular-nums; font-weight: 600; white-space: normal; overflow-wrap: anywhere; }
 .cell-num.flash-up   { animation: flash-green 1.2s; }
 .cell-num.flash-down { animation: flash-red 1.2s; }
 @keyframes flash-green { 0% { background: rgba(20, 160, 90, .25); } 100% { background: transparent; } }
@@ -1188,9 +1188,9 @@ main#prices {
 .market-card { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; padding: 12px 13px; border: 1px solid rgba(148,163,184,.12); border-radius: 10px; background: rgba(11,18,32,.46); transition: border-color .2s, background .2s, transform .2s; }
 .market-card:hover { border-color: rgba(201,162,39,.5); background: rgba(201,162,39,.07); transform: translateX(-3px); }
 .market-card-name { color: #cbd5e1; font-size: 11px; }
-.market-card strong { color: #f8fafc; font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.market-card strong { color: #f8fafc; font-size: 13px; font-variant-numeric: tabular-nums; white-space: normal; overflow-wrap: anywhere; }
 .market-card strong small { color: #8491a7; font-size: 9px; font-weight: 500; }
-.market-card-change { color: #94a3b8; font-size: 10px; font-weight: 800; direction: ltr; white-space: nowrap; }
+.market-card-change { color: #94a3b8; font-size: 10px; font-weight: 800; direction: ltr; white-space: normal; overflow-wrap: anywhere; }
 .market-card-change.up { color: #5ee49a; }
 .market-card-change.down { color: #ff7272; }
 
@@ -1250,8 +1250,8 @@ main#prices {
 .market-insight-asset b { display: block; color: #fff; font-size: 11px; }
 .market-insight-asset-title-row b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .market-insight-asset small { display: block; margin-top: 1px; color: #94a3b8; font-size: 9px; }
-.market-insight-asset-price-row { display: flex; grid-column: 3; align-items: baseline; justify-self: end; gap: 8px; direction: rtl; white-space: nowrap; }
-.market-insight-asset-price { color: #f4d77c !important; font-size: 11px !important; font-variant-numeric: tabular-nums; text-align: left; white-space: nowrap; }
+.market-insight-asset-price-row { display: flex; flex-wrap: wrap; grid-column: 3; align-items: baseline; justify-self: end; gap: 8px; direction: rtl; white-space: normal; }
+.market-insight-asset-price { color: #f4d77c !important; font-size: 11px !important; font-variant-numeric: tabular-nums; text-align: left; white-space: normal; overflow-wrap: anywhere; }
 .market-insight-asset strong { flex: 0 0 auto; color: #16a34a; direction: ltr; font-size: 12px; white-space: nowrap; }
 .market-insight-asset strong::before { content: '('; }
 .market-insight-asset strong::after { content: ')'; }
@@ -1876,8 +1876,10 @@ body.market-overview-modal-open { overflow: hidden; }
   }
   .market-overview-modal-dialog .market-insight-asset-price-row small {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 }
 main#prices.prices-page {
@@ -2243,7 +2245,7 @@ main#prices.prices-page .tables-grid .price-card[data-market-container] .market-
   main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote { grid-row: 1; }
   main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.sell { grid-column: 3; }
   main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote.buy { grid-column: 4; }
-  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote strong { overflow: hidden; text-overflow: ellipsis; }
+  main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote strong { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
 }
 
 /* این تغییر فقط برای موبایل است: تغییر زیر نام دارایی قرار می‌گیرد. */
@@ -2255,6 +2257,46 @@ main#prices.prices-page .tables-grid .price-card[data-market-container] .market-
 @media (max-width: 380px) {
   main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(3) { grid-column: 2; grid-row: 1; }
   main#prices.prices-page .tables-grid .price-card[data-market-container] .market-columns-head span:nth-child(4) { grid-column: 2; grid-row: 2; }
+}
+
+/* ═══ مقادیر عددی: هر رقم باید در دسترس و قابل خواندن بماند ═══ */
+main#prices.prices-page .tables-grid .price-card[data-market-container] {
+  /* Buy/Sell need real space; the old 70px Buy track caused ellipses. */
+  --market-columns: minmax(0, 1.4fr) minmax(78px, .9fr) minmax(100px, 1fr) minmax(100px, 1fr);
+}
+main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote,
+main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote strong {
+  min-width: 0;
+}
+main#prices.prices-page .tables-grid .price-card[data-market-container] .market-asset-quote strong {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+/* Dashboard cards can get narrow on phones; numeric columns may wrap, never clip. */
+.market-card { grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, auto); }
+.market-card strong,
+.market-card-change,
+.market-insight-asset-price,
+.market-overview-quote strong,
+.market-insight-asset strong {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  main#prices.prices-page .tables-grid .price-card[data-market-container] {
+    --market-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 380px) {
+  main#prices.prices-page .tables-grid .price-card[data-market-container] {
+    --market-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
 }
 
 /* ═══ رابط چت مطابق طرح مرجع ═══ */
