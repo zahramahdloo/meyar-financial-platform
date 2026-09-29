@@ -122,6 +122,7 @@ img { max-width: 100%; }
 /* ═══ تیکر مارکیو ═══ */
 .ticker-track {
   --ticker-duration: 38s;
+  --ticker-cycle-width: 50%;
   display: flex;
   align-items: center;
   width: max-content; height: 100%;
@@ -130,7 +131,7 @@ img { max-width: 100%; }
   backface-visibility: hidden;
 }
 @keyframes ticker-scroll {
-  from { transform: translate3d(-50%, 0, 0); }
+  from { transform: translate3d(calc(-1 * var(--ticker-cycle-width)), 0, 0); }
   to   { transform: translate3d(0, 0, 0); }
 }
 .ticker-item {
@@ -149,7 +150,6 @@ img { max-width: 100%; }
 @media (max-width: 768px) {
   .market-bar-status { gap: 10px; padding-inline: 8px; font-size: 10.5px; }
   .ticker-item { gap: 6px; padding-inline: 18px; font-size: 11px; }
-  .ticker-track { --ticker-duration: 30s; }
   .ticker-viewport::before, .ticker-viewport::after { width: 30px; }
 }
 

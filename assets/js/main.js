@@ -1375,7 +1375,7 @@
 
   /* ---------- تیکر بی‌نهایت ---------- */
   function initializeInfiniteTicker() {
-    var tickerTrack = document.querySelector('.ticker-track');
+    var tickerTrack = document.getElementById('tickerTrack') || document.querySelector('.ticker-track');
     if (!tickerTrack) return;
 
     tickerTrack.querySelectorAll(':scope > .ticker-item[data-ticker-clone="true"]').forEach(function (item) {
@@ -1409,6 +1409,22 @@
       clonedItem.setAttribute('aria-hidden', 'true');
       tickerTrack.appendChild(clonedItem);
     });
+
+    /* The animation must travel exactly one measured cycle. Using 50% of the
+       total track is fragile when responsive item sizes or font metrics change. */
+    tickerTrack.style.setProperty('--ticker-cycle-width', cycleWidth + 'px');
+    var tickerViewportWidth = tickerTrack.parentElement ? tickerTrack.parentElement.clientWidth : window.innerWidth;
+    var tickerSpeed;
+    if (tickerViewportWidth <= 480) {
+      tickerSpeed = 64; // narrow phones: fastest
+    } else if (tickerViewportWidth <= 768) {
+      tickerSpeed = 52; // standard phones and tablets
+    } else if (tickerViewportWidth <= 1200) {
+      tickerSpeed = 40; // laptop/tablet landscape
+    } else {
+      tickerSpeed = 32; // wide desktop: slower, calmer movement
+    }
+    tickerTrack.style.setProperty('--ticker-duration', (cycleWidth / tickerSpeed) + 's');
   }
 
   initializeInfiniteTicker();
@@ -1417,6 +1433,9 @@
     clearTimeout(tickerResizeTimer);
     tickerResizeTimer = setTimeout(initializeInfiniteTicker, 150);
   });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(initializeInfiniteTicker);
+  }
 
   function refresh() {
     requestPrices().catch(function () { /* بی‌صدا؛ تلاش بعدی */ });
