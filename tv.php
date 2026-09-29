@@ -155,10 +155,10 @@ body {
 }
 .tv-coin.gold { border-radius: .8vh; }
 .tv-flag { flex-shrink: 0; }
-.tv-buy, .tv-sell { min-width: 0; overflow: visible; font-weight: 800; text-align: center; white-space: normal; overflow-wrap: anywhere; }
+.tv-buy, .tv-sell { min-width: 0; overflow: visible; font-weight: 800; text-align: center; white-space: nowrap; overflow-wrap: normal; word-break: normal; }
 .tv-buy { color: #dfe3ee; }
 .tv-sell { color: var(--gold-light); }
-.tv-chg { min-width: 0; overflow: visible; font-weight: 700; text-align: center; white-space: normal; overflow-wrap: anywhere; }
+.tv-chg { min-width: 0; overflow: visible; font-weight: 700; text-align: center; white-space: nowrap; overflow-wrap: normal; word-break: normal; }
 .tv-chg.up { color: var(--green); }
 .tv-chg.down { color: var(--red); }
 .tv-chg.flat { color: var(--soft); }
@@ -587,9 +587,9 @@ body {
   }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head,
   .tv-page.active .tv-panel.mobile-visible .tv-row {
-    grid-template-columns: minmax(0, .8fr) repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, .72fr) repeat(3, minmax(0, 1fr));
     grid-template-areas: none;
-    gap: 4px;
+    gap: 3px;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head > *,
   .tv-page.active .tv-panel.mobile-visible .tv-row > * {
@@ -598,11 +598,11 @@ body {
   }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head {
     min-height: 64px;
-    padding: 10px;
+    padding: 10px 8px;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-row {
     min-height: 48px;
-    padding: 7px 9px;
+    padding: 7px 8px;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-panel-head h2 {
     font-size: clamp(12px, 3.2vw, 15px);
@@ -643,13 +643,13 @@ body {
   .tv-page.active .tv-panel.mobile-visible .tv-buy,
   .tv-page.active .tv-panel.mobile-visible .tv-sell,
   .tv-page.active .tv-panel.mobile-visible .tv-chg {
-    font-size: clamp(12px, 3.1vw, 16px);
+    font-size: clamp(10px, 2.8vw, 14px);
     overflow: visible;
     text-overflow: clip;
     white-space: nowrap;
   }
   .tv-page.active .tv-panel.mobile-visible .tv-chg {
-    font-size: clamp(8px, 2.1vw, 10px);
+    font-size: clamp(8px, 2vw, 10px);
     grid-column: 2;
     grid-row: 1;
     justify-self: stretch;
@@ -701,7 +701,7 @@ body {
   overflow-wrap: anywhere;
 }
 .tv-panel-head h2.tv-panel-title { flex-wrap: wrap; line-height: 1.35; }
-/* Final numeric-cell guard: responsive selectors above must not reintroduce clipping. */
+/* Final numeric-cell guard: every formatted value stays on one complete line. */
 .tv-page .tv-buy,
 .tv-page .tv-sell,
 .tv-page .tv-chg,
@@ -711,8 +711,8 @@ body {
   min-width: 0;
   overflow: visible;
   text-overflow: clip;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow-wrap: normal;
   word-break: normal;
 }
 </style>
